@@ -42,6 +42,27 @@
   .cls.on.a { border-color: #2563eb; color: #2563eb; }
   .cls.on.b { border-color: #ef4444; color: #ef4444; }
 
+  /* matice vah */
+  .matrices { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+              padding: 16px 18px; margin-top: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+              width: min(640px, 96vw); }
+  .matrices .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+                     color: #9ca3af; text-align: center; margin-bottom: 14px; }
+  .mrow { display: flex; gap: 20px; justify-content: center; align-items: flex-end; flex-wrap: wrap; }
+  .mtile { text-align: center; }
+  .mtile canvas { border: 1px solid #eef0f3; border-radius: 4px; display: block; background: #fff; }
+  .mtile .cap { font-size: 11px; color: #6b7280; margin-top: 7px; line-height: 1.35; }
+
+  /* číselná matice */
+  .numwrap { margin-top: 18px; border-top: 1px solid #f0f1f3; padding-top: 14px; }
+  .numwrap > .label { margin-bottom: 14px; }
+  .numtile { text-align: center; margin-bottom: 16px; }
+  .numtile:last-child { margin-bottom: 0; }
+  .numtile .ncap { font-size: 11px; color: #6b7280; margin-bottom: 8px; }
+  .numgrid { display: inline-grid; gap: 3px 5px;
+             font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 10.5px; }
+  .ncell { width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+
   .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
               margin: 18px 0 6px; max-width: 680px; }
   button { font-size: 13px; font-weight: 600; padding: 9px 16px; border: none;
@@ -110,6 +131,22 @@
     <span>přesnost: <b id="acc">–</b></span>
   </div>
   <div class="hint">Klikáním do plochy přidáváš body zvolené barvy (pravé tlačítko myši = červená). Kruh a kříž se síť naučí rychle, spirála je nejtěžší — chce víc trpělivosti.</div>
+
+  <div class="matrices">
+    <div class="label">matice vah — modrá = kladná, červená = záporná, sytost = velikost</div>
+    <div class="mrow">
+      <div class="mtile"><canvas id="matW0"></canvas><div class="cap">vstup → 1. skrytá<br>(12 × 2)</div></div>
+      <div class="mtile"><canvas id="matW1"></canvas><div class="cap">1. → 2. skrytá<br>(12 × 12)</div></div>
+      <div class="mtile"><canvas id="matW2"></canvas><div class="cap">2. skrytá → výstup<br>(1 × 12)</div></div>
+    </div>
+
+    <div class="numwrap">
+      <div class="label">číselně — skutečné hodnoty vah (zaokrouhleno na 2 desetinná místa)</div>
+      <div class="numtile"><div class="ncap">vstup → 1. skrytá (12 × 2)</div><div class="numgrid" id="numW0"></div></div>
+      <div class="numtile"><div class="ncap">1. → 2. skrytá (12 × 12)</div><div class="numgrid" id="numW1"></div></div>
+      <div class="numtile"><div class="ncap">2. skrytá → výstup (1 × 12)</div><div class="numgrid" id="numW2"></div></div>
+    </div>
+  </div>
 
   <section class="theory">
     <div class="head">Proč zvládne to, co perceptron ne</div>
@@ -276,6 +313,8 @@
     $('loss').textContent = m.loss.toFixed(4);
     $('acc').textContent  = Math.round(m.acc*100)+' %';
     updateNetWeights();          // promítni aktuální váhy do schématu
+    drawWeightMatrices();        // a do maticových heatmap
+    updateWeightNumbers();       // a do číselné matice
   }
 
   // ── běh ──────────────────────────────────────────────────────
@@ -376,7 +415,61 @@
     }
   }
 
+  // číselná matice — strukturu postavíme jednou, hodnoty přepisujeme živě
+  let numCells = [];
+  function buildNumberGrids(){
+    numCells = [];
+    for (let l = 0; l < SIZES.length - 1; l++) {
+      const rows = SIZES[l+1], cols = SIZES[l];
+      const grid = document.getElementById('numW' + l);
+      grid.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+      grid.innerHTML = '';
+      const layer = [];
+      for (let i = 0; i < rows; i++) {
+        const r = [];
+        for (let j = 0; j < cols; j++) {
+          const s = document.createElement('span');
+          s.className = 'ncell'; s.textContent = '0.00';
+          grid.appendChild(s); r.push(s);
+        }
+        layer.push(r);
+      }
+      numCells.push(layer);
+    }
+  }
+  function updateWeightNumbers(){
+    if (!Wt.length || !numCells.length) return;
+    Wt.forEach((mat, l) => {
+      for (let i = 0; i < mat.length; i++)
+        for (let j = 0; j < mat[i].length; j++) {
+          const w = mat[i][j], cell = numCells[l][i][j];
+          cell.textContent = (w >= 0 ? '+' : '') + w.toFixed(2);
+          cell.style.color = w >= 0 ? '#2563eb' : '#ef4444';
+        }
+    });
+  }
+
+  // matice vah jako heatmapy (řádek = výstupní neuron, sloupec = vstupní)
+  function drawWeightMatrices(){
+    if (!Wt.length) return;
+    const CELL = 15;
+    Wt.forEach((mat, l) => {
+      const cv = document.getElementById('matW' + l);
+      if (!cv) return;
+      const rows = mat.length, cols = mat[0].length;
+      cv.width = cols * CELL; cv.height = rows * CELL;
+      const c = cv.getContext('2d');
+      for (let i = 0; i < rows; i++)
+        for (let j = 0; j < cols; j++) {
+          const w = mat[i][j], a = Math.min(0.92, 0.06 + Math.abs(w) * 0.5);
+          c.fillStyle = w >= 0 ? `rgba(37,99,235,${a})` : `rgba(239,68,68,${a})`;
+          c.fillRect(j * CELL, i * CELL, CELL - 1, CELL - 1);   // -1 = mřížkové mezery
+        }
+    });
+  }
+
   buildNetDiagram();
+  buildNumberGrids();
   loadSet('circle');
 </script>
 </body>
