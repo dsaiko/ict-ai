@@ -150,8 +150,8 @@
            jen bloudí. Obdoba „hrubé síly" z prvního příkladu.</p>
         <div class="pm">
           <div><span class="plus">+</span> triviálně jednoduché, žádná paměť</div>
-          <div><span class="minus">–</span> neúplné: cíl většinou nenajde, motá se dokola</div>
-          <div><span class="minus">–</span> cesta je dlouhá a prozkoumá tisíce polí</div>
+          <div><span class="minus">–</span> neúplné: cíl najde leda náhodou, motá se dokola</div>
+          <div><span class="minus">–</span> cesta je extrémně dlouhá — stejná pole prochází znovu a znovu</div>
         </div>
       </div>
 
@@ -351,6 +351,21 @@
     running = true; setEnabled(false);
     const { order, came, found } = ALGOS[key].run();
 
+    // prozkoumaná pole = počet UNIKÁTNÍCH navštívených políček (odpovídá modré ploše)
+    const visitedCount = new Set(order).size;
+
+    // cesta: u řízených algoritmů zrekonstruovaná nejkratší trasa.
+    // Náhodné tápání žádnou čistou cestu nemá — zelenou nekreslíme, ale jako
+    // délku vykážeme skutečný počet kroků, než zakoplo o cíl (klidně tisíce).
+    let path, pathLen;
+    if (key === 'random') {
+      path = [];
+      pathLen = found ? order.length - 1 : 0;
+    } else {
+      path = found ? reconstruct(came) : [];
+      pathLen = path.length;
+    }
+
     // dávkové odhalování prozkoumaných polí (~150 snímků)
     const batch = Math.max(1, Math.ceil(order.length / 150));
     let p = 0;
@@ -361,21 +376,23 @@
       }
       if (p >= order.length) {
         clearInterval(activeTimer); activeTimer = null;
-        animatePath(found ? reconstruct(came) : [], order.length, key);
+        animatePath(path, visitedCount, pathLen, key);
       }
     }, 16);
   }
 
-  function animatePath(path, visited, key) {
+  function animatePath(path, visitedCount, pathLen, key) {
     let p = 0;
+    const batch = Math.max(1, Math.ceil(path.length / 150));
     activeTimer = setInterval(() => {
-      if (p < path.length) {
-        const i = path[p++];
+      for (let k = 0; k < batch && p < path.length; k++, p++) {
+        const i = path[p];
         if (!isFixed(i)) cells[i].classList.add('path');
-      } else {
+      }
+      if (p >= path.length) {
         clearInterval(activeTimer); activeTimer = null;
         running = false; setEnabled(true);
-        recordResult(key, visited, path.length);
+        recordResult(key, visitedCount, pathLen);
       }
     }, 20);
   }
