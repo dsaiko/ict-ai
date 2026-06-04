@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
+<title>Příklad #12 — Agenti: model, který jedná</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 730px;
+           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+
+  .explain { width: min(820px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
+  .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  .explain p b { color: #374151; }
+
+  /* rovnice */
+  .equation { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+              margin: 4px 0 16px; }
+  .equation .term { background: #f5f3ff; border: 1px solid #ddd6fe; color: #5b21b6; font-weight: 700;
+                    border-radius: 8px; padding: 8px 14px; font-size: 14px; }
+  .equation .op { color: #9ca3af; font-weight: 700; font-size: 16px; }
+  .equation .res { background: #6d28d9; border-color: #6d28d9; color: #fff; }
+
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
+                 border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
+                 font-size: 12.5px; color: #374151; font-weight: 600; }
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #7c3aed; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .arr { color: #9ca3af; font-size: 15px; }
+  .flow .repeat { color: #16a34a; font-weight: 600; font-size: 12px; }
+
+  .panel { width: min(820px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+
+  .toollist { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tool { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: #4b5563;
+          background: #f9fafb; border: 1px solid #eef0f3; border-radius: 8px; padding: 7px 11px; }
+  .tool b { color: #374151; }
+
+  input[type=text] { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 11px 12px;
+    font-size: 15px; color: #374151; background: #fafafa; }
+  input[type=text]:focus { outline: 2px solid #93c5fd; border-color: #93c5fd; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .presets button { font-size: 12px; font-weight: 600; padding: 6px 12px; border: 1px solid #e5e7eb;
+    background: #fff; color: #374151; border-radius: 999px; cursor: pointer; }
+  .presets button:hover { background: #f3f4f6; }
+  .askrow { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  button.go { font-size: 14px; font-weight: 700; padding: 10px 22px; border: none; border-radius: 8px;
+              cursor: pointer; background: #2563eb; color: #fff; transition: background .12s, transform .05s; }
+  button.go:hover { background: #1d4ed8; } button.go:active { transform: scale(.97); }
+  button.util { font-size: 14px; font-weight: 600; padding: 10px 18px; border: none; border-radius: 8px;
+                cursor: pointer; background: #e5e7eb; color: #374151; }
+  button.util:hover { background: #d1d5db; }
+
+  /* trasa agenta */
+  .trace { display: flex; flex-direction: column; gap: 10px; min-height: 40px; }
+  .tracehint { color: #9ca3af; font-size: 13px; }
+  .tstep { border: 1px solid #eef0f3; border-left: 3px solid #7c3aed; border-radius: 10px; padding: 10px 13px;
+           background: #fff; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .tstep .tnum { font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .tstep .line { font-size: 13.5px; color: #374151; line-height: 1.5; margin: 2px 0; }
+  .tstep .line .k { color: #6b7280; }
+  .tstep .line .tool { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px;
+                       background: #f5f3ff; color: #5b21b6; border-radius: 5px; padding: 1px 6px; }
+  .tstep .line .obs { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; color: #155e75; }
+  .tanswer { border: 1px solid #bbf7d0; border-left: 3px solid #16a34a; background: #f0fdf4; border-radius: 10px;
+             padding: 12px 14px; font-size: 14px; color: #14532d; animation: fade .25s ease; }
+  .tanswer b { color: #14532d; }
+  .contrast { font-size: 12.5px; color: #6b7280; line-height: 1.55; margin-top: 14px;
+              border-top: 1px solid #f0f1f3; padding-top: 12px; } .contrast b { color: #374151; }
+
+  .theory { width: min(820px, 96vw); margin-top: 24px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
+</style>
+</head>
+<body>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">12</span><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h1>
+  <p class="intro">
+    <span class="cs">Dosud model jen <b>psal text</b>. Agent jde dál: dostane úkol, sám se rozhodne, <b>zavolá nástroj</b>
+    (vyhledávání, kalkulačku, e-mail…), podívá se na výsledek a pokračuje — dokud úkol nesplní. To je směr, kterým
+    se AI vydala v roce 2026.</span>
+    <span class="en">So far the model only <b>wrote text</b>. An agent goes further: it gets a task, decides for itself, <b>calls a
+    tool</b> (search, a calculator, email…), looks at the result and continues — until the task is done. This is the
+    direction AI took in 2026.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co tenhle příklad dělá</span><span class="en">What this example does</span></h2>
+    <div class="equation">
+      <span class="term">Model</span><span class="op">+</span>
+      <span class="term"><span class="cs">paměť</span><span class="en">memory</span></span><span class="op">+</span>
+      <span class="term"><span class="cs">nástroje</span><span class="en">tools</span></span><span class="op">+</span>
+      <span class="term"><span class="cs">plánování</span><span class="en">planning</span></span>
+      <span class="op">=</span><span class="term res">agent</span>
+    </div>
+    <p>
+      <span class="cs">Samotné LLM neumí přečíst e-mail, spočítat příklad ani nic odeslat — umí jen <b>generovat text</b>
+      (příklad 10). <b>Agent</b> kolem modelu přidá <b>nástroje</b> a <b>smyčku</b>: zadáš úkol, agent si rozmyslí, který
+      nástroj použít, <b>zavolá</b> ho, výsledek si <b>zapamatuje</b> a podle něj plánuje další krok — klidně i několik
+      za sebou. Zkus to: napiš úkol nebo klikni na předvolbu a spusť agenta.</span>
+      <span class="en">A language model on its own can't read an email, do arithmetic, or send anything — it can only <b>generate
+      text</b> (example 10). An <b>agent</b> adds <b>tools</b> and a <b>loop</b> around the model: you give it a task, it decides which
+      tool to use, <b>calls</b> it, <b>remembers</b> the result, and plans the next step from it — possibly several in a row. Try it:
+      type a task or click a preset and run the agent.</span>
+    </p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">úkol</span><span class="en">task</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">úvaha</span><span class="en">reason</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">zavolej nástroj</span><span class="en">call a tool</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">pozoruj výsledek</span><span class="en">observe the result</span></span>
+      <span class="arr">↺</span>
+      <span class="repeat"><span class="cs">dokud není hotovo</span><span class="en">until it's done</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="block">
+      <div class="label"><span class="cs">nástroje, které má agent k dispozici</span><span class="en">tools the agent can use</span></div>
+      <div class="toollist">
+        <span class="tool">🧮 <b><span class="cs">kalkulačka</span><span class="en">calculator</span></b></span>
+        <span class="tool">🔎 <b><span class="cs">vyhledávání</span><span class="en">search</span></b> <span class="cs">(ve znalostní bázi)</span><span class="en">(knowledge base)</span></span>
+        <span class="tool">📅 <b><span class="cs">kalendář</span><span class="en">calendar</span></b></span>
+        <span class="tool">📧 <b><span class="cs">odeslat e-mail</span><span class="en">send email</span></b></span>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">zadej agentovi úkol</span><span class="en">give the agent a task</span></div>
+      <input type="text" id="task">
+      <div class="presets" id="presets"></div>
+      <div class="askrow">
+        <button class="go" id="btnRun"><span class="cs">Spusť agenta</span><span class="en">Run the agent</span></button>
+        <button class="util" id="btnStep"><span class="cs">Krok</span><span class="en">Step</span></button>
+        <button class="util" id="btnReset"><span class="cs">Reset</span><span class="en">Reset</span></button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">co agent dělá (úvaha → nástroj → pozorování)</span><span class="en">what the agent does (reason → tool → observation)</span></div>
+      <div class="trace" id="trace"></div>
+      <div class="contrast" id="contrast"></div>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Z modelu agent — a proč je to téma roku 2026</span><span class="en">From model to agent — and why it's the topic of 2026</span></div>
+    <p class="lead">
+      <span class="cs">Jazykový model je <b>mozek</b>, který umí jen mluvit. Agent je ten mozek <b>obklopený rukama</b> —
+      nástroji, kterými může něco udělat, pamětí, kam si píše mezivýsledky, a smyčkou, ve které <b>plánuje</b> krok za
+      krokem. Většina dnešních „AI aplikací" jsou ve skutečnosti agenti.</span>
+      <span class="en">A language model is a <b>brain</b> that can only talk. An agent is that brain <b>given hands</b> — tools it can act
+      with, a memory it jots intermediate results into, and a loop in which it <b>plans</b> step by step. Most of today's "AI
+      apps" are in fact agents.</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#7c3aed">
+        <h3><span class="dot"></span><span class="cs">Nástroje (tools)</span><span class="en">Tools</span></h3>
+        <p><span class="cs">Model dostane „tlačítka", která může zmáčknout: vyhledání, kalkulačka, e-mail, kód, databáze…
+           Model jen <b>řekne, co zavolat</b>; samotnou akci udělá nástroj.</span>
+           <span class="en">The model gets "buttons" it can press: search, a calculator, email, code, databases… The model only <b>says
+           what to call</b>; the tool does the actual action.</span></p>
+      </div>
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span><span class="cs">Smyčka úvaha–akce–pozorování</span><span class="en">The reason–act–observe loop</span></h3>
+        <p><span class="cs">Agent neodpoví jednou ranou. <b>Rozmyslí</b> krok, <b>zavolá</b> nástroj, <b>podívá se</b> na výsledek a
+           podle něj volí další krok. Opakuje, dokud úkol nesplní.</span>
+           <span class="en">An agent doesn't answer in one shot. It <b>reasons</b> about a step, <b>calls</b> a tool, <b>looks</b> at the result and
+           chooses the next step from it. It repeats until the task is done.</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">Paměť a plánování</span><span class="en">Memory and planning</span></h3>
+        <p><span class="cs">Mezivýsledky si <b>drží v paměti</b> (např. heslo, které našel, použije v dalším kroku) a složitější
+           úkol si <b>rozloží</b> na menší kroky. To je rozdíl oproti jedné odpovědi.</span>
+           <span class="en">It <b>keeps intermediate results in memory</b> (e.g. a password it found, used in the next step) and <b>breaks</b> a
+           harder task into smaller steps. That's the difference from a single answer.</span></p>
+      </div>
+      <div class="tcard" style="--c:#dc2626">
+        <h3><span class="dot"></span><span class="cs">Rizika a dohled</span><span class="en">Risks and oversight</span></h3>
+        <p><span class="cs">Agent <b>opravdu jedná</b> ve světě (odešle e-mail, zaplatí, smaže soubor). Když se splete nebo
+           halucinuje (příklad 10), může nadělat škodu — proto potřebuje <b>limity a člověka u kontroly</b>.</span>
+           <span class="en">An agent <b>really acts</b> in the world (sends an email, pays, deletes a file). If it errs or hallucinates
+           (example 10), it can do damage — which is why it needs <b>limits and a human in the loop</b>.</span></p>
+      </div>
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span><span class="cs">Celá série v jednom</span><span class="en">The whole series in one</span></h3>
+        <p><span class="cs">Agent spojuje vše: model generuje krok (10), vyhledávání je vlastně RAG (11), plánování trasy úkolů
+           připomíná hledání (3) i optimalizaci. Mozek + nástroje + cíl.</span>
+           <span class="en">An agent ties it all together: the model generates a step (10), search is basically RAG (11), planning a path of
+           subtasks echoes search (3) and optimization. Brain + tools + a goal.</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">Jak to vypadá v praxi</span><span class="en">What it looks like in practice</span></h3>
+        <p><span class="cs">Asistent, který si sám projde e-maily a odpoví, „vibe-coding" nástroj, který píše a spouští kód, nebo
+           agent, co zařídí rezervaci. Standard se ustaluje kolem <b>protokolu MCP</b> pro připojování nástrojů.</span>
+           <span class="en">An assistant that goes through your email and replies, a "vibe-coding" tool that writes and runs code, or an
+           agent that books a reservation. A standard is settling around the <b>MCP protocol</b> for connecting tools.</span></p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+
+  const DATA = {
+    cs: {
+      tasks: [
+        'Kolik je 17 % z 240?',
+        'Kdy zavírá knihovna v pátek?',
+        'Napiš panu Novákovi e-mail, že dorazím v úterý.',
+        'Zjisti heslo na Wi-Fi a pošli ho e-mailem.',
+      ],
+      kb: [
+        'Školní knihovna otevírá v 8:00 a zavírá v 17:00. V pátek je otevřeno jen do 14:00.',
+        'Wi-Fi pro studenty má heslo delfin2026 a funguje v celé budově.',
+        'Školní jídelna vydává oběd od 11:30 do 13:30. Vegetariánské menu je k dispozici každý den.',
+        'Ředitelem školy je pan Novák. Jeho kancelář je ve druhém patře, dveře číslo 204.',
+        'Kroužek robotiky se koná každé úterý od 15:00 v učebně číslo 7.',
+        'Tělocvična je v přízemí a o víkendu je přístupná po domluvě se správcem budovy.',
+      ],
+      re: {
+        math: /\d\s*(?:%|[-+*/×])|kolik\s+je|procent/i,
+        lookup: /heslo|wi-?fi|knihovn|ředitel|robotik|jídel|tělocvičn|oběd|kancelář|otev[íř]|zav[íř]|kdy\b|kde\b/i,
+        send: /pošl|odešl|napiš|e-?mail/i,
+        date: /datum|dnes|kolikát|který den|hodin|čas\b/i,
+      },
+      placeholder: 'např. Zjisti heslo na Wi-Fi a pošli ho e-mailem.',
+      defaultRecipient: 'ředitel@skola.cz',
+      locale: 'cs-CZ',
+    },
+    en: {
+      tasks: [
+        'What is 17% of 240?',
+        'When does the library close on Friday?',
+        'Email Mr Novák that I will come on Tuesday.',
+        'Find the Wi-Fi password and send it by email.',
+      ],
+      kb: [
+        'The school library opens at 8:00 and closes at 17:00. On Friday it is open only until 14:00.',
+        'The student Wi-Fi password is delfin2026 and it works throughout the building.',
+        'The school canteen serves lunch from 11:30 to 13:30. A vegetarian menu is available every day.',
+        'The school principal is Mr Novák. His office is on the second floor, door number 204.',
+        'The robotics club meets every Tuesday at 15:00 in classroom number 7.',
+        'The gym is on the ground floor and is open on weekends by arrangement with the caretaker.',
+      ],
+      re: {
+        math: /\d\s*(?:%|[-+*/×])|what\s+is|percent/i,
+        lookup: /password|wi-?fi|librar|principal|robotic|canteen|lunch|gym|office|open|close|when\b|where\b/i,
+        send: /send|email|e-mail|write|mail/i,
+        date: /date|today|day is|time\b|what day/i,
+      },
+      placeholder: 'e.g. Find the Wi-Fi password and send it by email.',
+      defaultRecipient: 'principal@school.org',
+      locale: 'en-US',
+    },
+  };
+
+  const TICON = { calc:'🧮', search:'🔎', date:'📅', email:'📧' };
+  const I18N = {
+    cs: {
+      toolName: { calc:'kalkulačka', search:'vyhledávání', date:'kalendář', email:'odeslat_email' },
+      thought: { calc:'Tohle je výpočet → použiju kalkulačku.', search:'Tuhle informaci neznám z hlavy → vyhledám ji.', date:'Potřebuju aktuální datum → kouknu do kalendáře.', email:'Mám co poslat → odešlu e-mail.' },
+      lThought:'Úvaha', lAction:'Akce', lObs:'Pozorování', lAnswer:'Hotovo',
+      obsNone:'nic relevantního nenalezeno',
+      obsEmail: to => 'e-mail odeslán na: ' + to,
+      finalCalc: r => 'Výsledek je <b>' + r + '</b>.',
+      finalSearch: s => s,
+      finalDate: d => 'Dnes je <b>' + d + '</b>.',
+      finalEmail: 'Hotovo — <b>e-mail jsem odeslal</b>.',
+      finalEmailWith: c => 'Našel jsem požadovanou informaci a <b>odeslal ji e-mailem</b> (' + c + ').',
+      finalGuess: 'Na tohle nemám žádný nástroj — samotný model by si musel jen <b>tipnout</b>.',
+      contrast: '<b>Samotné LLM</b> by e-mail nepřečetlo ani neodeslalo a výpočet by jen „tiplo". <b>Agent</b> díky nástrojům a smyčce <b>opravdu jedná</b> — a kroky si plánuje sám.',
+      empty:'Zadej úkol nebo klikni na předvolbu a spusť agenta.',
+    },
+    en: {
+      toolName: { calc:'calculator', search:'search', date:'calendar', email:'send_email' },
+      thought: { calc:'This is a calculation → I\'ll use the calculator.', search:'I don\'t know this offhand → I\'ll look it up.', date:'I need the current date → I\'ll check the calendar.', email:'I have something to send → I\'ll send an email.' },
+      lThought:'Reason', lAction:'Action', lObs:'Observation', lAnswer:'Done',
+      obsNone:'nothing relevant found',
+      obsEmail: to => 'email sent to: ' + to,
+      finalCalc: r => 'The result is <b>' + r + '</b>.',
+      finalSearch: s => s,
+      finalDate: d => 'Today is <b>' + d + '</b>.',
+      finalEmail: 'Done — <b>the email has been sent</b>.',
+      finalEmailWith: c => 'I found the requested information and <b>sent it by email</b> (' + c + ').',
+      finalGuess: 'I have no tool for this — the model alone would just have to <b>guess</b>.',
+      contrast: '<b>The model alone</b> couldn\'t read or send an email and would only "guess" the calculation. Thanks to tools and the loop, an <b>agent really acts</b> — and plans the steps itself.',
+      empty:'Type a task or click a preset and run the agent.',
+    },
+  };
+
+  // ── nástroje (skutečné výpočty) ──────────────────────────────
+  function tokenize(t){ return (t.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []); }
+  const STOP = {
+    cs: new Set('a i o u v k s z na do je se si že to co jak kdy kde kdo ve pro po na ho mi mu mě'.split(' ')),
+    en: new Set('a an the is to in on at of do does it for and or me him by his'.split(' ')),
+  };
+  function sig(t){ return tokenize(t).filter(w => w.length>1 && !STOP[curLang].has(w)); }
+  function searchKB(q){
+    const qs=[...new Set(sig(q))]; if(!qs.length) return null;
+    let best=null, bs=0;
+    for(const d of DATA[curLang].kb){
+      const ds=new Set(sig(d)); let m=0; for(const w of qs) if(ds.has(w)) m++;
+      const s=m/qs.length; if(s>bs){bs=s; best=d;}
+    }
+    return bs>0 ? best : null;
+  }
+  function fmtNum(n){ return (Math.round(n*100)/100).toLocaleString(DATA[curLang].locale); }
+  function calc(task){
+    const t = task.replace(/(\d),(\d)/g,'$1.$2');
+    let m = t.match(/(\d+(?:\.\d+)?)\s*%\s*(?:z|of)\s*(\d+(?:\.\d+)?)/i);
+    if(m) return fmtNum((+m[1])/100*(+m[2]));
+    m = t.match(/(\d+(?:\.\d+)?)\s*([-+*/×])\s*(\d+(?:\.\d+)?)/);
+    if(m){ const a=+m[1], b=+m[3], op=m[2];
+      return fmtNum(op==='+'?a+b: op==='-'?a-b: (op==='*'||op==='×')?a*b: a/b); }
+    return null;
+  }
+  function nowStr(){
+    const d = new Date();
+    return d.toLocaleDateString(DATA[curLang].locale, { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
+  function recipient(task){
+    let m = task.match(/[\w.+-]+@[\w.-]+/);
+    if(m) return m[0];
+    m = task.match(/pan(?:u|ovi)?\s+(\p{Lu}\p{L}+)/u) || task.match(/(?:mr|ms|mrs)\.?\s+(\p{Lu}\p{L}+)/iu);
+    if(m) return m[1];
+    return DATA[curLang].defaultRecipient;
+  }
+
+  // ── plánovač: další akce podle úkolu a dosavadní paměti ──────
+  function nextTool(task, mem){
+    const re = DATA[curLang].re;
+    const did = tool => mem.some(s => s.tool === tool);
+    if (re.math.test(task) && !did('calc')) return 'calc';
+    if (re.lookup.test(task) && !did('search')) return 'search';
+    if (re.date.test(task) && !did('date')) return 'date';
+    if (re.send.test(task) && !did('email')) return 'email';
+    return null;
+  }
+
+  function runAgent(task){
+    const mem = [], steps = [];
+    let guard = 0;
+    while (guard++ < 6){
+      const tool = nextTool(task, mem);
+      if (!tool) break;
+      let obs, argDisp;
+      if (tool === 'calc'){ obs = calc(task) ?? '?'; argDisp = task; }
+      else if (tool === 'search'){ const d = searchKB(task); obs = d || I18N[curLang].obsNone; argDisp = '"' + sig(task).slice(0,3).join(' ') + '"'; }
+      else if (tool === 'date'){ obs = nowStr(); argDisp = ''; }
+      else { const to = recipient(task); obs = I18N[curLang].obsEmail(to); argDisp = to; }
+      steps.push({ tool, argDisp, obs });
+      mem.push({ tool, obs });
+    }
+    steps.push({ answer: finalAnswer(task, mem) });
+    return steps;
+  }
+
+  function finalAnswer(task, mem){
+    const I = I18N[curLang];
+    const get = tool => mem.find(s => s.tool === tool);
+    if (get('email')) return get('search') ? I.finalEmailWith(get('search').obs) : I.finalEmail;
+    if (get('calc')) return I.finalCalc(get('calc').obs);
+    if (get('search')) return get('search').obs === I.obsNone ? I.finalGuess : I.finalSearch(get('search').obs);
+    if (get('date')) return I.finalDate(get('date').obs);
+    return I.finalGuess;
+  }
+
+  // ── vykreslení / odhalování kroků ────────────────────────────
+  let steps = [], shown = 0, timer = null;
+  function render(){
+    const I = I18N[curLang];
+    const el = $('trace');
+    if (!steps.length){ el.innerHTML = '<div class="tracehint">' + I.empty + '</div>'; $('contrast').innerHTML=''; return; }
+    let html = '', n = 0;
+    for (let i = 0; i < shown && i < steps.length; i++){
+      const s = steps[i];
+      if (s.answer){
+        html += '<div class="tanswer">✅ <b>' + I.lAnswer + ':</b> ' + s.answer + '</div>';
+      } else {
+        n++;
+        html += '<div class="tstep"><div class="tnum">' + I.lThought.toUpperCase() + ' · ' + (curLang==='cs'?'krok ':'step ') + n + '</div>' +
+          '<div class="line">💭 <span class="k">' + I.thought[s.tool] + '</span></div>' +
+          '<div class="line">🔧 <span class="k">' + I.lAction + ':</span> <span class="tool">' + TICON[s.tool] + ' ' + I.toolName[s.tool] + '(' + s.argDisp + ')</span></div>' +
+          '<div class="line">👁 <span class="k">' + I.lObs + ':</span> <span class="obs">' + s.obs + '</span></div></div>';
+      }
+    }
+    el.innerHTML = html;
+    $('contrast').innerHTML = (shown >= steps.length) ? I.contrast : '';
+  }
+
+  function prepare(){ if(timer){clearInterval(timer);timer=null;} steps = runAgent($('task').value.trim()); shown = 0; render(); }
+  function reveal(){ if (shown < steps.length){ shown++; render(); } }
+  function runAll(){
+    if (!steps.length || timer) prepare();
+    if (timer){ clearInterval(timer); timer=null; }
+    shown = 0; render();
+    timer = setInterval(() => { reveal(); if (shown >= steps.length){ clearInterval(timer); timer=null; } }, 650);
+  }
+
+  $('btnRun').addEventListener('click', runAll);
+  $('btnStep').addEventListener('click', () => { if (!steps.length) prepare(); reveal(); });
+  $('btnReset').addEventListener('click', () => { if(timer){clearInterval(timer);timer=null;} shown = 0; render(); });
+  $('task').addEventListener('input', prepare);
+  $('task').addEventListener('keydown', e => { if (e.key === 'Enter') runAll(); });
+
+  function renderPresets(){
+    $('presets').innerHTML = DATA[curLang].tasks.map((t,i)=>`<button data-i="${i}">${t}</button>`).join('');
+    $('presets').querySelectorAll('button').forEach(b =>
+      b.addEventListener('click', () => { $('task').value = DATA[curLang].tasks[+b.dataset.i]; runAll(); }));
+  }
+
+  // ── start ────────────────────────────────────────────────────
+  function boot(){
+    renderPresets();
+    $('task').placeholder = DATA[curLang].placeholder;
+    $('task').value = DATA[curLang].tasks[3];   // vícekrokový úkol jako ukázka
+    steps = runAgent($('task').value); shown = steps.length; render();   // rovnou ukaž celou trasu
+  }
+  boot();
+
+  window.onLangChange = function(l){
+    if(timer){clearInterval(timer);timer=null;}
+    const wasDefault = DATA[curLang].tasks.includes($('task').value.trim());
+    curLang = l;
+    renderPresets();
+    $('task').placeholder = DATA[l].placeholder;
+    if (wasDefault) $('task').value = DATA[l].tasks[3];
+    steps = runAgent($('task').value); shown = steps.length; render();
+  };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #12 — Agenti: model, který jedná",
+      en: "Example #12 — Agents: a model that acts"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
+</script>
+</body>
+</html>

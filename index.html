@@ -57,8 +57,9 @@
   .card.c9 .accent { background: linear-gradient(180deg,#111827,#2563eb); }
   .card.c10 .accent { background: linear-gradient(180deg,#8b5cf6,#ec4899); }
   .card.c11 .accent { background: linear-gradient(180deg,#0d9488,#a855f7); }
-  .card.c12 .accent { background: linear-gradient(180deg,#dc2626,#f59e0b); }
-  .card.c13 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
+  .card.c12 .accent { background: linear-gradient(180deg,#7c3aed,#06b6d4); }
+  .card.c13 .accent { background: linear-gradient(180deg,#dc2626,#f59e0b); }
+  .card.c14 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
 
   .card .num {
     font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -282,10 +283,22 @@
         </div>
       </div>
 
+      <div class="stage" style="--c:#7c3aed">
+        <div class="node">🤖</div>
+        <div class="body">
+          <div class="pills"><a href="12-agents.html">12</a></div>
+          <h3><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h3>
+          <p><span class="cs">Vyvrcholení: <b>model + paměť + nástroje + plánování = agent</b>. Model už nejen píše, ale ve
+             smyčce <b>volá nástroje</b> (vyhledávání, kalkulačku, e-mail) a plánuje kroky. Téma roku 2026.</span>
+             <span class="en">The culmination: <b>model + memory + tools + planning = agent</b>. The model no longer just writes — in a
+             loop it <b>calls tools</b> (search, a calculator, email) and plans its steps. The topic of 2026.</span></p>
+        </div>
+      </div>
+
       <div class="stage" style="--c:#dc2626">
         <div class="node">⚖️</div>
         <div class="body">
-          <div class="pills"><a href="12-bias.html">12</a></div>
+          <div class="pills"><a href="13-bias.html">13</a></div>
           <h3><span class="cs">Data a zaujatost</span><span class="en">Data and bias</span></h3>
           <p><span class="cs">Tečka za sérií: všechno, co jsme postavili, se učí <b>z dat</b>. Zaujatá data → zaujatý model
              (jako u perceptronu z příkladů 5–6) — a výsledek se tváří objektivně.</span>
@@ -297,7 +310,7 @@
       <div class="stage" style="--c:#6366f1">
         <div class="node">🚚</div>
         <div class="body">
-          <div class="pills"><a href="13-tsp.html">13</a></div>
+          <div class="pills"><a href="14-tsp.html">14</a></div>
           <h3><span class="cs">Bonus — optimalizace v praxi</span><span class="en">Bonus — optimization in practice</span></h3>
           <p><span class="cs">Problém obchodního cestujícího: obří prostor tras zkrocený <b>evolucí</b>. Spojuje
              kombinatoriku z příkladu 1 s genetikou z příkladu 7 na reálné úloze.</span>
@@ -480,9 +493,24 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c12" href="12-bias.html">
+    <a class="card c12" href="12-agents.html">
       <span class="accent"></span>
       <div class="num"><span class="cs">Příklad 12</span><span class="en">Example 12</span></div>
+      <div class="icon">🤖</div>
+      <h2><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h2>
+      <p>
+        <span class="cs">Model + paměť + nástroje + plánování = agent. Zadáš úkol a agent ve smyčce volá nástroje
+        (vyhledávání, kalkulačku, e-mail), pamatuje si výsledky a plánuje kroky — dokud není hotovo.</span>
+        <span class="en">Model + memory + tools + planning = agent. You give a task and the agent calls tools in a loop
+        (search, a calculator, email), remembers results and plans steps — until it's done.</span>
+      </p>
+      <div class="tags"><span class="cs">nástroje</span><span class="en">tools</span><span class="cs">plánování</span><span class="en">planning</span><span class="cs">smyčka</span><span class="en">loop</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c13" href="13-bias.html">
+      <span class="accent"></span>
+      <div class="num"><span class="cs">Příklad 13</span><span class="en">Example 13</span></div>
       <div class="icon">⚖️</div>
       <h2><span class="cs">Zaujatá data, zaujatý model</span><span class="en">Biased data, biased model</span></h2>
       <p>
@@ -495,9 +523,9 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c13" href="13-tsp.html">
+    <a class="card c14" href="14-tsp.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 13 · bonus</span><span class="en">Example 13 · bonus</span></div>
+      <div class="num"><span class="cs">Příklad 14 · bonus</span><span class="en">Example 14 · bonus</span></div>
       <div class="icon">🚚</div>
       <h2><span class="cs">Obchodní cestující (TSP)</span><span class="en">Travelling salesman (TSP)</span></h2>
       <p>

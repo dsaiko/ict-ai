@@ -41,8 +41,9 @@ The examples build on each other — each one solves the limitation of the previ
 | ✨ The road to today's LLMs | 08, 09 | How models represent meaning (embeddings) and context (attention) |
 | ✍️ How an LLM writes | 10 | Generating text token by token: probabilities, sampling, temperature/top-k/top-p, hallucination |
 | 📎 Giving the model sources (RAG) | 11 | Retrieve relevant documents (similarity), then answer from them — fewer hallucinations |
-| ⚖️ Data and bias | 12 | Biased training data → a biased model; per-group fairness (builds on 05–06) |
-| 🚚 Bonus — optimization in practice | 13 | The travelling salesman problem solved by evolution (joins 01 and 07) |
+| 🤖 Agents — a model that acts | 12 | Model + memory + tools + planning = agent; a reason→act→observe loop over real tools |
+| ⚖️ Data and bias | 13 | Biased training data → a biased model; per-group fairness (builds on 05–06) |
+| 🚚 Bonus — optimization in practice | 14 | The travelling salesman problem solved by evolution (joins 01 and 07) |
 
 ---
 
@@ -147,19 +148,28 @@ A language model only knows what it learned during training — and sounds confi
 
 ---
 
-### 12 · Biased data, biased model
-[→ open `12-bias.html`](12-bias.html)
+### 12 · Agents — a model that acts
+[→ open `12-agents.html`](12-agents.html)
 
-![Biased data, biased model](images/12.png)
+![Agents — a model that acts](images/12.png)
+
+So far the model only **wrote text**. An **agent** is the equation **model + memory + tools + planning**: given a task, it runs a **reason → act → observe** loop — it decides which tool to call (a calculator, search over a knowledge base, a calendar, send-email), calls it, remembers the result, and plans the next step, repeating until the task is done. The demo shows the full trace and includes a **multi-step** task ("find the Wi-Fi password and email it") where the agent chains *search → email*, carrying the result in memory. The tools really run and the loop is real; the "reasoning" is an illustrative keyword planner. It ties the whole series together — and it's the direction AI took in 2026 (tool use / MCP). With autonomy comes the need for limits and human oversight.
+
+---
+
+### 13 · Biased data, biased model
+[→ open `13-bias.html`](13-bias.html)
+
+![Biased data, biased model](images/13.png)
 
 The classifiers in 05–06 learn from data — so **what happens when the data is biased?** The same perceptron is trained on either fair or biased historical decisions. With fair data the decision boundary is vertical (only qualification matters); with biased data — where one group was historically held to a higher bar — the boundary **tilts**, and equally qualified people from that group get rejected. A per-group acceptance-rate readout makes the unfairness explicit. The model never "meant" to discriminate; it just faithfully copied the pattern in the data — which is exactly why bias in AI is so easy to miss. Applies to LLMs too.
 
 ---
 
-### 13 · The travelling salesman problem (TSP) — bonus
-[→ open `13-tsp.html`](13-tsp.html) · [app ↗](https://saiko.cz/tsp/) · [source code ↗](https://github.com/dsaiko/tsp)
+### 14 · The travelling salesman problem (TSP) — bonus
+[→ open `14-tsp.html`](14-tsp.html) · [app ↗](https://saiko.cz/tsp/) · [source code ↗](https://github.com/dsaiko/tsp)
 
-![Travelling salesman problem](images/13.png)
+![Travelling salesman problem](images/14.png)
 
 A bonus card with an embedded older project: a **TSP visualizer that solves the shortest route through all the cities with a genetic algorithm** right in the browser. It joins two principles of this series — **combinatorial explosion** (there are `(n−1)!/2` routes, going through them all is impossible) and **evolution** (a population of routes crosses over and mutates toward better ones), plus the **2-opt** heuristic (uncrossing edges). Built in TypeScript + Canvas + Web Workers, 12 maps including real Czech cities. It's a modernized rewrite of the original Java app from 2006.
 
@@ -235,8 +245,9 @@ Příklady na sebe navazují — každý vyřeší hranici toho předchozího:
 | ✨ Cesta k dnešním LLM | 08, 09 | Jak modely reprezentují význam (embeddingy) a kontext (attention) |
 | ✍️ Jak LLM píše | 10 | Generování textu token po tokenu: pravděpodobnosti, vzorkování, teplota/top-k/top-p, halucinace |
 | 📎 Dát modelu zdroje (RAG) | 11 | Vyhledá relevantní dokumenty (podobnost) a odpoví z nich — méně halucinací |
-| ⚖️ Data a zaujatost | 12 | Zaujatá trénovací data → zaujatý model; spravedlnost po skupinách (navazuje na 05–06) |
-| 🚚 Bonus — optimalizace v praxi | 13 | Problém obchodního cestujícího řešený evolucí (spojuje 01 a 07) |
+| 🤖 Agenti — model, který jedná | 12 | Model + paměť + nástroje + plánování = agent; smyčka úvaha→akce→pozorování nad nástroji |
+| ⚖️ Data a zaujatost | 13 | Zaujatá trénovací data → zaujatý model; spravedlnost po skupinách (navazuje na 05–06) |
+| 🚚 Bonus — optimalizace v praxi | 14 | Problém obchodního cestujícího řešený evolucí (spojuje 01 a 07) |
 
 ---
 
@@ -341,19 +352,28 @@ Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebe
 
 ---
 
-### 12 · Zaujatá data, zaujatý model
-[→ otevřít `12-bias.html`](12-bias.html)
+### 12 · Agenti — model, který jedná
+[→ otevřít `12-agents.html`](12-agents.html)
 
-![Zaujatá data, zaujatý model](images/12.png)
+![Agenti — model, který jedná](images/12.png)
+
+Dosud model jen **psal text**. **Agent** je rovnice **model + paměť + nástroje + plánování**: dostane úkol a běží ve smyčce **úvaha → akce → pozorování** — sám se rozhodne, který nástroj zavolat (kalkulačka, vyhledávání ve znalostní bázi, kalendář, odeslání e-mailu), zavolá ho, výsledek si zapamatuje a naplánuje další krok, dokud úkol nesplní. Ukázka zobrazí celou trasu a obsahuje i **vícekrokový** úkol („zjisti heslo na Wi-Fi a pošli ho e-mailem"), kde agent zřetězí *vyhledání → e-mail* a mezivýsledek si nese v paměti. Nástroje opravdu běží a smyčka je reálná; „uvažování" je ukázkový plánovač podle klíčových slov. Spojuje celou sérii dohromady — a je to směr, kterým se AI vydala v roce 2026 (tool use / MCP). S autonomií roste i potřeba limitů a lidského dohledu.
+
+---
+
+### 13 · Zaujatá data, zaujatý model
+[→ otevřít `13-bias.html`](13-bias.html)
+
+![Zaujatá data, zaujatý model](images/13.png)
 
 Klasifikátory z 05–06 se učí z dat — a **co když jsou data zaujatá?** Stejný perceptron se natrénuje buď na férových, nebo na zaujatých historických rozhodnutích. U férových dat je dělicí hranice svislá (rozhoduje jen kvalifikace); u zaujatých — kde jedna skupina musela historicky splnit víc — se hranice **nakloní** a stejně kvalifikovaní lidé z té skupiny neprojdou. Míra přijetí po skupinách dělá nespravedlnost viditelnou. Model nikdy „nechtěl" diskriminovat; jen věrně zopakoval vzor z dat — a právě proto se zaujatost v AI tak snadno přehlédne. Týká se i LLM.
 
 ---
 
-### 13 · Problém obchodního cestujícího (TSP) — bonus
-[→ otevřít `13-tsp.html`](13-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
+### 14 · Problém obchodního cestujícího (TSP) — bonus
+[→ otevřít `14-tsp.html`](14-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
 
-![Problém obchodního cestujícího](images/13.png)
+![Problém obchodního cestujícího](images/14.png)
 
 Bonusová karta s vloženým starším projektem: **vizualizér TSP řešící nejkratší trasu přes všechna města genetickým algoritmem** přímo v prohlížeči. Spojuje dva principy z této série — **kombinatorickou explozi** (tras je `(n−1)!/2`, projít všechny nejde) a **evoluci** (populace tras se kříží a mutuje k lepšímu), doplněnou o heuristiku **2-opt** (odkřížení hran). Postaveno v TypeScriptu + Canvas + Web Workers, 12 map včetně reálných českých měst. Je to modernizovaný přepis původní Java aplikace z roku 2006.
 
