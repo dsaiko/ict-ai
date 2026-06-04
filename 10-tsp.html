@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Příklad #10 — Problém obchodního cestujícího</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; text-align: center; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
+           text-align: center; line-height: 1.55; } .intro b { color: #374151; }
+
+  .panel { width: min(900px, 96vw); }
+  .links { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 18px; }
+  a.btn { font-size: 14px; font-weight: 700; padding: 11px 22px; border-radius: 8px; text-decoration: none;
+          display: inline-flex; align-items: center; gap: 7px; transition: background .12s, transform .05s, box-shadow .12s; }
+  a.btn:active { transform: scale(.97); }
+  a.btn.primary { background: #6366f1; color: #fff; box-shadow: 0 2px 10px rgba(99,102,241,.3); }
+  a.btn.primary:hover { background: #4f46e5; }
+  a.btn.ghost { background: #fff; color: #374151; border: 1px solid #e5e7eb; }
+  a.btn.ghost:hover { background: #f3f4f6; }
+
+  .frame-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.07); margin-bottom: 10px; }
+  .frame-wrap iframe { width: 100%; height: 760px; border: 0; display: block; }
+  .frame-note { font-size: 12px; color: #9ca3af; text-align: center; margin-bottom: 24px; }
+  .frame-note a { color: #6366f1; }
+
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 22px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .block h2 { font-size: 16px; font-weight: 700; margin: 0 0 10px; }
+  .block p { font-size: 13.5px; color: #4b5563; line-height: 1.6; margin: 0 0 10px; }
+  .block p:last-child { margin-bottom: 0; }
+  .block b { color: #374151; }
+  .block ul { margin: 0; padding-left: 20px; }
+  .block li { font-size: 13.5px; color: #4b5563; line-height: 1.7; }
+  .block li b { color: #111827; }
+
+  .theory { width: min(900px, 96vw); margin-top: 16px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+  .tcard code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px;
+                background: #f3f4f6; padding: 1px 5px; border-radius: 4px; color: #374151; }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">10</span>Problém obchodního cestujícího</h1>
+  <p class="intro">
+    Najdi <b>nejkratší trasu</b>, která projede všemi městy a vrátí se zpět. Vypadá jednoduše,
+    ale počet možných tras roste <b>astronomicky</b> — přesně tady se potkávají dva principy z této
+    série: <b>kombinatorická exploze</b> (příklad 1) a <b>evoluční optimalizace</b> (příklad 7).
+    Níže je můj starší projekt, který TSP řeší <b>genetickým algoritmem</b> přímo v prohlížeči.
+  </p>
+
+  <div class="panel">
+
+    <div class="links">
+      <a class="btn primary" href="https://saiko.cz/tsp/" target="_blank" rel="noopener">▶ Otevřít aplikaci ↗</a>
+      <a class="btn ghost" href="https://github.com/dsaiko/tsp" target="_blank" rel="noopener">⌥ Zdrojový kód na GitHubu ↗</a>
+    </div>
+
+    <div class="frame-wrap">
+      <iframe src="https://saiko.cz/tsp/" title="TSP Genetic Algorithm Visualizer" loading="lazy"></iframe>
+    </div>
+    <div class="frame-note">
+      Pokud se náhled výše nenačte (některé prohlížeče blokují vkládání cizích stránek),
+      otevři aplikaci přímo na <a href="https://saiko.cz/tsp/" target="_blank" rel="noopener">saiko.cz/tsp</a>.
+    </div>
+
+    <div class="block">
+      <h2>O projektu</h2>
+      <p>
+        Interaktivní vizualizér řešící <b>problém obchodního cestujícího</b> (TSP) pomocí
+        <b>genetického algoritmu</b>. Celý výpočet běží <b>v prohlížeči</b> (bez serveru) a průběh
+        optimalizace se kreslí v reálném čase na plátno. Aplikace se sama zastaví, jakmile se řešení
+        přestane zlepšovat.
+      </p>
+      <p>Nabízí čtyři varianty genetického algoritmu:</p>
+      <ul>
+        <li><b>Prostá mutace</b> — náhodné prohazování měst, přežívá zdatnější polovina</li>
+        <li><b>Mutace + 2-opt</b> — k tomu lokální vylepšení, které odstraňuje křížení hran</li>
+        <li><b>Greedy crossover</b> — kříží dva rodiče výběrem levnější navazující hrany</li>
+        <li><b>Greedy crossover + 2-opt</b> — nejsilnější kombinace</li>
+      </ul>
+      <p>
+        Cena trasy se počítá přes <b>RMS</b> (penalizuje dlouhé úseky víc než několik krátkých).
+        K dispozici je <b>12 map</b>: reálná česká města (20–192 měst, souřadnice S-JTSK)
+        i geometrické testy (kruh, spirála, čtverec, trojúhelník, linka).
+      </p>
+      <p>
+        Postaveno v <b>TypeScriptu</b> (Vite), kreslení přes <b>HTML5 Canvas</b> (HiDPI), výpočet běží
+        na pozadí ve <b>Web Workerech</b>, bez runtime závislostí. Je to modernizovaný přepis původní
+        <b>Java desktop aplikace z roku 2006</b>.
+      </p>
+    </div>
+
+  </div>
+
+  <section class="theory">
+    <div class="head">Proč je TSP tak zajímavý</div>
+    <p class="lead">
+      TSP je jedna z nejznámějších <b>optimalizačních úloh</b> a krásně shrnuje celou tuhle sérii:
+      prostor řešení je obrovský, hrubá síla nestačí, a tak nasazujeme <b>heuristiky a evoluci</b>.
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#111827">
+        <h3><span class="dot"></span>Kombinatorická exploze</h3>
+        <p>Počet různých tras je <code>(n−1)!/2</code>. Pro 20 měst je to už ~10<sup>16</sup>,
+           pro 192 měst nepředstavitelné číslo. Projít všechny (jako v příkladu 1) nejde.</p>
+      </div>
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span>Heuristika 2-opt</h3>
+        <p>Chytrý trik: kdykoliv se trasa sama <b>kříží</b>, prohození dvou hran ji zkrátí.
+           Opakováním vznikne velmi dobrá (i když ne nutně optimální) trasa.</p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span>Genetický algoritmus</h3>
+        <p>Populace tras se <b>kříží a mutuje</b> k lepšímu — přesně princip z příkladu 7, jen místo
+           věty hledáme nejkratší okruh. 2-opt funguje jako lokální „doladění" potomků.</p>
+      </div>
+      <div class="tcard" style="--c:#6366f1">
+        <h3><span class="dot"></span>Proč na tom záleží</h3>
+        <p>TSP není jen hlavolam — stejná úloha je za <b>plánováním rozvozů</b>, trasováním vrtů na
+           deskách, logistikou i sekvenováním. Dobrá heuristika tu šetří reálné peníze.</p>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

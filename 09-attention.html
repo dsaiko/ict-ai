@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Příklad #9 — Attention: na co se model dívá</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
+           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+
+  .panel { width: min(760px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+
+  input[type=text] { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 11px 12px;
+    font-size: 15px; color: #374151; background: #fafafa; }
+  input[type=text]:focus { outline: 2px solid #93c5fd; border-color: #93c5fd; }
+
+  .sent { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .atok { font-size: 17px; padding: 7px 12px; border-radius: 8px; cursor: pointer; position: relative;
+          background: #f3f4f6; transition: background .15s, color .15s, transform .1s; }
+  .atok:hover { transform: translateY(-2px); }
+  .atok.q { outline: 3px solid #111827; outline-offset: 1px; }
+  .atok .pct { display:block; font-size: 10px; text-align:center; color:#475569; margin-top:2px; min-height:12px; }
+  .selhint { font-size: 12.5px; color: #6b7280; margin-top: 14px; min-height: 18px; }
+  .selhint b { color: #111827; }
+
+  .explain { width: min(760px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
+  .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  .explain p b { color: #374151; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
+                 border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
+                 font-size: 12.5px; color: #374151; font-weight: 600; }
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #2563eb; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .arr { color: #9ca3af; font-size: 15px; }
+
+  .blocknote { font-size: 12.5px; color: #6b7280; line-height: 1.6; margin-top: 14px;
+               border-top: 1px solid #f0f1f3; padding-top: 12px; }
+  .blocknote b { color: #374151; }
+  .blocknote em { color: #9ca3af; }
+
+  /* heatmapa */
+  .matrix { display: inline-grid; gap: 2px; margin-top: 4px; font-size: 12px; }
+  .mcell { width: 34px; height: 28px; border-radius: 4px; display: flex; align-items: center;
+           justify-content: center; font-family: "SF Mono", Menlo, Consolas, monospace; color: #1e293b; }
+  .mlabel { display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+            font-size: 11px; color: #475569; white-space: nowrap; }
+  .mlabel.col { justify-content: center; padding: 0; writing-mode: vertical-rl; transform: rotate(180deg); height: 64px; }
+  .mcell.mrow-q, .mlabel.mrow-q { outline: 2px solid #111827; outline-offset: -2px; }
+  .scroller { overflow-x: auto; padding-bottom: 6px; }
+
+  .theory { width: min(760px, 96vw); margin-top: 24px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">09</span>Attention — na co se model dívá</h1>
+  <p class="intro">
+    Když model zpracovává slovo, „rozhlíží se" po ostatních slovech ve větě a každému dá
+    <b>váhu pozornosti</b> — jak moc je pro něj důležité. Tahle myšlenka (<i>attention</i>) je
+    srdcem dnešních modelů. <b>Klikni na slovo</b> a uvidíš, kam se dívá.
+  </p>
+
+  <div class="explain">
+    <h2>Co tenhle příklad dělá</h2>
+    <p>
+      Napíšeš větu, ta se rozseká na slova. Když na některé <b>klikneš</b>, ukáže se, kolik
+      <b>pozornosti</b> věnuje každému dalšímu slovu — jako procento pod slovem a sytostí modré barvy.
+      Dole je celá <b>mapa pozornosti</b> (všechna slova vůči všem). Přesně takhle „uvažuje" každá
+      vrstva dnešních modelů: každé slovo si <b>přepočítá svůj význam</b> podle toho, na co se ve větě dívá.
+    </p>
+    <p>
+      Čím <b>sytější modrá</b> (a vyšší %), tím víc se dané slovo dívá na druhé. Pozornost se vždy
+      rozdělí mezi ostatní slova tak, aby dohromady dala <b>100 %</b>. Často nejvíc padne na slovo
+      samotné a na jeho <b>blízké sousedy</b> — tak to vychází i ve skutečných modelech.
+    </p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> dotaz (co hledám?)</span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> klíče ostatních slov</span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> skóre shody</span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">4</span> softmax = váhy (100 %)</span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">5</span> nový význam slova</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="block">
+      <div class="label">věta (uprav podle libosti)</div>
+      <input type="text" id="text" value="kočka spí na teplém okně protože venku prší">
+      <div class="sent" id="sent"></div>
+      <div class="selhint" id="selhint">Klikni na slovo výše.</div>
+    </div>
+
+    <div class="block">
+      <div class="label">mapa pozornosti — řádek = „odkud", sloupec = „kam se dívá"</div>
+      <div class="scroller"><div class="matrix" id="matrix"></div></div>
+      <div class="blocknote">
+        <b>Jak číst mapu?</b> Každý <b>řádek</b> je jedno slovo („odkud se dívám"), <b>sloupce</b> jsou
+        slova, na která se dívá. Číslo v buňce je <b>% pozornosti</b> a každý řádek dává dohromady
+        <b>100 %</b>. Klikni na slovo nahoře nebo na řádek a zvýrazní se. Sytá úhlopříčka znamená, že se
+        slova hodně dívají sama na sebe.
+        <br><em>Pozn.: tady je to zjednodušená ilustrace mechanismu (podobnost slov + jejich blízkost ve větě), ne skutečně natrénovaný model — ten by se vztahy naučil z obrovského množství textu.</em>
+      </div>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head">Jak attention funguje</div>
+    <p class="lead">
+      Každé slovo vyšle „dotaz" (co hledám?) a každé nabízí „klíč" (co nabízím?). Model spočítá,
+      jak <b>dotaz sedí ke klíči</b> — čím líp, tím větší pozornost. Váhy se přepočítají tak, aby
+      dohromady daly 100 %, a slovo si pak <b>poskládá svůj nový význam</b> z těch, kterým věnovalo
+      nejvíc pozornosti. <em>(Zde je to zjednodušená ilustrace mechanismu, ne skutečně natrénovaný model.)</em>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span>Dotaz, klíč, hodnota</h3>
+        <p>Q (co hledám), K (co nabízím), V (co předám). Pozornost = jak dotaz pasuje na klíče.
+           To rozhoduje, kolik z které „hodnoty" si slovo vezme.</p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span>Váhy dávají 100 %</h3>
+        <p>Skóre se přes <b>softmax</b> převede na podíly, co dohromady tvoří jednotku. Slovo tak
+           rozdělí svou pozornost mezi ostatní.</p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span>Kontext řeší víceznačnost</h3>
+        <p>Slovo „okně" dává jiný smysl podle okolí. Díky pozornosti k sousedům model pochopí,
+           o jaké okno jde — jazyk je o <b>vztazích</b> mezi slovy.</p>
+      </div>
+      <div class="tcard" style="--c:#a855f7">
+        <h3><span class="dot"></span>Proč je to průlom</h3>
+        <p>Attention umí spojit i slova daleko od sebe a počítat je naráz (paralelně). Na tom stojí
+           <b>transformery</b> — architektura za ChatGPT a spol.</p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const D = 24;             // rozměr „embeddingu"
+  let tokens = [], A = [];  // A[i][j] = pozornost slova i ke slovu j
+  let selected = -1;
+
+  // deterministický vektor pro znak
+  function charVec(code){
+    const v = new Array(D);
+    for (let k=0;k<D;k++) v[k] = Math.sin(code*(k+1.7)+k*0.9);
+    return v;
+  }
+  function embed(word){
+    const v = new Array(D).fill(0);
+    const w = word.toLowerCase();
+    for (let p=0;p<w.length;p++){
+      const cv = charVec(w.charCodeAt(p));
+      for (let k=0;k<D;k++) v[k] += cv[k];
+    }
+    let n=0; for(let k=0;k<D;k++) n+=v[k]*v[k]; n=Math.sqrt(n)||1;
+    for(let k=0;k<D;k++) v[k]/=n;
+    return v;
+  }
+  const dot = (a,b)=>{ let s=0; for(let k=0;k<D;k++) s+=a[k]*b[k]; return s; };
+
+  function buildAttention(){
+    const embs = tokens.map(embed);
+    const T = 6, beta = 0.35;             // ostrost a vliv vzdálenosti
+    A = [];
+    for (let i=0;i<tokens.length;i++){
+      const scores = [];
+      for (let j=0;j<tokens.length;j++){
+        scores.push(dot(embs[i],embs[j])*T - beta*Math.abs(i-j));
+      }
+      const mx = Math.max(...scores);
+      const exp = scores.map(s=>Math.exp(s-mx));
+      const sum = exp.reduce((a,b)=>a+b,0);
+      A.push(exp.map(e=>e/sum));
+    }
+  }
+
+  function tokenize(text){ return (text.trim().match(/[\p{L}\p{N}]+/gu) || []); }
+
+  // ── modravá barva podle váhy ────────────────────────────────
+  function shade(w){ return `rgba(37,99,235,${(0.08+0.92*w).toFixed(3)})`; }
+  function textColor(w){ return w>0.5 ? '#fff' : '#1e293b'; }
+
+  function renderSentence(){
+    const el = $('sent'); el.innerHTML='';
+    tokens.forEach((t,i)=>{
+      const s = document.createElement('span');
+      s.className = 'atok'; s.dataset.i = i;
+      s.innerHTML = `${t}<span class="pct"></span>`;
+      s.addEventListener('click', ()=>select(i));
+      el.appendChild(s);
+    });
+  }
+
+  function select(i){
+    selected = i;
+    const chips = [...document.querySelectorAll('.atok')];
+    chips.forEach((c,k)=>{
+      c.classList.toggle('q', k===i);
+      const w = A[i][k];
+      c.style.background = shade(w);
+      c.style.color = textColor(w);
+      c.querySelector('.pct').textContent = Math.round(w*100)+'%';
+    });
+    // top cíle
+    const order = A[i].map((w,j)=>({j,w})).filter(o=>o.j!==i).sort((a,b)=>b.w-a.w);
+    const top = order.slice(0,2).map(o=>`„${tokens[o.j]}" (${Math.round(o.w*100)} %)`);
+    $('selhint').innerHTML = `Slovo <b>„${tokens[i]}"</b> se nejvíc dívá na: ${top.join(', ')}.`;
+    markMatrixRow(i);
+  }
+
+  // ── heatmapa ─────────────────────────────────────────────────
+  function renderMatrix(){
+    const m = $('matrix');
+    const n = tokens.length;
+    m.style.gridTemplateColumns = `auto repeat(${n}, 34px)`;
+    let html = '<div></div>';                       // roh
+    tokens.forEach(t=> html += `<div class="mlabel col">${t}</div>`);
+    for (let i=0;i<n;i++){
+      html += `<div class="mlabel" data-row="${i}">${tokens[i]}</div>`;
+      for (let j=0;j<n;j++){
+        const w = A[i][j];
+        html += `<div class="mcell" data-row="${i}" style="background:${shade(w)};color:${textColor(w)}">${Math.round(w*100)}</div>`;
+      }
+    }
+    m.innerHTML = html;
+    // klik na řádek (label i buňky) vybere slovo
+    m.querySelectorAll('[data-row]').forEach(el=>{
+      el.addEventListener('click', ()=>select(+el.dataset.row));
+    });
+  }
+  function markMatrixRow(i){
+    // obtáhni buňky i popisek daného řádku
+    $('matrix').querySelectorAll('.mrow-q').forEach(el=>el.classList.remove('mrow-q'));
+    $('matrix').querySelectorAll(`[data-row="${i}"]`).forEach(el=>el.classList.add('mrow-q'));
+  }
+
+  function rebuild(){
+    tokens = tokenize($('text').value);
+    if (!tokens.length){ $('sent').innerHTML=''; $('matrix').innerHTML=''; $('selhint').textContent='Zadej větu.'; return; }
+    buildAttention();
+    renderSentence();
+    renderMatrix();
+    select(0);
+  }
+
+  $('text').addEventListener('input', rebuild);
+  rebuild();
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Základy umělé inteligence — rozcestník</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; min-height: 100vh; color: #1c1c1e;
+    background: linear-gradient(160deg, #eef2ff 0%, #f4f5f7 40%, #ecfdf5 100%);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 56px 16px 64px;
+  }
+  header { text-align: center; margin-bottom: 44px; max-width: 680px; }
+  header .kicker {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #2563eb; margin-bottom: 10px;
+  }
+  header h1 { font-size: 34px; font-weight: 800; margin: 0 0 12px; letter-spacing: -0.02em; }
+  header p { font-size: 15px; line-height: 1.6; color: #6b7280; margin: 0; }
+
+  .grid {
+    display: grid; gap: 22px; width: min(900px, 100%);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .card {
+    position: relative; display: flex; flex-direction: column;
+    background: #fff; border: 1px solid #e8eaef; border-radius: 18px;
+    padding: 26px 24px; text-decoration: none; color: inherit; overflow: hidden;
+    box-shadow: 0 4px 18px rgba(17,24,39,0.05);
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 36px rgba(17,24,39,0.12);
+    border-color: #c7d2fe;
+  }
+  .card .accent { position: absolute; inset: 0 auto 0 0; width: 6px; }
+  .card.c1 .accent { background: linear-gradient(180deg,#111827,#374151); }
+  .card.c2 .accent { background: linear-gradient(180deg,#34d399,#2563eb); }
+  .card.c3 .accent { background: linear-gradient(180deg,#a855f7,#22c55e); }
+  .card.c4 .accent { background: linear-gradient(180deg,#06b6d4,#ec4899); }
+  .card.c5 .accent { background: linear-gradient(180deg,#2563eb,#ef4444); }
+  .card.c6 .accent { background: linear-gradient(180deg,#2563eb,#f59e0b); }
+  .card.c7 .accent { background: linear-gradient(180deg,#f59e0b,#16a34a); }
+  .card.c8 .accent { background: linear-gradient(180deg,#0ea5e9,#a855f7); }
+  .card.c9 .accent { background: linear-gradient(180deg,#111827,#2563eb); }
+  .card.c10 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
+
+  .card .num {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px; font-weight: 700; color: #9ca3af; margin-bottom: 14px;
+  }
+  .card .icon { font-size: 38px; line-height: 1; margin-bottom: 16px; }
+  .card h2 { font-size: 20px; margin: 0 0 8px; font-weight: 700; }
+  .card p { font-size: 14px; line-height: 1.55; color: #6b7280; margin: 0 0 20px; flex: 1; }
+
+  .card .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .card .tags span {
+    font-size: 11px; font-weight: 600; color: #4b5563;
+    background: #f3f4f6; border-radius: 999px; padding: 4px 10px;
+  }
+  .card .go {
+    align-self: flex-start; font-size: 14px; font-weight: 700; color: #2563eb;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .card .go .arrow { transition: transform .16s ease; }
+  .card:hover .go .arrow { transform: translateX(4px); }
+
+  /* ── Cesta sérií (oblouk) ── */
+  .journey { width: min(900px, 100%); margin-top: 8px; margin-bottom: 48px; }
+  .journey .jhead { text-align: center; margin-bottom: 30px; }
+  .journey .jhead h2 { font-size: 24px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .journey .jhead p { font-size: 14px; color: #6b7280; margin: 0 auto; max-width: 560px; line-height: 1.55; }
+
+  .timeline { position: relative; padding-left: 8px; }
+  /* svislá spojnice */
+  .timeline::before {
+    content: ""; position: absolute; left: 27px; top: 8px; bottom: 8px; width: 3px;
+    background: linear-gradient(180deg,#111827,#2563eb 35%,#16a34a 60%,#a855f7 100%);
+    border-radius: 3px;
+  }
+  .stage { position: relative; display: flex; gap: 20px; padding: 0 0 26px 0; }
+  .stage:last-child { padding-bottom: 0; }
+  .stage .node {
+    flex: 0 0 auto; width: 50px; height: 50px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--c); color: var(--c);
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+    box-shadow: 0 2px 10px rgba(17,24,39,0.08); z-index: 1;
+  }
+  .stage .body {
+    background: #fff; border: 1px solid #e8eaef; border-radius: 14px;
+    padding: 16px 20px; flex: 1; box-shadow: 0 2px 12px rgba(17,24,39,0.04);
+  }
+  .stage .body .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .stage .body .pills a {
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 11px; font-weight: 700;
+    color: #fff; background: var(--c); border-radius: 6px; padding: 3px 9px; text-decoration: none;
+    opacity: .9; transition: opacity .12s, transform .05s;
+  }
+  .stage .body .pills a:hover { opacity: 1; transform: translateY(-1px); }
+  .stage .body h3 { margin: 0 0 5px; font-size: 16px; font-weight: 700; }
+  .stage .body p { margin: 0; font-size: 13.5px; color: #6b7280; line-height: 1.5; }
+  .stage .body p b { color: #374151; }
+
+  @media (max-width: 560px) {
+    .timeline::before { left: 22px; }
+    .stage .node { width: 42px; height: 42px; font-size: 18px; }
+  }
+
+  footer { margin-top: 48px; font-size: 13px; color: #9ca3af; text-align: center; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="kicker">Demonstrace · ICT / AI</div>
+    <h1>Základy umělé inteligence</h1>
+    <p>
+      Interaktivní ukázky, které krok po kroku odhalují principy za AI — od holé kombinatoriky
+      a hranic hrubé síly až po to, jak z čisté náhody postupně vzniká jazyk.
+    </p>
+  </header>
+
+  <section class="journey">
+    <div class="jhead">
+      <h2>Jak série postupuje</h2>
+      <p>Příklady na sebe navazují — každý vyřeší hranici toho předchozího. Dohromady tvoří
+         cestu od holého počítání až k principům dnešních jazykových modelů.</p>
+    </div>
+
+    <div class="timeline">
+
+      <div class="stage" style="--c:#111827">
+        <div class="node">🎲</div>
+        <div class="body">
+          <div class="pills"><a href="01-binary-counter.html">01</a><a href="02-jazyk.html">02</a></div>
+          <h3>Prostor možností a jeho zkrocení</h3>
+          <p>Nejdřív uvidíme, že <b>projít všechny kombinace</b> nejde — a jak ten obří prostor
+             krotíme <b>pravidly a statistikou</b>, až z náhody začne vznikat jazyk.</p>
+        </div>
+      </div>
+
+      <div class="stage" style="--c:#2563eb">
+        <div class="node">🧭</div>
+        <div class="body">
+          <div class="pills"><a href="03-hledani.html">03</a></div>
+          <h3>Chytré hledání</h3>
+          <p>Místo hrubé síly <b>prohledáváme cíleně</b> (BFS, A*). Heuristika dramaticky zmenší,
+             kolik možností musíme vůbec prozkoumat.</p>
+        </div>
+      </div>
+
+      <div class="stage" style="--c:#06b6d4">
+        <div class="node">📚</div>
+        <div class="body">
+          <div class="pills"><a href="04-markov.html">04</a></div>
+          <h3>Učení z dat</h3>
+          <p>Pravidla už nepíšeme ručně — model si je <b>vyčte z textu</b> (Markovův řetězec).
+             První skutečný „malý jazykový model".</p>
+        </div>
+      </div>
+
+      <div class="stage" style="--c:#16a34a">
+        <div class="node">🧠</div>
+        <div class="body">
+          <div class="pills"><a href="05-perceptron.html">05</a><a href="06-neuronka.html">06</a></div>
+          <h3>Učení klasifikace: od přímky ke křivce</h3>
+          <p>Perceptron najde <b>dělicí přímku</b> z příkladů; neuronová síť pak zvládne i
+             <b>zakřivené</b> hranice. Tady se rodí strojové učení.</p>
+        </div>
+      </div>
+
+      <div class="stage" style="--c:#f59e0b">
+        <div class="node">🧬</div>
+        <div class="body">
+          <div class="pills"><a href="07-genetika.html">07</a></div>
+          <h3>Evoluční optimalizace</h3>
+          <p>Když řešení neumíme spočítat přímo, necháme ho <b>vyvinout</b> — výběrem, křížením
+             a mutací. Náhoda s jasným směrem k cíli.</p>
+        </div>
+      </div>
+
+      <div class="stage" style="--c:#a855f7">
+        <div class="node">✨</div>
+        <div class="body">
+          <div class="pills"><a href="08-embeddingy.html">08</a><a href="09-attention.html">09</a></div>
+          <h3>Cesta k dnešním LLM</h3>
+          <p>Jak modely reprezentují <b>význam</b> (embeddingy) a jak ve větě řeší <b>kontext</b>
+             (attention). Stavební kameny architektury za ChatGPT.</p>
+        </div>
+      </div>
+
+      <div class="stage" style="--c:#6366f1">
+        <div class="node">🚚</div>
+        <div class="body">
+          <div class="pills"><a href="10-tsp.html">10</a></div>
+          <h3>Bonus — optimalizace v praxi</h3>
+          <p>Problém obchodního cestujícího: obří prostor tras zkrocený <b>evolucí</b>. Spojuje
+             kombinatoriku z příkladu 1 s genetikou z příkladu 7 na reálné úloze.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <main class="grid">
+
+    <a class="card c1" href="01-binary-counter.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 01</div>
+      <div class="icon">⬛</div>
+      <h2>Binární počítadlo 8×8</h2>
+      <p>
+        Mřížka 64 polí jako 64bitové číslo. Nastav bity klikem a nech ho přičítat.
+        Graf zbývajícího času ukáže, proč „projít všechny kombinace" hrubou silou nikdy nedoběhne.
+      </p>
+      <div class="tags"><span>bity &amp; kombinatorika</span><span>BigInt</span><span>hrubá síla</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c2" href="02-jazyk.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 02</div>
+      <div class="icon">🔤</div>
+      <h2>Od náhody k jazyku</h2>
+      <p>
+        Čtyři kroky A–D: od náhodných písmen přes statistiku a slovník až po smysluplné věty.
+        Mini-historie jazykových modelů — jak se přidáváním pravidel z šumu stává jazyk.
+      </p>
+      <div class="tags"><span>náhoda → statistika</span><span>slovník</span><span>gramatika</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c3" href="03-hledani.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 03</div>
+      <div class="icon">🧭</div>
+      <h2>Hledání cesty</h2>
+      <p>
+        Bludiště na mřížce a souboj postupů: náhodné tápání, hladový, BFS a A*.
+        Vidíš na vlastní oči, kolik políček každý prozkoumá — a proč se hrubá síla nahrazuje
+        chytrým prohledáváním.
+      </p>
+      <div class="tags"><span>prohledávání</span><span>BFS &amp; A*</span><span>heuristika</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c4" href="04-markov.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 04</div>
+      <div class="icon">🔮</div>
+      <h2>Učení z textu</h2>
+      <p>
+        Markovův řetězec se sám naučí z vloženého textu, co po čem následuje, a generuje nový.
+        Posuvníkem kontextu uvidíš, jak z blábolu vzniká skoro čeština — princip „malého
+        jazykového modelu".
+      </p>
+      <div class="tags"><span>učení z dat</span><span>pravděpodobnost</span><span>n-gramy</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c5" href="05-perceptron.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 05</div>
+      <div class="icon">📈</div>
+      <h2>Učení z příkladů</h2>
+      <p>
+        Naklikej dvě barvy bodů a perceptron sám najde přímku, která je oddělí. Ukazuje rozdíl
+        mezi „naprogramovat pravidlo" a „nechat ho najít z dat" — i kde má lineární model hranice.
+      </p>
+      <div class="tags"><span>perceptron</span><span>klasifikace</span><span>strojové učení</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c6" href="06-neuronka.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 06</div>
+      <div class="icon">🧠</div>
+      <h2>Neuronová síť</h2>
+      <p>
+        Pokračování pětky: síť neuronů zvládne i zakřivenou hranici — kruh, kříž, spirálu.
+        Sleduj, jak se rozhodovací plocha tvaruje během tréninku (backpropagation).
+      </p>
+      <div class="tags"><span>neuronová síť</span><span>backprop</span><span>nelineární</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c7" href="07-genetika.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 07</div>
+      <div class="icon">🧬</div>
+      <h2>Genetický algoritmus</h2>
+      <p>
+        Populace náhodných vět se křížením a mutací generaci po generaci „vyvíjí" k cíli.
+        Propojení náhody z příkladů 1 a 2 s evolucí směrem ke smyslu.
+      </p>
+      <div class="tags"><span>evoluce</span><span>mutace</span><span>optimalizace</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c8" href="08-embeddingy.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 08</div>
+      <div class="icon">🗺️</div>
+      <h2>Tokenizace a embeddingy</h2>
+      <p>
+        Jak LLM „vidí" text: rozsekání na tokeny a 2D mapa významů, kde podobná slova leží blízko.
+        Včetně slavné analogie král − muž + žena = královna.
+      </p>
+      <div class="tags"><span>tokeny</span><span>embeddingy</span><span>význam</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c9" href="09-attention.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 09</div>
+      <div class="icon">👁️</div>
+      <h2>Attention</h2>
+      <p>
+        Na co se model ve větě „dívá". Klikni na slovo a uvidíš, kolik pozornosti věnuje ostatním —
+        zjednodušená vizualizace mechanismu za dnešními transformery.
+      </p>
+      <div class="tags"><span>pozornost</span><span>transformer</span><span>kontext</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c10" href="10-tsp.html">
+      <span class="accent"></span>
+      <div class="num">Příklad 10 · bonus</div>
+      <div class="icon">🚚</div>
+      <h2>Obchodní cestující (TSP)</h2>
+      <p>
+        Najdi nejkratší trasu přes všechna města. Můj starší projekt řeší TSP genetickým
+        algoritmem přímo v prohlížeči — spojuje kombinatorickou explozi (01) s evolucí (07).
+      </p>
+      <div class="tags"><span>optimalizace</span><span>genetický algoritmus</span><span>2-opt</span></div>
+      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+    </a>
+
+  </main>
+
+  <footer>SSST 2026 · ICT / AI &nbsp;·&nbsp; otevři kteroukoli ukázku přímo v prohlížeči</footer>
+</body>
+</html>

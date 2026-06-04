@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Příklad #5 — Učení z příkladů (perceptron)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; }
+  .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 700px;
+           text-align: center; line-height: 1.5; }
+  .intro b { color: #374151; }
+
+  canvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           box-shadow: 0 4px 20px rgba(0,0,0,0.07); cursor: crosshair; touch-action: none; }
+
+  /* schéma perceptronu */
+  .diagram { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 18px 10px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+             width: min(640px, 96vw); }
+  .diagram .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+                    color: #9ca3af; text-align: center; margin-bottom: 4px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .diagram .formula { text-align: center; font-family: "SF Mono", Menlo, Consolas, monospace;
+                      font-size: 13px; color: #374151; margin-top: 4px; }
+  .diagram .formula b { color: #111827; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+              margin: 18px 0 6px; max-width: 660px; }
+  button { font-size: 13px; font-weight: 600; padding: 9px 18px; border: none;
+           border-radius: 8px; cursor: pointer; transition: background .12s, transform .05s; }
+  button:active { transform: scale(.96); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .go   { background: #2563eb; color: #fff; } .go:hover:not(:disabled){ background:#1d4ed8; }
+  .util { background: #e5e7eb; color: #374151; } .util:hover:not(:disabled){ background:#d1d5db; }
+  .stop { background: #dc2626; color: #fff; } .stop:hover:not(:disabled){ background:#b91c1c; }
+  .cls  { background: #fff; border: 2px solid #e5e7eb; color: #374151; }
+  .cls.on.a { border-color: #2563eb; color: #2563eb; }
+  .cls.on.b { border-color: #ef4444; color: #ef4444; }
+
+  .stat { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px;
+          color: #374151; margin-top: 12px; display: flex; gap: 22px; flex-wrap: wrap; justify-content:center; }
+  .stat b { color: #111827; }
+  .hint { font-size: 12px; color: #9ca3af; margin-top: 8px; text-align: center; max-width: 640px; }
+
+  /* teorie */
+  .theory { width: min(760px, 96vw); margin-top: 34px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; }
+  .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0 0 10px; font-size: 13px; color: #4b5563; line-height: 1.5; }
+  .tcard p:last-child { margin-bottom: 0; }
+  .tcard .pm { font-size: 12.5px; line-height: 1.65; }
+  .tcard .pm div { display: flex; gap: 7px; }
+  .tcard .plus { color: #16a34a; font-weight: 700; } .tcard .minus { color: #dc2626; font-weight: 700; }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">05</span>Učení z příkladů — perceptron</h1>
+  <p class="intro">
+    Místo abychom pravidlo <b>naprogramovali</b>, necháme ho stroj <b>najít z dat</b>.
+    Naklikej do plochy modré a červené body a stiskni „Trénuj" — perceptron sám hledá
+    <b>přímku</b>, která obě barvy oddělí. To je nejjednodušší model, který se „učí".
+  </p>
+
+  <div class="diagram">
+    <div class="label">jak perceptron vypadá uvnitř (váhy se mění během učení)</div>
+    <svg viewBox="0 0 620 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/>
+        </marker>
+      </defs>
+      <!-- spoje vstup → suma -->
+      <g stroke="#cbd5e1" stroke-width="2" fill="none" marker-end="url(#arr)">
+        <path d="M92,45  L268,98"/>
+        <path d="M92,110 L268,110"/>
+        <path d="M92,175 L268,122"/>
+      </g>
+      <!-- spoj suma → aktivace → výstup -->
+      <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr)">
+        <path d="M326,110 L372,110"/>
+        <path d="M474,110 L520,110"/>
+      </g>
+
+      <!-- váhy -->
+      <g font-family="SF Mono, Menlo, monospace" font-size="13" fill="#2563eb" font-weight="700">
+        <text id="wx" x="150" y="60">w₁</text>
+        <text id="wy" x="150" y="103">w₂</text>
+        <text id="wb" x="150" y="165">w₀</text>
+      </g>
+
+      <!-- vstupní uzly -->
+      <g font-family="-apple-system, sans-serif" text-anchor="middle">
+        <circle cx="70" cy="45"  r="22" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+        <text x="70" y="50" font-size="16" font-weight="700" fill="#2563eb">x</text>
+        <circle cx="70" cy="110" r="22" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+        <text x="70" y="115" font-size="16" font-weight="700" fill="#2563eb">y</text>
+        <circle cx="70" cy="175" r="22" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2"/>
+        <text x="70" y="180" font-size="14" font-weight="700" fill="#6b7280">1</text>
+        <text x="70" y="205" font-size="10" fill="#9ca3af">bias</text>
+      </g>
+
+      <!-- sumační uzel -->
+      <circle cx="300" cy="110" r="28" fill="#fff" stroke="#111827" stroke-width="2.5"/>
+      <text x="300" y="118" text-anchor="middle" font-size="24" font-weight="700" fill="#111827">Σ</text>
+      <text x="300" y="160" text-anchor="middle" font-size="10" fill="#9ca3af">vážený součet</text>
+
+      <!-- aktivace -->
+      <rect x="372" y="86" width="102" height="48" rx="9" fill="#fff" stroke="#111827" stroke-width="2"/>
+      <text x="423" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">aktivace</text>
+      <text x="423" y="123" text-anchor="middle" font-size="11" fill="#6b7280">≥ 0 ?</text>
+
+      <!-- výstup -->
+      <circle cx="544" cy="110" r="26" fill="#fff" stroke="#16a34a" stroke-width="2.5"/>
+      <text x="544" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#16a34a">třída</text>
+      <text x="544" y="121" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">±1</text>
+    </svg>
+    <div class="formula">výstup = znaménko( <b><span id="fwb">w₀</span> + <span id="fwx">w₁</span>·x + <span id="fwy">w₂</span>·y</b> )</div>
+  </div>
+
+  <canvas id="cv" width="640" height="440"></canvas>
+
+  <div class="controls">
+    <button class="cls on a" id="clsA" data-cls="1">● přidávám modré</button>
+    <button class="cls b" id="clsB" data-cls="-1">● přidávám červené</button>
+  </div>
+  <div class="controls">
+    <button class="go"   id="btnTrain">Trénuj</button>
+    <button class="util" id="btnStep">Jeden krok</button>
+    <button class="stop" id="btnStop" disabled>■ STOP</button>
+    <button class="util" id="btnSample">Ukázková data</button>
+    <button class="util" id="btnClear">Vyčisti</button>
+  </div>
+
+  <div class="stat">
+    <span>epocha: <b id="epoch">0</b></span>
+    <span>chybně: <b id="errors">–</b></span>
+    <span>přesnost: <b id="acc">–</b></span>
+  </div>
+  <div class="hint">Tip: když body <b>nejdou</b> oddělit přímkou (např. do kříže), perceptron nikdy nedojde k nule chyb — to je jeho hranice. Vyřeší to až příklad 6.</div>
+
+  <section class="theory">
+    <div class="head">Jak se to učí a kde je hranice</div>
+    <p class="lead">
+      Perceptron má tři čísla (váhy) popisující jednu přímku: <b>w₀ + w₁·x + w₂·y = 0</b>.
+      Na začátku jsou náhodná, čára je „někde". Pak prochází body a u každého špatně zařazeného
+      <b>maličko posune váhy</b> tím správným směrem. Po mnoha opakováních se čára usadí tam,
+      kde barvy odděluje.
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span>Naprogramovat × naučit</h3>
+        <p>Nikde nepíšeme „když x &gt; 5, je to modré". Dáme jen <b>příklady</b> (body s barvou)
+           a model si pravidlo (čáru) <b>najde sám</b>.</p>
+        <p>To je celý princip strojového učení — místo pravidel dodáme data.</p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span>Učení = posouvání vah</h3>
+        <p>Pro každý špatně zařazený bod se váhy posunou o malý krok (učící rychlost) tak,
+           aby ho příště zařadily lépe.</p>
+        <div class="pm">
+          <div><span class="plus">+</span> jednoduché, rychlé, vždy konverguje…</div>
+          <div><span class="minus">–</span> …ale jen když data <b>jdou</b> oddělit přímkou</div>
+        </div>
+      </div>
+      <div class="tcard" style="--c:#ef4444">
+        <h3><span class="dot"></span>Lineární hranice</h3>
+        <p>Perceptron umí nakreslit jen <b>rovnou čáru</b> (rovinu). Na data uspořádaná do kruhu
+           nebo kříže (XOR) prostě nestačí.</p>
+        <p>Tahle slabina historicky málem AI pohřbila — vyřešily ji až vícevrstvé sítě.</p>
+      </div>
+      <div class="tcard" style="--c:#a855f7">
+        <h3><span class="dot"></span>Stavební kámen neuronek</h3>
+        <p>Jeden perceptron = jeden „neuron". Když jich spojíš mnoho do vrstev, vznikne
+           <b>neuronová síť</b>, která zvládne i složité, zakřivené hranice.</p>
+        <p>Přesně to ukazuje další příklad.</p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  let points = [];                 // {x,y in [0,1], label: +1/-1}
+  let w = [0, 0, 0];               // [bias, wx, wy]
+  let curClass = 1, epoch = 0, timer = null;
+
+  const $ = id => document.getElementById(id);
+
+  // ── přidávání bodů ───────────────────────────────────────────
+  cv.addEventListener('mousedown', e => {
+    if (timer) return;
+    const r = cv.getBoundingClientRect();
+    const x = (e.clientX - r.left) / W, y = (e.clientY - r.top) / H;
+    points.push({ x, y, label: curClass });
+    draw();
+  });
+  $('clsA').addEventListener('click', () => setClass(1));
+  $('clsB').addEventListener('click', () => setClass(-1));
+  function setClass(c) {
+    curClass = c;
+    $('clsA').classList.toggle('on', c === 1);
+    $('clsB').classList.toggle('on', c === -1);
+  }
+
+  // ── perceptron ───────────────────────────────────────────────
+  function predict(p) { return (w[0] + w[1]*p.x + w[2]*p.y) >= 0 ? 1 : -1; }
+  function trainEpoch() {
+    const lr = 0.05;
+    let errors = 0;
+    for (const p of points) {
+      const pred = predict(p);
+      if (pred !== p.label) {
+        errors++;
+        w[0] += lr * p.label;
+        w[1] += lr * p.label * p.x;
+        w[2] += lr * p.label * p.y;
+      }
+    }
+    epoch++;
+    return errors;
+  }
+  function accuracy() {
+    if (!points.length) return null;
+    let ok = 0; for (const p of points) if (predict(p) === p.label) ok++;
+    return ok / points.length;
+  }
+
+  // ── vykreslení ───────────────────────────────────────────────
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // tónování poloroviny (jen pokud máme nějaké váhy)
+    if (w[1] !== 0 || w[2] !== 0) {
+      const cell = 10;
+      for (let px = 0; px < W; px += cell)
+        for (let py = 0; py < H; py += cell) {
+          const x = (px + cell/2)/W, y = (py + cell/2)/H;
+          ctx.fillStyle = (w[0] + w[1]*x + w[2]*y >= 0)
+            ? 'rgba(37,99,235,0.07)' : 'rgba(239,68,68,0.07)';
+          ctx.fillRect(px, py, cell, cell);
+        }
+      // dělicí čára
+      drawLine();
+    }
+    // body
+    for (const p of points) {
+      ctx.beginPath();
+      ctx.arc(p.x*W, p.y*H, 7, 0, 7);
+      ctx.fillStyle = p.label === 1 ? '#2563eb' : '#ef4444';
+      ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
+    }
+    // statistika
+    $('epoch').textContent = epoch;
+    const err = points.length ? points.filter(p => predict(p) !== p.label).length : '–';
+    $('errors').textContent = err;
+    const a = accuracy();
+    $('acc').textContent = a === null ? '–' : Math.round(a*100) + ' %';
+    updateDiagram();
+  }
+
+  // živé hodnoty vah ve schématu
+  function updateDiagram() {
+    const f = n => (n>=0?'+':'') + n.toFixed(2);
+    $('wb').textContent = 'w₀=' + f(w[0]);
+    $('wx').textContent = 'w₁=' + f(w[1]);
+    $('wy').textContent = 'w₂=' + f(w[2]);
+    $('fwb').textContent = f(w[0]);
+    $('fwx').textContent = f(w[1]);
+    $('fwy').textContent = f(w[2]);
+  }
+  function drawLine() {
+    // w0 + w1*x + w2*y = 0  (v normovaných souřadnicích 0..1)
+    ctx.strokeStyle = '#111827'; ctx.lineWidth = 3;
+    ctx.beginPath();
+    if (Math.abs(w[2]) > Math.abs(w[1])) {
+      const yAt = x => -(w[0] + w[1]*x) / w[2];
+      ctx.moveTo(0, yAt(0)*H); ctx.lineTo(W, yAt(1)*H);
+    } else {
+      const xAt = y => -(w[0] + w[2]*y) / w[1];
+      ctx.moveTo(xAt(0)*W, 0); ctx.lineTo(xAt(1)*W, H);
+    }
+    ctx.stroke();
+  }
+
+  // ── běh ──────────────────────────────────────────────────────
+  function setRunning(on) {
+    $('btnTrain').disabled = on; $('btnStep').disabled = on;
+    $('btnSample').disabled = on; $('btnClear').disabled = on;
+    $('btnStop').disabled = !on;
+  }
+  function startTrain() {
+    if (timer || points.length < 2) return;
+    setRunning(true);
+    timer = setInterval(() => {
+      const err = trainEpoch();
+      draw();
+      if (err === 0 || epoch >= 2000) stopTrain();
+    }, 30);
+  }
+  function stopTrain() {
+    if (timer) { clearInterval(timer); timer = null; }
+    setRunning(false);
+  }
+
+  $('btnTrain').addEventListener('click', startTrain);
+  $('btnStop').addEventListener('click', stopTrain);
+  $('btnStep').addEventListener('click', () => { if (!timer && points.length) { trainEpoch(); draw(); } });
+  $('btnClear').addEventListener('click', () => {
+    if (timer) return;
+    points = []; w = [0,0,0]; epoch = 0; draw();
+  });
+  $('btnSample').addEventListener('click', () => {
+    if (timer) return;
+    points = []; w = [0,0,0]; epoch = 0;
+    for (let i = 0; i < 18; i++) {
+      points.push({ x: 0.12 + Math.random()*0.28, y: 0.15 + Math.random()*0.7, label: 1 });
+      points.push({ x: 0.60 + Math.random()*0.28, y: 0.15 + Math.random()*0.7, label: -1 });
+    }
+    draw();
+  });
+
+  draw();
+</script>
+</body>
+</html>

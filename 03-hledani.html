@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Příklad #3 — Hledání cesty místo hrubé síly</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; }
+  .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 24px; max-width: 680px;
+           text-align: center; line-height: 1.5; }
+  .intro b { color: #374151; }
+
+  /* mřížka */
+  .grid {
+    display: grid; gap: 2px; background: #d1d5db; padding: 2px;
+    border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    touch-action: none; user-select: none;
+  }
+  .cell { width: 24px; height: 24px; background: #fff; border-radius: 3px;
+          transition: background .18s ease, transform .18s ease; }
+  .cell.wall    { background: #374151; }
+  .cell.visited { background: #bfdbfe; }
+  .cell.path    { background: #22c55e; }
+  .cell.start   { background: #2563eb; }
+  .cell.goal    { background: #f59e0b; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+              margin: 20px 0 6px; max-width: 640px; }
+  button {
+    font-size: 13px; font-weight: 600; padding: 9px 16px; border: none;
+    border-radius: 8px; cursor: pointer; transition: background .12s, transform .05s;
+  }
+  button:active { transform: scale(.96); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .algo  { background: #2563eb; color: #fff; }
+  .algo:hover:not(:disabled) { background: #1d4ed8; }
+  .util  { background: #e5e7eb; color: #374151; }
+  .util:hover:not(:disabled) { background: #d1d5db; }
+  .stop  { background: #dc2626; color: #fff; }
+  .stop:hover:not(:disabled) { background: #b91c1c; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
+            font-size: 12px; color: #6b7280; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  .hint { font-size: 12px; color: #9ca3af; margin-top: 10px; }
+
+  /* tabulka srovnání */
+  table { border-collapse: collapse; margin-top: 22px; font-size: 13px;
+          background: #fff; border-radius: 10px; overflow: hidden;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  th, td { padding: 9px 16px; text-align: left; border-bottom: 1px solid #f0f1f3; }
+  th { background: #f9fafb; font-size: 11px; text-transform: uppercase;
+       letter-spacing: .05em; color: #9ca3af; }
+  td.num { font-family: "SF Mono", Menlo, Consolas, monospace; text-align: right; }
+  tr.active td { background: #eff6ff; }
+  td .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; }
+
+  /* teorie */
+  .theory { width: min(760px, 96vw); margin-top: 34px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; }
+  .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard {
+    background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+    border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0 0 10px; font-size: 13px; color: #4b5563; line-height: 1.5; }
+  .tcard .pm { font-size: 12.5px; line-height: 1.65; }
+  .tcard .pm div { display: flex; gap: 7px; }
+  .tcard .plus  { color: #16a34a; font-weight: 700; }
+  .tcard .minus { color: #dc2626; font-weight: 700; }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">03</span>Hledání cesty místo hrubé síly</h1>
+  <p class="intro">
+    V prvním příkladu jsme viděli, že <b>projít všechny možnosti</b> nejde. Tady ukazujeme,
+    jak se v obřím prostoru hledá <b>chytře</b>. Stejná mřížka, stejný cíl — ale podívej se,
+    kolik políček musí každý postup prozkoumat. <b>Klikni a táhni</b> myší pro kreslení zdí.
+  </p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="controls">
+    <button class="algo" data-algo="random">Náhodné tápání</button>
+    <button class="algo" data-algo="greedy">Hladový (jdi k cíli)</button>
+    <button class="algo" data-algo="bfs">BFS (do šířky)</button>
+    <button class="algo" data-algo="astar">A* (chytrý)</button>
+    <button class="stop" id="btnStop" disabled>■ STOP</button>
+  </div>
+  <div class="controls">
+    <button class="util" id="btnMaze">Náhodné překážky</button>
+    <button class="util" id="btnClearWalls">Smazat zdi</button>
+    <button class="util" id="btnReset">Smazat hledání</button>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:#2563eb"></i> start</span>
+    <span><i style="background:#f59e0b"></i> cíl</span>
+    <span><i style="background:#374151"></i> zeď</span>
+    <span><i style="background:#bfdbfe"></i> prozkoumáno</span>
+    <span><i style="background:#22c55e"></i> nalezená cesta</span>
+  </div>
+  <div class="hint">Tip: spusť postupně všechny čtyři a srovnej čísla v tabulce dole.</div>
+
+  <table id="results">
+    <thead><tr><th>Postup</th><th>Prozkoumáno polí</th><th>Délka cesty</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- ── Teorie ── -->
+  <section class="theory">
+    <div class="head">Jak to funguje a co je lepší</div>
+    <p class="lead">
+      U prohledávání nás zajímají tři věci: <b>úplnost</b> (najde cestu, pokud existuje?),
+      <b>optimalita</b> (je cesta nejkratší?) a <b>cena</b> (kolik polí musel prozkoumat).
+      V tom se postupy liší — porovnej je s čísly v tabulce výše.
+    </p>
+
+    <div class="tcards">
+
+      <div class="tcard" style="--c:#9ca3af">
+        <h3><span class="dot"></span>Náhodné tápání</h3>
+        <p>Z aktuálního políčka skočí na <b>náhodného souseda</b>. Nemá paměť ani cíl —
+           jen bloudí. Obdoba „hrubé síly" z prvního příkladu.</p>
+        <div class="pm">
+          <div><span class="plus">+</span> triviálně jednoduché, žádná paměť</div>
+          <div><span class="minus">–</span> neúplné: cíl většinou nenajde, motá se dokola</div>
+          <div><span class="minus">–</span> cesta je dlouhá a prozkoumá tisíce polí</div>
+        </div>
+      </div>
+
+      <div class="tcard" style="--c:#a855f7">
+        <h3><span class="dot"></span>Hladový (greedy)</h3>
+        <p>Vždy jde tam, co se <b>zdá nejblíž cíli</b> (vzdušná vzdálenost). Řídí se jen
+           odhadem, kolik zbývá — vůbec ho nezajímá, kolik už ušel.</p>
+        <div class="pm">
+          <div><span class="plus">+</span> velmi rychlý, prozkoumá málo polí</div>
+          <div><span class="plus">+</span> míří rovnou k cíli</div>
+          <div><span class="minus">–</span> <b>není optimální</b>: zeď ho zmate a vrátí delší cestu</div>
+        </div>
+      </div>
+
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span>BFS (do šířky)</h3>
+        <p>Prohledává <b>systematicky po vrstvách</b> — nejdřív všechny sousedy, pak jejich
+           sousedy… Postupuje rovnoměrně do všech stran.</p>
+        <div class="pm">
+          <div><span class="plus">+</span> úplný — cestu vždy najde</div>
+          <div><span class="plus">+</span> optimální — najde nejkratší cestu</div>
+          <div><span class="minus">–</span> „slepý": neví, kde je cíl, prozkoumá obří plochu</div>
+        </div>
+      </div>
+
+      <div class="tcard" style="--c:#22c55e">
+        <h3><span class="dot"></span>A* (A-star)</h3>
+        <p>Spojí to nejlepší z obou: sečte <b>ušlou vzdálenost</b> a <b>odhad zbývající</b>
+           (heuristiku). Míří k cíli, ale nezapomíná hlídat délku cesty.</p>
+        <div class="pm">
+          <div><span class="plus">+</span> úplný i optimální jako BFS</div>
+          <div><span class="plus">+</span> prozkoumá <b>mnohem méně</b> polí než BFS</div>
+          <div><span class="minus">–</span> potřebuje dobrou heuristiku; v praxi nejpoužívanější</div>
+        </div>
+      </div>
+
+    </div>
+    <p class="lead" style="margin-top:16px">
+      <b>Pointa:</b> BFS i A* najdou stejně dlouhou (nejkratší) cestu, ale A* k tomu prozkoumá
+      řádově méně polí — chytrá heuristika tedy dramaticky zmenší prohledávaný prostor.
+      Hladový je nejúspornější, ale za cenu, že cesta nemusí být nejkratší.
+    </p>
+  </section>
+
+<script>
+  // ── Mřížka ───────────────────────────────────────────────────
+  const COLS = 28, ROWS = 16;
+  const N = COLS * ROWS;
+  const startIdx = ROWS * 0 + Math.floor(ROWS/2) * COLS + 1;     // vlevo uprostřed
+  const goalIdx  = Math.floor(ROWS/2) * COLS + (COLS - 2);        // vpravo uprostřed
+  const walls = new Set();
+
+  const gridEl = document.getElementById('grid');
+  gridEl.style.gridTemplateColumns = `repeat(${COLS}, 24px)`;
+  const cells = [];
+  for (let i = 0; i < N; i++) {
+    const d = document.createElement('div');
+    d.className = 'cell';
+    cells.push(d);
+    gridEl.appendChild(d);
+  }
+  const rc = i => [Math.floor(i / COLS), i % COLS];
+  const idx = (r, c) => r * COLS + c;
+
+  // ── Kreslení zdí myší ────────────────────────────────────────
+  let drawing = false, drawMode = true;     // true = přidávat, false = mazat
+  function isFixed(i){ return i === startIdx || i === goalIdx; }
+  function setWall(i, on) {
+    if (isFixed(i)) return;
+    if (on) walls.add(i); else walls.delete(i);
+    cells[i].classList.toggle('wall', on);
+  }
+  gridEl.addEventListener('mousedown', e => {
+    if (running) return;
+    const i = cells.indexOf(e.target);
+    if (i < 0 || isFixed(i)) return;
+    drawing = true; drawMode = !walls.has(i); setWall(i, drawMode);
+    e.preventDefault();
+  });
+  gridEl.addEventListener('mouseover', e => {
+    if (!drawing || running) return;
+    const i = cells.indexOf(e.target);
+    if (i >= 0) setWall(i, drawMode);
+  });
+  window.addEventListener('mouseup', () => drawing = false);
+
+  // ── Pomocné ──────────────────────────────────────────────────
+  function neighbors(i) {
+    const [r, c] = rc(i); const out = [];
+    if (r > 0)        out.push(idx(r-1, c));
+    if (r < ROWS-1)   out.push(idx(r+1, c));
+    if (c > 0)        out.push(idx(r, c-1));
+    if (c < COLS-1)   out.push(idx(r, c+1));
+    return out.filter(n => !walls.has(n));
+  }
+  function heuristic(a, b) {            // Manhattanská vzdálenost
+    const [ar, ac] = rc(a), [br, bc] = rc(b);
+    return Math.abs(ar-br) + Math.abs(ac-bc);
+  }
+  function reconstruct(came) {
+    // pozor: u náhodného tápání může být mapa rodičů zacyklená,
+    // proto si držíme seen a každý uzel projdeme nejvýš jednou
+    const path = [], seen = new Set();
+    let cur = goalIdx;
+    while (cur !== undefined && cur !== startIdx && !seen.has(cur)) {
+      seen.add(cur); path.push(cur); cur = came.get(cur);
+    }
+    return path.reverse();
+  }
+
+  // ── Algoritmy: vrací pořadí prozkoumání + rodiče ─────────────
+  function bfs() {
+    const q = [startIdx], seen = new Set([startIdx]), came = new Map(), order = [];
+    while (q.length) {
+      const cur = q.shift(); order.push(cur);
+      if (cur === goalIdx) return { order, came, found: true };
+      for (const n of neighbors(cur)) if (!seen.has(n)) { seen.add(n); came.set(n, cur); q.push(n); }
+    }
+    return { order, came, found: false };
+  }
+  function bestFirst(useG) {            // useG=true → A*, false → hladový
+    const came = new Map(), order = [];
+    const g = new Map([[startIdx, 0]]);
+    const open = [{ i: startIdx, f: heuristic(startIdx, goalIdx) }];
+    const closed = new Set();
+    while (open.length) {
+      let bi = 0; for (let k = 1; k < open.length; k++) if (open[k].f < open[bi].f) bi = k;
+      const cur = open.splice(bi, 1)[0].i;
+      if (closed.has(cur)) continue;
+      closed.add(cur); order.push(cur);
+      if (cur === goalIdx) return { order, came, found: true };
+      for (const n of neighbors(cur)) {
+        if (closed.has(n)) continue;
+        const ng = (g.get(cur) ?? Infinity) + 1;
+        if (ng < (g.get(n) ?? Infinity)) {
+          g.set(n, ng); came.set(n, cur);
+          const f = (useG ? ng : 0) + heuristic(n, goalIdx);
+          open.push({ i: n, f });
+        }
+      }
+    }
+    return { order, came, found: false };
+  }
+  function randomWalk() {
+    const came = new Map(), order = [startIdx];
+    let cur = startIdx; const LIMIT = 9000;
+    for (let s = 0; s < LIMIT; s++) {
+      const ns = neighbors(cur);
+      if (!ns.length) break;
+      const nxt = ns[Math.floor(Math.random() * ns.length)];
+      came.set(nxt, cur); order.push(nxt); cur = nxt;
+      if (cur === goalIdx) return { order, came, found: true };
+    }
+    return { order, came, found: false };
+  }
+
+  const ALGOS = {
+    random: { name: 'Náhodné tápání', color: '#9ca3af', run: randomWalk },
+    greedy: { name: 'Hladový',        color: '#a855f7', run: () => bestFirst(false) },
+    bfs:    { name: 'BFS',            color: '#0ea5e9', run: bfs },
+    astar:  { name: 'A*',             color: '#22c55e', run: () => bestFirst(true) },
+  };
+
+  // ── Vykreslení / animace ─────────────────────────────────────
+  let running = false;
+  const algoButtons = [...document.querySelectorAll('.algo')];
+  const utilButtons = [...document.querySelectorAll('.util')];
+
+  function clearSearch() {
+    for (let i = 0; i < N; i++) cells[i].classList.remove('visited', 'path');
+    paintFixed();
+  }
+  function paintFixed() {
+    cells[startIdx].classList.add('start');
+    cells[goalIdx].classList.add('goal');
+  }
+  const stopBtn = document.getElementById('btnStop');
+  let activeTimer = null;
+
+  function setEnabled(idle) {
+    algoButtons.forEach(b => b.disabled = !idle);
+    utilButtons.forEach(b => b.disabled = !idle);
+    stopBtn.disabled = idle;           // STOP jde jen za běhu
+  }
+
+  // přerušení uživatelem: zastav animaci a vymaž hledání (nezůstane čára)
+  function stop() {
+    if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
+    running = false;
+    clearSearch();
+    setEnabled(true);
+  }
+
+  function run(key) {
+    if (running) return;
+    clearSearch();
+    running = true; setEnabled(false);
+    const { order, came, found } = ALGOS[key].run();
+
+    // dávkové odhalování prozkoumaných polí (~150 snímků)
+    const batch = Math.max(1, Math.ceil(order.length / 150));
+    let p = 0;
+    activeTimer = setInterval(() => {
+      for (let k = 0; k < batch && p < order.length; k++, p++) {
+        const i = order[p];
+        if (!isFixed(i)) cells[i].classList.add('visited');
+      }
+      if (p >= order.length) {
+        clearInterval(activeTimer); activeTimer = null;
+        animatePath(found ? reconstruct(came) : [], order.length, key);
+      }
+    }, 16);
+  }
+
+  function animatePath(path, visited, key) {
+    let p = 0;
+    activeTimer = setInterval(() => {
+      if (p < path.length) {
+        const i = path[p++];
+        if (!isFixed(i)) cells[i].classList.add('path');
+      } else {
+        clearInterval(activeTimer); activeTimer = null;
+        running = false; setEnabled(true);
+        recordResult(key, visited, path.length);
+      }
+    }, 20);
+  }
+
+  // ── Tabulka výsledků ─────────────────────────────────────────
+  const results = {};
+  function recordResult(key, visited, pathLen) {
+    results[key] = { visited, pathLen };
+    const tbody = document.querySelector('#results tbody');
+    tbody.innerHTML = '';
+    for (const k of ['random', 'greedy', 'bfs', 'astar']) {
+      if (!results[k]) continue;
+      const a = ALGOS[k], r = results[k];
+      const tr = document.createElement('tr');
+      if (k === key) tr.className = 'active';
+      tr.innerHTML =
+        `<td><span class="dot" style="background:${a.color}"></span>${a.name}</td>` +
+        `<td class="num">${r.visited.toLocaleString('cs-CZ')}</td>` +
+        `<td class="num">${r.pathLen ? r.pathLen : '— nenalezeno'}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // ── Tlačítka ─────────────────────────────────────────────────
+  algoButtons.forEach(b => b.addEventListener('click', () => run(b.dataset.algo)));
+  stopBtn.addEventListener('click', stop);
+  document.getElementById('btnReset').addEventListener('click', () => { if (!running) clearSearch(); });
+  document.getElementById('btnClearWalls').addEventListener('click', () => {
+    if (running) return;
+    walls.clear(); cells.forEach(c => c.classList.remove('wall')); clearSearch();
+  });
+  document.getElementById('btnMaze').addEventListener('click', () => {
+    if (running) return;
+    walls.clear(); cells.forEach(c => c.classList.remove('wall'));
+    for (let i = 0; i < N; i++) {
+      if (!isFixed(i) && Math.random() < 0.28) setWall(i, true);
+    }
+    clearSearch();
+  });
+
+  // ── Start ────────────────────────────────────────────────────
+  // pár výchozích zdí, ať se algoritmy hned liší
+  function defaultWalls() {
+    const midC = Math.floor(COLS / 2);
+    for (let r = 2; r < ROWS - 2; r++) if (r !== Math.floor(ROWS/2) - 3) setWall(idx(r, midC), true);
+    const c2 = Math.floor(COLS / 3);
+    for (let r = 1; r < ROWS - 4; r++) setWall(idx(r, c2), true);
+  }
+  defaultWalls();
+  paintFixed();
+</script>
+</body>
+</html>

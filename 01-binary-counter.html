@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Příklad #1 — Binární počítadlo 8×8</title>
+<style>
+  :root {
+    --cell: 56px;
+    --gap: 4px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7;
+    color: #1c1c1e;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; }
+  .back:hover .arrow { transform: translateX(-3px); }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 0 0 20px;
+  }
+
+  /* Mřížka 8×8 */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(8, var(--cell));
+    grid-template-rows: repeat(8, var(--cell));
+    gap: var(--gap);
+    background: #d1d5db;
+    padding: var(--gap);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .cell {
+    background: #ffffff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.08s ease;
+  }
+  .cell:hover { outline: 2px solid #93c5fd; outline-offset: -2px; }
+  .cell.on { background: #111827; }
+
+  /* Ovládání */
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  button {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s ease, transform 0.05s ease;
+  }
+  button:active { transform: scale(0.97); }
+  #clearBtn { background: #e5e7eb; color: #374151; }
+  #clearBtn:hover { background: #d1d5db; }
+  #runBtn { background: #2563eb; color: #fff; min-width: 110px; }
+  #runBtn:hover { background: #1d4ed8; }
+  #runBtn.running { background: #dc2626; }
+  #runBtn.running:hover { background: #b91c1c; }
+
+  /* Výpis aktuální hodnoty */
+  .readout {
+    margin-top: 20px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    text-align: center;
+  }
+  .readout .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+    margin-bottom: 4px;
+  }
+  .readout .bin {
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    color: #111827;
+    white-space: nowrap;
+  }
+  .readout .bin .byte:nth-child(even) { color: #2563eb; }
+  .readout .dec {
+    font-size: 22px;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 4px;
+  }
+  .readout .hex {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+  .readout .block { margin-top: 12px; }
+
+  /* Odhad zbývajícího času */
+  .eta {
+    margin-top: 22px;
+    width: min(520px, 92vw);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    text-align: center;
+  }
+  .eta .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+    margin-bottom: 8px;
+  }
+  .bar {
+    position: relative;
+    height: 18px;
+    background: #e5e7eb;
+    border-radius: 9px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .bar .fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0%;
+    min-width: 2px;
+    background: linear-gradient(90deg, #34d399, #2563eb);
+    border-radius: 9px;
+    transition: width 0.1s linear;
+  }
+  .eta .progress-text {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #374151;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  .eta .time {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+  }
+  .eta .compare {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .speed {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">01</span>Binární počítadlo 8×8</h1>
+  <p class="subtitle">Klikni do mřížky a nastav bity. 64 polí = 64bitové číslo.</p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="controls">
+    <button id="clearBtn">CLEAR</button>
+    <button id="runBtn">RUN</button>
+  </div>
+
+  <div class="speed">
+    rychlost:
+    <input type="range" id="speed" min="0" max="500" value="60" step="10">
+    <span id="speedVal">60 ms</span>
+  </div>
+
+  <div class="readout">
+    <div class="block">
+      <div class="label">binárně (64 bitů, po bajtech)</div>
+      <div class="bin" id="binVal"></div>
+    </div>
+    <div class="block">
+      <div class="label">desítkově</div>
+      <div class="dec" id="decVal">0</div>
+      <div class="hex" id="hexVal">0x0000000000000000</div>
+    </div>
+  </div>
+
+  <div class="eta">
+    <div class="label">postup — kolik kombinací už proběhlo</div>
+    <div class="bar"><div class="fill" id="etaFill"></div></div>
+    <div class="progress-text" id="etaProgress"></div>
+    <div class="time" id="etaTime"></div>
+    <div class="compare" id="etaCompare"></div>
+  </div>
+
+<script>
+  // ── Konstanty ────────────────────────────────────────────────
+  const SIZE = 8;
+  const BITS = SIZE * SIZE;            // 64
+  const MASK = (1n << BigInt(BITS)) - 1n;  // maska na 64 bitů
+
+  // Mapování pole → bit:
+  //   pole 0 (vlevo nahoře)  = nejvyšší bit (bit 63)
+  //   pole 63 (vpravo dole)  = nejnižší bit (bit 0)
+  // Čte se tedy jako binární číslo zleva doprava, shora dolů,
+  // a při přičítání bliká nejrychleji pravý dolní roh.
+  function bitIndex(cellIndex) {
+    return BigInt(BITS - 1 - cellIndex);
+  }
+
+  // ── Stav ─────────────────────────────────────────────────────
+  const gridEl = document.getElementById('grid');
+  const cells = [];
+  let timer = null;
+
+  // ── Vytvoření mřížky ─────────────────────────────────────────
+  for (let i = 0; i < BITS; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.addEventListener('click', () => {
+      if (timer) return;            // během běhu se klikat nedá
+      cell.classList.toggle('on');
+      updateReadout();
+    });
+    gridEl.appendChild(cell);
+    cells.push(cell);
+  }
+
+  // ── Převody mezi mřížkou a číslem ────────────────────────────
+  function gridToNumber() {
+    let n = 0n;
+    for (let i = 0; i < BITS; i++) {
+      if (cells[i].classList.contains('on')) {
+        n |= (1n << bitIndex(i));
+      }
+    }
+    return n;
+  }
+
+  function numberToGrid(n) {
+    for (let i = 0; i < BITS; i++) {
+      const isOn = (n >> bitIndex(i)) & 1n;
+      cells[i].classList.toggle('on', isOn === 1n);
+    }
+  }
+
+  // ── Výpis hodnoty ────────────────────────────────────────────
+  function updateReadout() {
+    const n = gridToNumber();
+
+    // desítkově a šestnáctkově
+    document.getElementById('decVal').textContent = n.toString(10);
+    document.getElementById('hexVal').textContent =
+      '0x' + n.toString(16).toUpperCase().padStart(16, '0');
+
+    // binárně: 64 bitů, rozdělené do 8 bajtů (každý bajt obarvený střídavě)
+    const bin = n.toString(2).padStart(BITS, '0');
+    const bytes = [];
+    for (let i = 0; i < BITS; i += 8) {
+      bytes.push('<span class="byte">' + bin.slice(i, i + 8) + '</span>');
+    }
+    document.getElementById('binVal').innerHTML = bytes.join(' ');
+
+    updateEta(n);
+  }
+
+  // ── Odhad zbývajícího času ───────────────────────────────────
+  const TOTAL = MASK + 1n;                 // 2^64 kombinací celkem
+  const MS_PER_YEAR = 31557600;            // 365.25 dne (v sekundách×1000 → ms)
+  const UNIVERSE_YEARS = 1.38e10;          // stáří vesmíru pro porovnání
+
+  // měřená reálná rychlost (pro režim 0 ms = "co nejrychleji")
+  let measuredMsPerStep = null;
+
+  function humanizeMs(ms) {
+    // ms je číslo (float). Vrátí pěkný textový popis trvání.
+    if (ms < 1)     return '< 1 ms';
+    if (ms < 1000)  return ms.toFixed(0) + ' ms';
+
+    const sec = ms / 1000;
+    if (sec < 60)   return sec.toFixed(1) + ' s';
+    if (sec < 3600) return (sec / 60).toFixed(1) + ' min';
+    if (sec < 86400) return (sec / 3600).toFixed(1) + ' h';
+    if (sec < 31557600) return (sec / 86400).toFixed(1) + ' dní';
+
+    const years = sec / 31557600;
+    if (years < 1e6) return years.toLocaleString('cs-CZ', {maximumFractionDigits: 0}) + ' let';
+    return years.toExponential(2).replace('e+', ' × 10^') + ' let';
+  }
+
+  function updateEta(n) {
+    const fill = document.getElementById('etaFill');
+    const prog = document.getElementById('etaProgress');
+    const timeEl = document.getElementById('etaTime');
+    const cmpEl = document.getElementById('etaCompare');
+
+    // procento postupu (s vysokou přesností přes BigInt)
+    const pctMilli = Number((n * 100000000n) / MASK) / 1000000;  // % na 6 des. míst
+    fill.style.width = Math.max(pctMilli, 0.3) + '%';
+    prog.innerHTML =
+      n.toLocaleString('cs-CZ') + ' z ' + TOTAL.toLocaleString('cs-CZ') +
+      ' &nbsp;(' + pctMilli.toFixed(6) + ' %)';
+
+    // ms na jeden krok: buď z posuvníku, nebo (při 0) z reálného měření
+    const delay = Number(document.getElementById('speed').value);
+    const remaining = Number(MASK - n);    // kolik kroků zbývá (odhad)
+
+    let msPerStep = delay;
+    if (delay === 0) {
+      if (measuredMsPerStep === null) {
+        timeEl.textContent = 'měřím reálnou rychlost…';
+        cmpEl.textContent = '';
+        return;
+      }
+      msPerStep = measuredMsPerStep;
+    }
+
+    const remMs = remaining * msPerStep;
+    timeEl.textContent = 'zbývá ≈ ' + humanizeMs(remMs);
+
+    // porovnání se stářím vesmíru
+    const years = (remMs / 1000) / 31557600;
+    if (years > UNIVERSE_YEARS / 100) {
+      const ratio = years / UNIVERSE_YEARS;
+      cmpEl.textContent = ratio >= 1
+        ? '≈ ' + ratio.toLocaleString('cs-CZ', {maximumFractionDigits: 1}) + '× stáří vesmíru'
+        : '≈ ' + (ratio * 100).toFixed(1) + ' % stáří vesmíru';
+    } else {
+      cmpEl.textContent = '';
+    }
+  }
+
+  // ── Tlačítka ─────────────────────────────────────────────────
+  const clearBtn = document.getElementById('clearBtn');
+  const runBtn = document.getElementById('runBtn');
+
+  clearBtn.addEventListener('click', () => {
+    stop();
+    cells.forEach(c => c.classList.remove('on'));
+    updateReadout();
+  });
+
+  runBtn.addEventListener('click', () => {
+    if (timer) { stop(); } else { start(); }
+  });
+
+  // měření reálné rychlosti
+  let measureStart = 0, measureCount = 0;
+
+  function start() {
+    runBtn.textContent = 'STOP';
+    runBtn.classList.add('running');
+    measureStart = performance.now();
+    measureCount = 0;
+    measuredMsPerStep = null;
+    const delay = Number(document.getElementById('speed').value);
+    timer = setInterval(step, delay);
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    runBtn.textContent = 'RUN';
+    runBtn.classList.remove('running');
+  }
+
+  function step() {
+    // přičti 1, ořízni na 64 bitů (po dosažení maxima přeteče na 0)
+    let n = (gridToNumber() + 1n) & MASK;
+    numberToGrid(n);
+
+    // změř reálnou rychlost — jednou za ~200 ms přepočítej ms/krok
+    measureCount++;
+    const elapsed = performance.now() - measureStart;
+    if (elapsed >= 200) {
+      measuredMsPerStep = elapsed / measureCount;
+      measureStart = performance.now();
+      measureCount = 0;
+      updateSpeedLabel();              // ukaž změřenou rychlost u posuvníku
+    }
+
+    updateReadout();
+  }
+
+  // ── Posuvník rychlosti ───────────────────────────────────────
+  const speedInput = document.getElementById('speed');
+  function updateSpeedLabel() {
+    const ms = Number(speedInput.value);
+    if (ms === 0) {
+      // "co nejrychleji" — ukaž reálně změřenou rychlost, je-li k dispozici
+      if (measuredMsPerStep) {
+        const perSec = Math.round(1000 / measuredMsPerStep).toLocaleString('cs-CZ');
+        document.getElementById('speedVal').textContent =
+          'max (≈ ' + perSec + '/s naměřeno)';
+      } else {
+        document.getElementById('speedVal').textContent = 'max (co nejrychleji)';
+      }
+      return;
+    }
+    const perSec = Math.round(1000 / ms).toLocaleString('cs-CZ');
+    document.getElementById('speedVal').textContent =
+      ms + ' ms (' + perSec + '/s)';
+  }
+
+  speedInput.addEventListener('input', () => {
+    updateSpeedLabel();
+    updateReadout();                  // přepočítej odhad času
+    if (timer) { stop(); start(); }   // přenastav za běhu
+  });
+  updateSpeedLabel();
+
+  updateReadout();
+</script>
+</body>
+</html>

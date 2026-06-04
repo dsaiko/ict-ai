@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Příklad #6 — Neuronová síť kreslí hranici</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 700px;
+           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+
+  canvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           box-shadow: 0 4px 20px rgba(0,0,0,0.07); cursor: crosshair; touch-action: none; }
+
+  /* schéma sítě */
+  .diagram { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 14px 18px 8px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+             width: min(640px, 96vw); }
+  .diagram .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+                    color: #9ca3af; text-align: center; margin-bottom: 4px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+
+  .cls { background: #fff; border: 2px solid #e5e7eb; color: #374151; }
+  .cls.on.a { border-color: #2563eb; color: #2563eb; }
+  .cls.on.b { border-color: #ef4444; color: #ef4444; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+              margin: 18px 0 6px; max-width: 680px; }
+  button { font-size: 13px; font-weight: 600; padding: 9px 16px; border: none;
+           border-radius: 8px; cursor: pointer; transition: background .12s, transform .05s; }
+  button:active { transform: scale(.96); } button:disabled { opacity: .45; cursor: not-allowed; }
+  .go   { background: #2563eb; color: #fff; } .go:hover:not(:disabled){ background:#1d4ed8; }
+  .util { background: #e5e7eb; color: #374151; } .util:hover:not(:disabled){ background:#d1d5db; }
+  .stop { background: #dc2626; color: #fff; } .stop:hover:not(:disabled){ background:#b91c1c; }
+  .data { background: #fff; border: 2px solid #e5e7eb; color: #374151; }
+  .data.on { border-color: #2563eb; color: #2563eb; }
+
+  .stat { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px;
+          color: #374151; margin-top: 12px; display: flex; gap: 22px; flex-wrap: wrap; justify-content:center; }
+  .stat b { color: #111827; }
+  .hint { font-size: 12px; color: #9ca3af; margin-top: 8px; text-align: center; max-width: 640px; }
+
+  .theory { width: min(760px, 96vw); margin-top: 34px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; }
+  .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0 0 10px; font-size: 13px; color: #4b5563; line-height: 1.5; }
+  .tcard p:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">06</span>Neuronová síť kreslí hranici</h1>
+  <p class="intro">
+    Stejná úloha jako u perceptronu, ale teď neuronů spojíme víc do <b>vrstev</b>. Síť pak umí
+    nakreslit i <b>zakřivenou</b> hranici — kruh, spirálu, kříž. Sleduj, jak se barevná
+    rozhodovací plocha <b>tvaruje</b> během trénování.
+  </p>
+
+  <div class="diagram">
+    <div class="label">architektura sítě — 2 → 12 → 12 → 1 · barva a tloušťka spoje = váha (modrá +, červená −)</div>
+    <svg id="net" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <canvas id="cv" width="640" height="440"></canvas>
+
+  <div class="controls">
+    <button class="data on" data-set="circle">Kruh</button>
+    <button class="data" data-set="xor">Kříž (XOR)</button>
+    <button class="data" data-set="spiral">Spirála</button>
+    <button class="data" data-set="blobs">Dvě skupiny</button>
+  </div>
+  <div class="controls">
+    <button class="cls on a" id="clsA">● přidávám modré</button>
+    <button class="cls b"    id="clsB">● přidávám červené</button>
+  </div>
+  <div class="controls">
+    <button class="go"   id="btnTrain">Trénuj</button>
+    <button class="stop" id="btnStop" disabled>■ STOP</button>
+    <button class="util" id="btnReset">Reset sítě</button>
+    <button class="util" id="btnClear">Vyčisti plochu</button>
+  </div>
+
+  <div class="stat">
+    <span>epocha: <b id="epoch">0</b></span>
+    <span>chyba: <b id="loss">–</b></span>
+    <span>přesnost: <b id="acc">–</b></span>
+  </div>
+  <div class="hint">Klikáním do plochy přidáváš body zvolené barvy (pravé tlačítko myši = červená). Kruh a kříž se síť naučí rychle, spirála je nejtěžší — chce víc trpělivosti.</div>
+
+  <section class="theory">
+    <div class="head">Proč zvládne to, co perceptron ne</div>
+    <p class="lead">
+      Perceptron uměl jen rovnou čáru. Síť skládá <b>mnoho neuronů ve vrstvách</b> — každý
+      nakreslí jednoduchou čáru a další vrstvy je <b>kombinují</b> do složitějších tvarů.
+      Tak vznikne zakřivená hranice. Učí se <b>zpětným šířením chyby</b> (backpropagation):
+      spočítá se chyba na výstupu a postupně se rozpočítá na všechny váhy, které se trochu posunou.
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span>Vrstvy = skládání tvarů</h3>
+        <p>Skrytá vrstva = sada „čar". Další vrstva je sečte a ohne do křivek. Víc vrstev
+           a neuronů → složitější hranice.</p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span>Backpropagation</h3>
+        <p>Síť hádá, porovná s pravdou, spočítá <b>chybu</b> a tu „pošle zpět" sítí. Každá váha
+           se posune směrem, který chybu zmenší. Opakuje se to tisíckrát.</p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span>Nelineární aktivace</h3>
+        <p>Mezi vrstvami je „ohýbací" funkce (tanh). Bez ní by i hluboká síť uměla jen přímku —
+           právě ona dovolí zakřivení.</p>
+      </div>
+      <div class="tcard" style="--c:#a855f7">
+        <h3><span class="dot"></span>Od hraček k LLM</h3>
+        <p>Tahle síť má pár desítek vah. Velké modely jich mají <b>miliardy</b> a místo dvou
+           čísel na vstupu zpracovávají text či obraz — princip učení je ale stejný.</p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const $ = id => document.getElementById(id);
+
+  // ── data v prostoru [-1,1] x [-1,1] ─────────────────────────
+  let points = [];                 // {x,y,label(0/1)}
+  let curSet = 'circle';
+  let curClass = 1;                // 1 = modrá, 0 = červená
+  function rnd(a,b){ return a + Math.random()*(b-a); }
+
+  function genData(kind) {
+    const pts = [], n = 90;
+    if (kind === 'circle') {
+      for (let i=0;i<n;i++){ const x=rnd(-1,1),y=rnd(-1,1); pts.push({x,y,label:(x*x+y*y)<0.36?1:0}); }
+    } else if (kind === 'xor') {
+      for (let i=0;i<n;i++){ const x=rnd(-1,1),y=rnd(-1,1); pts.push({x,y,label:(x*y>0)?1:0}); }
+    } else if (kind === 'spiral') {
+      for (let i=0;i<n;i++){
+        const r=i/n*1.0, t=1.3*i/n*Math.PI*2;
+        pts.push({x:r*Math.cos(t)+rnd(-0.03,0.03), y:r*Math.sin(t)+rnd(-0.03,0.03), label:1});
+        pts.push({x:r*Math.cos(t+Math.PI)+rnd(-0.03,0.03), y:r*Math.sin(t+Math.PI)+rnd(-0.03,0.03), label:0});
+      }
+    } else { // blobs
+      for (let i=0;i<n;i++){
+        pts.push({x:rnd(-0.9,-0.1), y:rnd(-0.7,0.7), label:1});
+        pts.push({x:rnd(0.1,0.9),  y:rnd(-0.7,0.7), label:0});
+      }
+    }
+    return pts;
+  }
+  const toPx = (x,y) => [ (x+1)/2*W, (y+1)/2*H ];
+  const toXY = (px,py) => [ px/W*2-1, py/H*2-1 ];
+
+  // ── malá neuronová síť (MLP) ────────────────────────────────
+  const SIZES = [2, 12, 12, 1];
+  let Wt = [], B = [];             // váhy a biasy
+  function initNet() {
+    Wt = []; B = [];
+    for (let l=1;l<SIZES.length;l++){
+      const rows = SIZES[l], cols = SIZES[l-1];
+      const m = []; const scale = Math.sqrt(2/cols);
+      for (let i=0;i<rows;i++){ const r=[]; for(let j=0;j<cols;j++) r.push(rnd(-1,1)*scale); m.push(r); }
+      Wt.push(m); B.push(new Array(rows).fill(0));
+    }
+  }
+  const tanh = z => Math.tanh(z);
+  const sig  = z => 1/(1+Math.exp(-z));
+
+  function forward(input) {
+    const acts = [input.slice()];   // a[0] = vstup
+    let a = input;
+    for (let l=0;l<Wt.length;l++){
+      const out = new Array(SIZES[l+1]);
+      for (let i=0;i<SIZES[l+1];i++){
+        let z = B[l][i]; const row = Wt[l][i];
+        for (let j=0;j<a.length;j++) z += row[j]*a[j];
+        out[i] = (l===Wt.length-1) ? sig(z) : tanh(z);
+      }
+      acts.push(out); a = out;
+    }
+    return acts;
+  }
+
+  function trainStep(lr) {
+    // jedna epocha = projít všechny body (stochasticky)
+    for (const p of points) {
+      const acts = forward([p.x, p.y]);
+      const L = Wt.length;
+      // delta na výstupu (MSE + sigmoid)
+      let delta = [];
+      const o = acts[L][0];
+      delta[L-1] = [ (o - p.label) * o * (1-o) ];
+      // skryté vrstvy zpětně
+      for (let l=L-2;l>=0;l--){
+        const d = new Array(SIZES[l+1]).fill(0);
+        for (let i=0;i<SIZES[l+1];i++){
+          let s=0;
+          for (let k=0;k<SIZES[l+2];k++) s += Wt[l+1][k][i]*delta[l+1][k];
+          const a = acts[l+1][i];
+          d[i] = s * (1 - a*a);     // derivace tanh
+        }
+        delta[l] = d;
+      }
+      // aktualizace vah
+      for (let l=0;l<L;l++){
+        const aPrev = acts[l];
+        for (let i=0;i<SIZES[l+1];i++){
+          const g = lr*delta[l][i];
+          for (let j=0;j<aPrev.length;j++) Wt[l][i][j] -= g*aPrev[j];
+          B[l][i] -= g;
+        }
+      }
+    }
+  }
+
+  function metrics() {
+    if (!points.length) return { loss: 0, acc: 0 };
+    let loss=0, ok=0;
+    for (const p of points) {
+      const o = forward([p.x,p.y])[Wt.length][0];
+      loss += (o-p.label)*(o-p.label);
+      if ((o>=0.5?1:0)===p.label) ok++;
+    }
+    return { loss: loss/points.length, acc: ok/points.length };
+  }
+
+  // ── vykreslení ───────────────────────────────────────────────
+  function draw() {
+    ctx.clearRect(0, 0, W, H);                   // důležité: smaž předchozí snímek
+    // rozhodovací plocha (vzorkování)
+    const cell = 10;
+    for (let px=0; px<W; px+=cell)
+      for (let py=0; py<H; py+=cell) {
+        const [x,y] = toXY(px+cell/2, py+cell/2);
+        const o = forward([x,y])[Wt.length][0];   // 0..1
+        const r = Math.round(239 + (37-239)*o);
+        const g = Math.round(68  + (99-68)*o);
+        const b = Math.round(68  + (235-68)*o);
+        ctx.fillStyle = `rgba(${r},${g},${b},0.55)`;
+        ctx.fillRect(px,py,cell,cell);
+      }
+    // body
+    for (const p of points) {
+      const [px,py] = toPx(p.x,p.y);
+      ctx.beginPath(); ctx.arc(px,py,6,0,7);
+      ctx.fillStyle = p.label===1 ? '#2563eb' : '#ef4444';
+      ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#fff'; ctx.stroke();
+    }
+    const m = metrics();
+    $('loss').textContent = m.loss.toFixed(4);
+    $('acc').textContent  = Math.round(m.acc*100)+' %';
+    updateNetWeights();          // promítni aktuální váhy do schématu
+  }
+
+  // ── běh ──────────────────────────────────────────────────────
+  let timer=null, epoch=0;
+  function setRunning(on){
+    $('btnTrain').disabled=on; $('btnReset').disabled=on; $('btnClear').disabled=on;
+    document.querySelectorAll('.data, .cls').forEach(b=>b.disabled=on);
+    $('btnStop').disabled=!on;
+  }
+  function start(){
+    if (timer || !points.length) return; setRunning(true);
+    timer = setInterval(()=>{
+      for (let k=0;k<4;k++){ trainStep(0.12); epoch++; }   // víc epoch na snímek
+      $('epoch').textContent = epoch;
+      draw();
+      if (epoch>=4000) stop();
+    }, 16);
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;} setRunning(false); }
+
+  function loadSet(kind){
+    if (timer) return;
+    curSet = kind; points = genData(kind); initNet(); epoch=0;
+    $('epoch').textContent = 0;
+    document.querySelectorAll('.data').forEach(b=>b.classList.toggle('on', b.dataset.set===kind));
+    draw();
+  }
+
+  // přidávání bodů klikem — barva podle přepínače (pravé tlačítko = vždy červená)
+  cv.addEventListener('mousedown', e => {
+    if (timer) return;
+    const r = cv.getBoundingClientRect();
+    const [x,y] = toXY(e.clientX-r.left, e.clientY-r.top);
+    points.push({ x, y, label: e.button===2 ? 0 : curClass });
+    draw(); e.preventDefault();
+  });
+  cv.addEventListener('contextmenu', e => e.preventDefault());
+
+  function setClass(c){
+    curClass = c;
+    $('clsA').classList.toggle('on', c===1);
+    $('clsB').classList.toggle('on', c===0);
+  }
+  $('clsA').addEventListener('click', ()=>setClass(1));
+  $('clsB').addEventListener('click', ()=>setClass(0));
+
+  document.querySelectorAll('.data').forEach(b => b.addEventListener('click', ()=>loadSet(b.dataset.set)));
+  $('btnTrain').addEventListener('click', start);
+  $('btnStop').addEventListener('click', stop);
+  $('btnReset').addEventListener('click', ()=>{ if(!timer){ initNet(); epoch=0; $('epoch').textContent=0; draw(); }});
+  $('btnClear').addEventListener('click', ()=>{
+    if (timer) return;
+    points = []; initNet(); epoch=0; $('epoch').textContent=0;
+    document.querySelectorAll('.data').forEach(b=>b.classList.remove('on'));   // žádný preset
+    draw();
+  });
+
+  // ── schéma sítě — strukturu postavíme jednou, váhy barvíme živě ──
+  const NS = 'http://www.w3.org/2000/svg';
+  let netLines = [];
+  function buildNetDiagram(){
+    const svg = document.getElementById('net'); svg.innerHTML = '';
+    const Xs = [90, 250, 410, 555], top = 36, bot = 264;
+    const ypos = (i,n) => n===1 ? (top+bot)/2 : top + i*(bot-top)/(n-1);
+    const pos = SIZES.map((n,l)=> Array.from({length:n}, (_,i)=>({x:Xs[l], y:ypos(i,n)})));
+    netLines = [];
+    const el = (tag, attrs) => { const e = document.createElementNS(NS, tag);
+      for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+    // spoje (j = vstupní uzel, i = výstupní uzel → odpovídá Wt[l][i][j])
+    for (let l=0; l<pos.length-1; l++)
+      for (let i=0; i<pos[l+1].length; i++)
+        for (let j=0; j<pos[l].length; j++){
+          const a = pos[l][j], b = pos[l+1][i];
+          const ln = el('line', { x1:a.x, y1:a.y.toFixed(1), x2:b.x, y2:b.y.toFixed(1),
+                                  stroke:'#cbd5e1', 'stroke-width':0.5 });
+          svg.appendChild(ln); netLines.push({ ln, l, i, j });
+        }
+    // uzly
+    const colors = ['#2563eb', '#94a3b8', '#94a3b8', '#16a34a'];
+    const fills  = ['#eff6ff', '#fff', '#fff', '#ecfdf5'];
+    pos.forEach((layer,l)=>{ const r = (l===0||l===pos.length-1) ? 11 : 8;
+      layer.forEach(p=> svg.appendChild(el('circle',
+        { cx:p.x, cy:p.y.toFixed(1), r, fill:fills[l], stroke:colors[l], 'stroke-width':2 }))); });
+    // popisky
+    const txt = (x,y,t,fill,size) => { const e = el('text',
+      { x, y, 'text-anchor':'middle', 'font-size':size, fill, 'font-weight':700 }); e.textContent = t; svg.appendChild(e); };
+    txt(pos[0][0].x, pos[0][0].y+5, 'x', '#2563eb', 12);
+    txt(pos[0][1].x, pos[0][1].y+5, 'y', '#2563eb', 12);
+    ['vstup','skrytá (12)','skrytá (12)','výstup'].forEach((t,l)=> txt(Xs[l], 288, t, '#9ca3af', 11));
+  }
+  function updateNetWeights(){
+    if (!Wt.length) return;
+    for (const {ln,l,i,j} of netLines){
+      const w = Wt[l][i][j], mag = Math.abs(w);
+      ln.setAttribute('stroke', w>=0 ? '#2563eb' : '#ef4444');
+      ln.setAttribute('stroke-opacity', Math.min(0.85, 0.05+mag*0.5).toFixed(2));
+      ln.setAttribute('stroke-width', Math.min(3, 0.4+mag*0.7).toFixed(2));
+    }
+  }
+
+  buildNetDiagram();
+  loadSet('circle');
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+# Základy umělé inteligence — interaktivní ukázky
+
+Sada interaktivních demonstrací v čistém HTML/JavaScriptu, které **krok po kroku odhalují principy za AI** — od holé kombinatoriky a hranic hrubé síly až po to, jak dnešní jazykové modely reprezentují význam a kontext.
+
+Žádné knihovny, žádná instalace. Stačí otevřít **[`index.html`](index.html)** v prohlížeči a proklikat se ukázkami.
+
+### 🌐 Živá verze: **[www.saiko.cz/ai](https://www.saiko.cz/ai/)**
+
+![Rozcestník](images/00-index.png)
+
+---
+
+## Jak to spustit
+
+- **Online:** otevři **[www.saiko.cz/ai](https://www.saiko.cz/ai/)**.
+- **Lokálně:**
+  1. Stáhni / naklonuj tuto složku.
+  2. Otevři **`index.html`** v libovolném moderním prohlížeči (Chrome, Safari, Firefox, Edge).
+  3. Klikej v rozcestníku na jednotlivé příklady. Každý má vlevo nahoře tlačítko **← ZPĚT**.
+
+> Vše běží lokálně v prohlížeči, nic se nikam neodesílá.
+
+---
+
+## Jak série postupuje
+
+Příklady na sebe navazují — každý vyřeší hranici toho předchozího:
+
+| Etapa | Příklady | O čem to je |
+|------|----------|-------------|
+| 🎲 Prostor možností a jeho zkrocení | 01, 02 | Projít všechny kombinace nejde — pravidla a statistika obří prostor krotí |
+| 🧭 Chytré hledání | 03 | Místo hrubé síly prohledáváme cíleně (BFS, A\*) |
+| 📚 Učení z dat | 04 | Pravidla už nepíšeme ručně, model si je vyčte z textu |
+| 🧠 Učení klasifikace | 05, 06 | Od dělicí přímky (perceptron) ke křivce (neuronová síť) |
+| 🧬 Evoluční optimalizace | 07 | Řešení necháme „vyvinout" výběrem, křížením a mutací |
+| ✨ Cesta k dnešním LLM | 08, 09 | Jak modely reprezentují význam (embeddingy) a kontext (attention) |
+| 🚚 Bonus — optimalizace v praxi | 10 | Problém obchodního cestujícího řešený evolucí (spojuje 01 a 07) |
+
+---
+
+## Příklady
+
+### 01 · Binární počítadlo 8×8
+[→ otevřít `01-binary-counter.html`](01-binary-counter.html)
+
+![Binární počítadlo](images/01.png)
+
+Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tlačítkem RUN je necháš přičítat. Graf zbývajícího času ukazuje, proč „projít všechny kombinace" hrubou silou **nikdy nedoběhne** — i při tisících kroků za sekundu jde o desítky miliard let (víc než stáří vesmíru). Ideální motivace, proč v AI hrubou silu nepoužíváme.
+
+---
+
+### 02 · Od náhody k jazyku
+[→ otevřít `02-jazyk.html`](02-jazyk.html)
+
+![Od náhody k jazyku](images/02.png)
+
+Čtyři kroky **A–D** jako mini-historie jazykových modelů: od kombinatoricky iterovaných náhodných písmen, přes statistiku (pseudojazyk se slabikami) a slovník (skutečná slova bez smyslu) až po gramaticky správné, smysluplné věty. Postupným přidáváním pravidel se z šumu stává jazyk.
+
+---
+
+### 03 · Hledání cesty místo hrubé síly
+[→ otevřít `03-hledani.html`](03-hledani.html)
+
+![Hledání cesty](images/03.png)
+
+Bludiště na mřížce (zdi kreslíš myší) a souboj postupů: **náhodné tápání, hladový, BFS a A\***. Vidíš na vlastní oči, kolik políček každý prozkoumá — a srovnávací tabulka ukáže, proč se hrubá síla nahrazuje chytrým prohledáváním (A\* najde stejně krátkou cestu jako BFS, ale prozkoumá řádově méně).
+
+---
+
+### 04 · Učení z textu — Markovův řetězec
+[→ otevřít `04-markov.html`](04-markov.html)
+
+![Markovův řetězec](images/04.png)
+
+První ukázka **skutečného učení z dat**: model si z vloženého textu spočítá, co po čem nejčastěji následuje, a podle těch pravděpodobností generuje nový text. Posuvníkem řádu kontextu uvidíš, jak z blábolu vzniká skoro čeština — princip „malého jazykového modelu".
+
+---
+
+### 05 · Učení z příkladů — perceptron
+[→ otevřít `05-perceptron.html`](05-perceptron.html)
+
+![Perceptron](images/05.png)
+
+Naklikáš dvě barvy bodů a perceptron sám hledá **dělicí přímku**. Schéma neuronu nad plochou ukazuje živě se měnící váhy během učení. Demonstruje rozdíl mezi „naprogramovat pravidlo" a „nechat ho najít z dat" — i hranici lineárního modelu (na kříž/XOR nestačí).
+
+---
+
+### 06 · Neuronová síť kreslí hranici
+[→ otevřít `06-neuronka.html`](06-neuronka.html)
+
+![Neuronová síť](images/06.png)
+
+Pokračování pětky: síť neuronů (2 → 12 → 12 → 1) zvládne i **zakřivenou** hranici — kruh, kříž, spirálu. Schéma sítě barví spoje podle aktuálních vah (modrá +, červená −), takže vidíš, jak se síť během tréninku „přepojuje". Vlastní data si naklikáš sám.
+
+---
+
+### 07 · Genetický algoritmus
+[→ otevřít `07-genetika.html`](07-genetika.html)
+
+![Genetický algoritmus](images/07.png)
+
+Populace náhodných vět se křížením a mutací generaci po generaci **vyvíjí k cíli**. Ukazuje, jak hledat řešení, aniž bychom ho znali — stačí umět ohodnotit, jak je dobré. Propojuje náhodu z příkladů 1 a 2 s evolucí směrem ke smyslu.
+
+---
+
+### 08 · Tokenizace a embeddingy
+[→ otevřít `08-embeddingy.html`](08-embeddingy.html)
+
+![Tokenizace a embeddingy](images/08.png)
+
+Jak LLM „vidí" text: rozsekání na **tokeny** (s ID ze slovníku) a 2D **mapa významů**, kde podobná slova leží blízko. Včetně počítání s významy — analogie jako **král − muž + žena = královna** nebo **dva − jedna + tři = čtyři**, vykreslené jako vektory na mapě.
+
+---
+
+### 09 · Attention — na co se model dívá
+[→ otevřít `09-attention.html`](09-attention.html)
+
+![Attention](images/09.png)
+
+Klikni na slovo ve větě a uvidíš, kolik **pozornosti** věnuje ostatním — jako procenta a sytost barvy, plus celá mapa pozornosti (matice). Zjednodušená, ale názorná vizualizace mechanismu, na kterém stojí dnešní transformery (architektura za ChatGPT).
+
+---
+
+### 10 · Problém obchodního cestujícího (TSP) — bonus
+[→ otevřít `10-tsp.html`](10-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
+
+![Problém obchodního cestujícího](images/10.png)
+
+Bonusová karta s vloženým starším projektem: **vizualizér TSP řešící nejkratší trasu přes všechna města genetickým algoritmem** přímo v prohlížeči. Spojuje dva principy z této série — **kombinatorickou explozi** (tras je `(n−1)!/2`, projít všechny nejde) a **evoluci** (populace tras se kříží a mutuje k lepšímu), doplněnou o heuristiku **2-opt** (odkřížení hran). Postaveno v TypeScriptu + Canvas + Web Workers, 12 map včetně reálných českých měst. Je to modernizovaný přepis původní Java aplikace z roku 2006.
+
+---
+
+## Poznámky k implementaci
+
+- **Bez závislostí** — každý příklad je jeden samostatný `.html` soubor s vloženým CSS a JavaScriptem.
+- **Přesná aritmetika** — počítadlo v příkladu 1 používá `BigInt`, protože běžné JS číslo je přesné jen do 53 bitů.
+- **Vlastní implementace** — neuronová síť (vč. backpropagation), Markovův řetězec, A\*/BFS, genetický algoritmus i attention jsou napsané od základu, bez ML knihoven, aby šel princip vidět v kódu.
+- Ukázky 08 a 09 jsou **zjednodušené ilustrace** mechanismů (embeddingy promítnuté do 2D, ilustrativní attention), ne natrénované modely — slouží k pochopení principu.
+
+---
+
+## Nasazení
+
+Web je statický, nasazuje se na S3 + CloudFront pomocí `Makefile` (konfigurace v `Makefile.local`, mimo git):
+
+```bash
+make build              # poskládá dist/ z *.html
+make preview            # lokální náhled na http://localhost:8080
+make deploy             # build → sync na S3 → invalidace CloudFront
+make deploy-s3-dryrun   # zkouška deploye nanečisto
+```
+
+---
+
+*SSST 2026 · ICT / AI · [www.saiko.cz/ai](https://www.saiko.cz/ai/)*

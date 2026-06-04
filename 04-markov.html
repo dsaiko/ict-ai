@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Příklad #4 — Učení z textu (Markovův řetězec)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; }
+  .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 24px; max-width: 700px;
+           text-align: center; line-height: 1.5; }
+  .intro b { color: #374151; }
+
+  .panel { width: min(760px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+           color: #9ca3af; margin-bottom: 10px; }
+
+  textarea {
+    width: 100%; min-height: 150px; resize: vertical; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.5;
+    font-family: -apple-system, sans-serif; color: #374151; background: #fafafa;
+  }
+  textarea:focus { outline: 2px solid #93c5fd; border-color: #93c5fd; }
+
+  .opts { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
+  .opt { display: flex; flex-direction: column; gap: 6px; }
+  .seg { display: inline-flex; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; }
+  .seg button { border: none; background: #fff; padding: 8px 16px; font-size: 13px;
+                font-weight: 600; color: #6b7280; cursor: pointer; }
+  .seg button.on { background: #2563eb; color: #fff; }
+  input[type=range] { width: 200px; }
+  .rangeval { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; color: #374151; }
+
+  .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  button.go { font-size: 15px; font-weight: 700; padding: 11px 28px; border: none;
+              border-radius: 8px; cursor: pointer; background: #2563eb; color: #fff;
+              transition: background .12s, transform .05s; }
+  button.go:hover { background: #1d4ed8; }
+  button.go:active { transform: scale(.97); }
+  .stat { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; color: #6b7280; }
+
+  .output { font-family: Georgia, "Times New Roman", serif; font-size: 19px;
+            line-height: 1.65; color: #111827; min-height: 60px; }
+  .output .placeholder { color: #c0c4cc; font-style: italic; font-size: 15px;
+                         font-family: -apple-system, sans-serif; }
+
+  .note { font-size: 12.5px; color: #6b7280; line-height: 1.55; margin-top: 4px; }
+  .note b { color: #374151; }
+
+  /* teorie */
+  .theory { width: min(760px, 96vw); margin-top: 16px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; }
+  .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard {
+    background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+    border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0 0 10px; font-size: 13px; color: #4b5563; line-height: 1.5; }
+  .tcard p:last-child { margin-bottom: 0; }
+  .tcard .pm { font-size: 12.5px; line-height: 1.65; }
+  .tcard .pm div { display: flex; gap: 7px; }
+  .tcard .plus  { color: #16a34a; font-weight: 700; }
+  .tcard .minus { color: #dc2626; font-weight: 700; }
+  .tcard code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px;
+                background: #f3f4f6; padding: 1px 5px; border-radius: 4px; color: #374151; }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">04</span>Učení z textu — Markovův řetězec</h1>
+  <p class="intro">
+    V příkladu 2 jsme pravidla psali <b>ručně</b>. Tady se model <b>učí sám z textu</b>:
+    spočítá, co po čem nejčastěji následuje, a podle těch pravděpodobností generuje nový text.
+    Je to princip „malého jazykového modelu" — a <b>posuvníkem kontextu</b> uvidíš,
+    jak víc paměti = víc smyslu.
+  </p>
+
+  <div class="panel">
+
+    <div class="block">
+      <div class="label">1 · trénovací text (uprav podle libosti)</div>
+      <textarea id="corpus"></textarea>
+    </div>
+
+    <div class="block">
+      <div class="label">2 · nastavení modelu</div>
+      <div class="opts">
+        <div class="opt">
+          <span class="label" style="margin:0">jednotka</span>
+          <div class="seg" id="mode">
+            <button data-mode="char" class="on">po znacích</button>
+            <button data-mode="word">po slovech</button>
+          </div>
+        </div>
+        <div class="opt">
+          <span class="label" style="margin:0">kontext (řád <span id="orderName">n</span>)</span>
+          <input type="range" id="order" min="1" max="5" value="3" step="1">
+          <span class="rangeval" id="orderVal">3</span>
+        </div>
+      </div>
+      <p class="note" id="modelNote"></p>
+    </div>
+
+    <div class="block">
+      <div class="label">3 · vygenerovaný text</div>
+      <div class="output" id="output"><span class="placeholder">stiskni „Generuj"…</span></div>
+      <div class="actions" style="margin-top:14px">
+        <button class="go" id="btnGen">Generuj</button>
+        <span class="stat" id="stat"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Teorie ── -->
+  <section class="theory">
+    <div class="head">Jak to funguje a kde jsou hranice</div>
+    <p class="lead">
+      Markovův řetězec je <b>nejjednodušší jazykový model</b>. Nerozumí významu — jen si z textu
+      <b>spočítá statistiku</b>: „po této kombinaci nejčastěji následuje tohle". Pak generuje tak,
+      že podle těch četností <b>náhodně losuje</b> další znak nebo slovo. Čím delší trénovací text,
+      tím bohatší a věrohodnější výsledek.
+    </p>
+
+    <div class="tcards">
+
+      <div class="tcard" style="--c:#06b6d4">
+        <h3><span class="dot"></span>Jak se model „učí"</h3>
+        <p>Projde text a u každého kousku si zapíše, co po něm následovalo. Z toho vznikne tabulka
+           pravděpodobností — třeba že po <code>"ko"</code> bývá nejčastěji <code>"č"</code>,
+           <code>"u"</code> nebo <code>"s"</code>.</p>
+        <p>Žádná pravidla se nepíšou ručně (na rozdíl od příkladu 2) — <b>vyčtou se z dat</b>.</p>
+      </div>
+
+      <div class="tcard" style="--c:#8b5cf6">
+        <h3><span class="dot"></span>Řád n = kolik si pamatuje</h3>
+        <p>Řád určuje, kolik předchozích jednotek model bere v potaz. To je celé kouzlo posuvníku:</p>
+        <div class="pm">
+          <div><span class="minus">–</span> <b>nízký řád</b> (1–2): málo kontextu → blábol, ale „kreativní"</div>
+          <div><span class="plus">+</span> <b>vyšší řád</b> (3–5): víc kontextu → skoro čeština</div>
+          <div><span class="minus">–</span> <b>moc vysoký</b>: jen opisuje věty z předlohy</div>
+        </div>
+      </div>
+
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span>Po znacích vs. po slovech</h3>
+        <p><b>Znaky:</b> učí se i pravopis a tvar slov — umí vymyslet nová slova, která vypadají
+           česky, ale nemusí existovat.</p>
+        <p><b>Slova:</b> skládá jen existující slova, věty plynou líp, ale potřebuje delší text,
+           jinak jen opakuje předlohu.</p>
+      </div>
+
+      <div class="tcard" style="--c:#ec4899">
+        <h3><span class="dot"></span>Vztah k dnešním LLM</h3>
+        <p>Princip je <b>stejný</b>: předpovědět další kousek textu z předchozího kontextu.
+           Velké modely (ChatGPT) to ale dělají <b>neuronovou sítí</b>, s kontextem tisíců slov
+           a naučené z miliard vět.</p>
+        <p>Proto „rozumí" mnohem víc — ale jádro myšlenky vidíš právě tady.</p>
+      </div>
+
+    </div>
+    <p class="lead" style="margin-top:16px">
+      <b>Pointa:</b> i tahle pár řádků dlouhá „inteligence" dokáže napodobit jazyk překvapivě dobře —
+      a přitom vůbec nechápe, o čem text je. Je to čistá statistika nad daty. Velké jazykové modely
+      jsou v principu totéž, jen <b>nesrovnatelně větší</b>.
+    </p>
+  </section>
+
+<script>
+  // ── Výchozí trénovací text ───────────────────────────────────
+  const DEFAULT_TEXT =
+`Ráno se nad krajinou rozprostřela hustá mlha a tráva byla studená rosou.
+Slunce pomalu vystoupilo nad les a první paprsky se opřely do klidné hladiny rybníka.
+Vítr něžně pohyboval větvemi starých dubů a ptáci začali zpívat své ranní písně.
+Po úzké pěšině šel starý muž a v ruce držel dřevěnou hůl ohlazenou dlaní.
+Kočka tiše ležela na teplém kameni a líně sledovala motýly poletující nad loukou.
+Voda v potoce zurčela mezi hladkými oblázky a odnášela spadané listí kamsi do dálky.
+Děti běhaly po louce, hlasitě se smály a trhaly pestré květiny do velkých kytic.
+Na obloze se honily bílé mraky a stín z nich klouzal přes pole jako tichý přízrak.
+V sadu za chalupou dozrávala jablka a sladká vůně se nesla celou zahradou.
+Včely pilně přelétaly z květu na květ a do úlů snášely lepkavý zlatý med.
+
+V poledne se vzduch rozpálil a cikády rozezvučely svůj neúnavný letní koncert.
+Pod rozložitou lípou seděla babička a klidnýma rukama splétala proutěný košík.
+Pes ležel ve stínu plotu, oddechoval a jedním okem hlídal každý pohyb na dvoře.
+Z kuchyně se linula vůně čerstvě upečeného chleba a bzučení much u okna.
+Mladá dívka nabírala ze studny chladnou vodu a tiše si pobrukovala starou písničku.
+Na poli za vsí kosili sedláci zralé obilí a klasy padaly do úhledných řad.
+
+K večeru se obloha zbarvila do ruda a nad temným obzorem vyšel stříbrný měsíc.
+Z komínů nízkých chalup stoupal modravý kouř a vesnice se ukládala k tichému spánku.
+Žáby v rákosí spustily svůj chraplavý sbor a netopýři kroužili kolem lucerny.
+V noci bylo slyšet jen šumění lesa, praskání ohně a vzdálené houkání moudré sovy.
+Hvězdy se rozsvěcely jedna po druhé, až celá obloha zářila jako rozsypané drahokamy.
+Krajina spala a jen tichá řeka neúnavně plynula dál vstříc šedému svítání.`;
+
+  const corpusEl = document.getElementById('corpus');
+  corpusEl.value = DEFAULT_TEXT;
+
+  // ── Stav ─────────────────────────────────────────────────────
+  let mode = 'char';
+  let order = 3;
+
+  const orderEl = document.getElementById('order');
+  const orderValEl = document.getElementById('orderVal');
+  const orderNameEl = document.getElementById('orderName');
+  const noteEl = document.getElementById('modelNote');
+
+  function updateNote() {
+    if (mode === 'char') {
+      noteEl.innerHTML = `Model se dívá na <b>${order} předchozích znaků</b> a hádá další znak. ` +
+        `Malý řád = blábol, vyšší řád = skoro česká slova (ale opisuje víc z předlohy).`;
+    } else {
+      noteEl.innerHTML = `Model se dívá na <b>${order} předchozích slov</b> a hádá další slovo. ` +
+        `Vyšší řád dává plynulejší věty, ale potřebuje delší trénovací text.`;
+    }
+  }
+  orderEl.addEventListener('input', () => {
+    order = Number(orderEl.value);
+    orderValEl.textContent = order;
+    updateNote();
+  });
+  document.querySelectorAll('#mode button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#mode button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      mode = b.dataset.mode;
+      // u slov má smysl menší řád
+      orderEl.max = mode === 'word' ? '3' : '5';
+      if (Number(orderEl.value) > Number(orderEl.max)) {
+        orderEl.value = orderEl.max; order = Number(orderEl.max); orderValEl.textContent = order;
+      }
+      updateNote();
+    });
+  });
+
+  // ── Sestavení Markovova modelu ───────────────────────────────
+  // mapa: prefix (n jednotek) → seznam možných následníků (s opakováním = četností)
+  function buildModel(units, n) {
+    const model = new Map();
+    for (let i = 0; i + n < units.length; i++) {
+      const key = units.slice(i, i + n).join('');
+      const next = units[i + n];
+      if (!model.has(key)) model.set(key, []);
+      model.get(key).push(next);
+    }
+    return model;
+  }
+
+  function tokenize(text) {
+    if (mode === 'char') return Array.from(text);
+    // po slovech: zachovej interpunkci jako samostatné tokeny
+    return text.replace(/\s+/g, ' ').trim().match(/[\p{L}\p{N}]+|[.,!?;:]/gu) || [];
+  }
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function generate() {
+    const text = corpusEl.value;
+    const units = tokenize(text);
+    if (units.length <= order) {
+      document.getElementById('output').textContent = 'Trénovací text je příliš krátký.';
+      return;
+    }
+    const model = buildModel(units, order);
+
+    // začni od náhodného existujícího prefixu
+    const keys = [...model.keys()];
+    let startKey = pick(keys);
+    let ctx = startKey.split('');
+    const out = ctx.slice();
+
+    const TARGET = mode === 'char' ? 320 : 60;     // délka výstupu
+    for (let i = 0; i < TARGET; i++) {
+      const key = ctx.join('');
+      const options = model.get(key);
+      if (!options) break;
+      const nxt = pick(options);
+      out.push(nxt);
+      ctx = out.slice(out.length - order);
+    }
+
+    let result = mode === 'char'
+      ? out.join('')
+      : out.join(' ').replace(/\s+([.,!?;:])/g, '$1');
+    result = result.charAt(0).toUpperCase() + result.slice(1);
+
+    document.getElementById('output').textContent = result;
+    document.getElementById('stat').textContent =
+      `naučeno ${model.size.toLocaleString('cs-CZ')} stavů · ` +
+      `${units.length.toLocaleString('cs-CZ')} ${mode === 'char' ? 'znaků' : 'slov'} v textu`;
+  }
+
+  document.getElementById('btnGen').addEventListener('click', generate);
+  updateNote();
+</script>
+</body>
+</html>

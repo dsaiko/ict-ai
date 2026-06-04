@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Příklad #2 — Od náhody k jazyku</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7;
+    color: #1c1c1e;
+    margin: 0;
+    padding: 32px 16px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; }
+  .back:hover .arrow { transform: translateX(-3px); }
+  .intro {
+    color: #6b7280; font-size: 14px; margin: 0 0 28px;
+    max-width: 680px; text-align: center; line-height: 1.5;
+  }
+
+  /* ── Boxy s písmeny ──────────────────────────────────────── */
+  .boxes { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+  .box {
+    width: 30px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 5px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 16px; font-weight: 600; color: #111827;
+  }
+  .box.space { background: #eef2f7; color: #9ca3af; }
+
+  /* horní abeceda */
+  .alphabet {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 32px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    max-width: 720px;
+  }
+  .alphabet .label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #9ca3af; text-align: center; margin-bottom: 12px;
+  }
+
+  /* ── Karta příkladu ──────────────────────────────────────── */
+  .card {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 20px 22px; margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    width: min(720px, 96vw);
+  }
+  .card h2 { font-size: 17px; margin: 0 0 2px; display: flex; align-items: center; gap: 8px; }
+  .card h2 .tag {
+    font-size: 12px; font-weight: 700; color: #fff;
+    background: #2563eb; border-radius: 6px; padding: 2px 8px;
+  }
+  .card .desc { color: #6b7280; font-size: 13px; margin: 6px 0 16px; line-height: 1.5; }
+  .card .desc b { color: #374151; }
+
+  .output {
+    min-height: 44px; display: flex; flex-wrap: wrap; gap: 4px;
+    align-items: center; margin-bottom: 14px;
+  }
+  .output.text {
+    font-size: 20px; color: #111827; line-height: 1.5;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .output.text .placeholder,
+  .output .placeholder { color: #c0c4cc; font-style: italic; font-size: 15px; font-family: -apple-system, sans-serif; }
+
+  .row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  button {
+    font-size: 14px; font-weight: 600; padding: 9px 24px;
+    border: none; border-radius: 8px; cursor: pointer; min-width: 100px;
+    background: #2563eb; color: #fff; transition: background .12s, transform .05s;
+  }
+  button:hover { background: #1d4ed8; }
+  button:active { transform: scale(.97); }
+  button.running { background: #dc2626; }
+  button.running:hover { background: #b91c1c; }
+
+  .meta {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px; color: #6b7280;
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">02</span>Od náhody k jazyku</h1>
+  <p class="intro">
+    Stejně jako u čísla z prvního příkladu i tady máme jen sadu symbolů — anglickou abecedu a mezeru.
+    Ukážeme, jak se z čisté náhody postupně přidáváním <b>znalostí a pravidel</b> stává něco, co vypadá
+    (a nakonec i znamená) jako jazyk. To je v kostce cesta od „opice na klávesnici" až k jazykovým modelům.
+  </p>
+
+  <div class="alphabet">
+    <div class="label">naše „abeceda" — 26 písmen + mezera (27 symbolů)</div>
+    <div class="boxes" id="alphabet"></div>
+  </div>
+
+  <!-- ── Příklad A ── -->
+  <div class="card">
+    <h2><span class="tag">A</span> Kombinatorika — hrubá síla</h2>
+    <p class="desc">
+      Iterujeme všechny kombinace jako čítač z prvního příkladu, jen v <b>soustavě o základu 27</b>.
+      Začínáme od samých „A" a přičítáme +1. Vidíš, že se hýbe jen pár písmen vpravo a smysluplnou větu
+      bys takhle nikdy nesložil — možností je 27<sup>N</sup>.
+    </p>
+    <div class="output boxes" id="outA"></div>
+    <div class="row">
+      <button id="btnA">RUN</button>
+      <span class="meta" id="metaA"></span>
+    </div>
+  </div>
+
+  <!-- ── Příklad B ── -->
+  <div class="card">
+    <h2><span class="tag">B</span> Statistika písmen — „neznámý jazyk"</h2>
+    <p class="desc">
+      Přidáme jednoduchou <b>statistiku a pravidla</b>: střídáme samohlásky a souhlásky (slabiky),
+      zakážeme nesmysly jako „QQ", omezíme délku slov a vět. Výsledek už není šum — vypadá to jako
+      slova nějakého <b>neznámého jazyka</b>.
+    </p>
+    <div class="output boxes" id="outB"></div>
+    <div class="row">
+      <button id="btnB">RUN</button>
+      <span class="meta">střídání slabik · slova 2–7 písmen · žádné zdvojené souhlásky</span>
+    </div>
+  </div>
+
+  <!-- ── Příklad C ── -->
+  <div class="card">
+    <h2><span class="tag">C</span> Slovník — skutečná slova bez smyslu</h2>
+    <p class="desc">
+      Místo písmen losujeme z <b>opravdového slovníku</b> českých slov. Každé slovo existuje,
+      ale poskládaná věta <b>nedává smysl</b> — chybí gramatika a vztahy mezi slovy.
+    </p>
+    <div class="output text" id="outC"></div>
+    <div class="row">
+      <button id="btnC">RUN</button>
+      <span class="meta">náhodný výběr ze slovníku · bez gramatiky</span>
+    </div>
+  </div>
+
+  <!-- ── Příklad D ── -->
+  <div class="card">
+    <h2><span class="tag">D</span> Gramatika — smysluplné věty</h2>
+    <p class="desc">
+      Nakonec přidáme <b>gramatická pravidla</b> (větné vzory, shoda, pádové tvary). Teprve teď
+      vznikají věty, které <b>dávají smysl</b>. Tudy vede cesta k jazykovým modelům — ty se ovšem
+      pravidla i statistiku neučí ručně, ale z obrovského množství textu.
+    </p>
+    <div class="output text" id="outD"></div>
+    <div class="row">
+      <button id="btnD">RUN</button>
+      <span class="meta">větné vzory + pádová shoda</span>
+    </div>
+  </div>
+
+<script>
+  // ── Abeceda ──────────────────────────────────────────────────
+  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const SYMBOLS = (LETTERS + ' ');            // 27 symbolů (poslední = mezera)
+
+  function makeBox(ch) {
+    const b = document.createElement('div');
+    b.className = 'box' + (ch === ' ' ? ' space' : '');
+    b.textContent = ch === ' ' ? '␣' : ch;
+    return b;
+  }
+  function renderBoxes(el, str) {
+    el.innerHTML = '';
+    for (const ch of str) el.appendChild(makeBox(ch));
+  }
+
+  // horní přehled abecedy
+  (function(){
+    const el = document.getElementById('alphabet');
+    for (const ch of SYMBOLS) el.appendChild(makeBox(ch));
+  })();
+
+  // pomocník: spínací tlačítko RUN/STOP
+  function toggleButton(btn, isRunning) {
+    btn.textContent = isRunning ? 'STOP' : 'RUN';
+    btn.classList.toggle('running', isRunning);
+  }
+  function randInt(n) { return Math.floor(Math.random() * n); }
+  function pick(arr) { return arr[randInt(arr.length)]; }
+
+  // ════════════════════════════════════════════════════════════
+  //  PŘÍKLAD A — kombinatorický čítač v soustavě o základu 27
+  // ════════════════════════════════════════════════════════════
+  const A_LEN = 18;
+  const A_BASE = 27n;
+  const A_TOTAL = A_BASE ** BigInt(A_LEN);   // 27^18 možností
+  let aVal = 0n, aStep = 0, aTimer = null;
+
+  function aToString(val) {
+    let s = '';
+    for (let i = 0; i < A_LEN; i++) {
+      const d = Number(val % A_BASE);
+      s = SYMBOLS[d] + s;
+      val /= A_BASE;
+    }
+    return s;
+  }
+  function aRender() {
+    renderBoxes(document.getElementById('outA'), aToString(aVal));
+    document.getElementById('metaA').textContent =
+      'krok ' + aStep.toLocaleString('cs-CZ') +
+      ' · možností: 27^18 ≈ ' + Number(A_TOTAL).toExponential(1).replace('e+', ' × 10^');
+  }
+  document.getElementById('btnA').addEventListener('click', function() {
+    if (aTimer) { clearInterval(aTimer); aTimer = null; toggleButton(this, false); return; }
+    aVal = 0n; aStep = 0; aRender();          // vždy od začátku
+    toggleButton(this, true);
+    aTimer = setInterval(() => {
+      aVal = (aVal + 1n) % A_TOTAL; aStep++; aRender();
+    }, 55);
+  });
+  aRender();
+
+  // ════════════════════════════════════════════════════════════
+  //  PŘÍKLAD B — pseudojazyk podle statistiky/pravidel
+  // ════════════════════════════════════════════════════════════
+  const VOWELS = 'AEIOU';
+  const CONSON = 'BCDFGHKLMNPRSTVZ';          // bez vzácných/cizích (Q,W,X,Y,J)
+  function bSyllable() {
+    // slabika typu CV nebo CVC
+    let s = pick(CONSON) + pick(VOWELS);
+    if (Math.random() < 0.35) s += pick(CONSON);
+    return s;
+  }
+  function bWord() {
+    const syll = 1 + randInt(2);              // 1–2 slabiky
+    let w = '';
+    for (let i = 0; i < syll; i++) {
+      let nxt = bSyllable();
+      // žádné zdvojené souhlásky na švu (např. ...T|T...)
+      if (w && !VOWELS.includes(w[w.length-1]) && w[w.length-1] === nxt[0]) {
+        nxt = pick(VOWELS) + nxt;
+      }
+      w += nxt;
+    }
+    return w.slice(0, 7);                      // omezení délky slova
+  }
+  function bSentence() {
+    const n = 3 + randInt(4);                  // 3–6 slov
+    const words = [];
+    for (let i = 0; i < n; i++) words.push(bWord());
+    return words.join(' ');
+  }
+  let bTimer = null;
+  document.getElementById('btnB').addEventListener('click', function() {
+    if (bTimer) { clearInterval(bTimer); bTimer = null; toggleButton(this, false); return; }
+    toggleButton(this, true);
+    const tick = () => renderBoxes(document.getElementById('outB'), bSentence());
+    tick();
+    bTimer = setInterval(tick, 700);
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  PŘÍKLAD C — skutečná slova, ale bez gramatiky
+  // ════════════════════════════════════════════════════════════
+  const C_WORDS = [
+    'kočka','pes','dům','strom','voda','slunce','kniha','auto','město','ryba',
+    'běžet','spát','jíst','vidět','mít','dělat','zpívat','skákat','myslet','letět',
+    'velký','malý','zelený','rychlý','starý','nový','krásný','tmavý','tichý',
+    'rychle','včera','dnes','tam','venku','nahoře','potom',
+    'na','pod','v','za','před','kolem','mezi'
+  ];
+  function cSentence() {
+    const n = 4 + randInt(4);                  // 4–7 slov
+    const out = [];
+    for (let i = 0; i < n; i++) out.push(pick(C_WORDS));
+    let s = out.join(' ');
+    return s.charAt(0).toUpperCase() + s.slice(1) + '.';
+  }
+  let cTimer = null;
+  document.getElementById('btnC').addEventListener('click', function() {
+    if (cTimer) { clearInterval(cTimer); cTimer = null; toggleButton(this, false); return; }
+    toggleButton(this, true);
+    const tick = () => document.getElementById('outC').textContent = cSentence();
+    tick();
+    cTimer = setInterval(tick, 1100);
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  PŘÍKLAD D — smysluplné věty z gramatických vzorů
+  // ════════════════════════════════════════════════════════════
+  // předem sestavené (gramaticky správné) stavební kameny:
+  const D_SUBJ = ['malý pes','černá kočka','starý muž','mladá dívka','veselý chlapec','velký pták'];
+  const D_INTRANS = ['běží','spí','odpočívá','skáče','zpívá','sedí'];
+  const D_PLACE = ['na zahradě','v lese','na louce','u řeky','na střeše','doma'];
+  const D_TRANS = ['má','vidí','chytá','hledá'];
+  const D_OBJ = ['kost','rybu','míč','myš','stín'];
+
+  function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  function dSentence() {
+    if (Math.random() < 0.55) {
+      // vzor 1: PODMĚT + nepřechodné sloveso + místo
+      return cap(`${pick(D_SUBJ)} ${pick(D_INTRANS)} ${pick(D_PLACE)}.`);
+    }
+    // vzor 2: PODMĚT + přechodné sloveso + předmět (4. pád)
+    return cap(`${pick(D_SUBJ)} ${pick(D_TRANS)} ${pick(D_OBJ)}.`);
+  }
+  let dTimer = null;
+  document.getElementById('btnD').addEventListener('click', function() {
+    if (dTimer) { clearInterval(dTimer); dTimer = null; toggleButton(this, false); return; }
+    toggleButton(this, true);
+    const tick = () => document.getElementById('outD').textContent = dSentence();
+    tick();
+    dTimer = setInterval(tick, 1500);
+  });
+
+  // úvodní placeholdery
+  document.getElementById('outB').innerHTML = '<span class="placeholder">stiskni RUN…</span>';
+  document.getElementById('outC').innerHTML = '<span class="placeholder">stiskni RUN…</span>';
+  document.getElementById('outD').innerHTML = '<span class="placeholder">stiskni RUN…</span>';
+</script>
+</body>
+</html>
