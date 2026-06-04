@@ -39,7 +39,8 @@ The examples build on each other — each one solves the limitation of the previ
 | 🧠 Learning to classify | 05, 06 | From a separating line (perceptron) to a curve (neural network) |
 | 🧬 Evolutionary optimization | 07 | We let the solution "evolve" through selection, crossover and mutation |
 | ✨ The road to today's LLMs | 08, 09 | How models represent meaning (embeddings) and context (attention) |
-| 🚚 Bonus — optimization in practice | 10 | The travelling salesman problem solved by evolution (joins 01 and 07) |
+| ✍️ How an LLM writes | 10 | Generating text token by token: probabilities, sampling, temperature/top-k/top-p, hallucination |
+| 🚚 Bonus — optimization in practice | 11 | The travelling salesman problem solved by evolution (joins 01 and 07) |
 
 ---
 
@@ -126,10 +127,19 @@ Click a word in a sentence and see how much **attention** it pays to the others 
 
 ---
 
-### 10 · The travelling salesman problem (TSP) — bonus
-[→ open `10-tsp.html`](10-tsp.html) · [app ↗](https://saiko.cz/tsp/) · [source code ↗](https://github.com/dsaiko/tsp)
+### 10 · How an LLM writes — next-token prediction
+[→ open `10-token.html`](10-token.html)
 
-![Travelling salesman problem](images/10.png)
+![How an LLM writes](images/10.png)
+
+Real language models don't blurt out a finished answer — they write it **token by token**. At each step the model computes a probability for every possible next word and **samples** one. This demo shows that step live: a probability bar chart, an editable prompt, and **temperature / top-k / top-p** controls that change how boldly it samples — with a small built-in word model (like the Markov chain in 04) under the hood. It also shows **why models hallucinate**: even when unsure (a flat distribution or an unknown context) the model still confidently picks something. The synthesis of the LLM arc — meaning (08) + context (09) → generation.
+
+---
+
+### 11 · The travelling salesman problem (TSP) — bonus
+[→ open `11-tsp.html`](11-tsp.html) · [app ↗](https://saiko.cz/tsp/) · [source code ↗](https://github.com/dsaiko/tsp)
+
+![Travelling salesman problem](images/11.png)
 
 A bonus card with an embedded older project: a **TSP visualizer that solves the shortest route through all the cities with a genetic algorithm** right in the browser. It joins two principles of this series — **combinatorial explosion** (there are `(n−1)!/2` routes, going through them all is impossible) and **evolution** (a population of routes crosses over and mutates toward better ones), plus the **2-opt** heuristic (uncrossing edges). Built in TypeScript + Canvas + Web Workers, 12 maps including real Czech cities. It's a modernized rewrite of the original Java app from 2006.
 
@@ -203,7 +213,8 @@ Příklady na sebe navazují — každý vyřeší hranici toho předchozího:
 | 🧠 Učení klasifikace | 05, 06 | Od dělicí přímky (perceptron) ke křivce (neuronová síť) |
 | 🧬 Evoluční optimalizace | 07 | Řešení necháme „vyvinout" výběrem, křížením a mutací |
 | ✨ Cesta k dnešním LLM | 08, 09 | Jak modely reprezentují význam (embeddingy) a kontext (attention) |
-| 🚚 Bonus — optimalizace v praxi | 10 | Problém obchodního cestujícího řešený evolucí (spojuje 01 a 07) |
+| ✍️ Jak LLM píše | 10 | Generování textu token po tokenu: pravděpodobnosti, vzorkování, teplota/top-k/top-p, halucinace |
+| 🚚 Bonus — optimalizace v praxi | 11 | Problém obchodního cestujícího řešený evolucí (spojuje 01 a 07) |
 
 ---
 
@@ -290,10 +301,19 @@ Klikni na slovo ve větě a uvidíš, kolik **pozornosti** věnuje ostatním —
 
 ---
 
-### 10 · Problém obchodního cestujícího (TSP) — bonus
-[→ otevřít `10-tsp.html`](10-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
+### 10 · Jak LLM píše — predikce dalšího tokenu
+[→ otevřít `10-token.html`](10-token.html)
 
-![Problém obchodního cestujícího](images/10.png)
+![Jak LLM píše](images/10.png)
+
+Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token po tokenu**. V každém kroku spočítají pravděpodobnost pro každé možné další slovo a jedno **losují**. Ukázka to zobrazí naživo: sloupcový graf pravděpodobností, editovatelný začátek věty a ovládání **teploty / top-k / top-p**, které mění, jak odvážně model losuje — pod kapotou běží malý slovní model (jako Markov ve 4). Zároveň ukazuje, **proč modely halucinují**: i když si není jistý (ploché rozdělení nebo neznámý kontext), model stejně sebevědomě něco vybere. Vyvrcholení linie o LLM — význam (08) + kontext (09) → generování.
+
+---
+
+### 11 · Problém obchodního cestujícího (TSP) — bonus
+[→ otevřít `11-tsp.html`](11-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
+
+![Problém obchodního cestujícího](images/11.png)
 
 Bonusová karta s vloženým starším projektem: **vizualizér TSP řešící nejkratší trasu přes všechna města genetickým algoritmem** přímo v prohlížeči. Spojuje dva principy z této série — **kombinatorickou explozi** (tras je `(n−1)!/2`, projít všechny nejde) a **evoluci** (populace tras se kříží a mutuje k lepšímu), doplněnou o heuristiku **2-opt** (odkřížení hran). Postaveno v TypeScriptu + Canvas + Web Workers, 12 map včetně reálných českých měst. Je to modernizovaný přepis původní Java aplikace z roku 2006.
 

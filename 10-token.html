@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
+<title>Příklad #10 — Jak LLM píše: predikce dalšího tokenu</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
+           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+
+  .explain { width: min(760px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
+  .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  .explain p b { color: #374151; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
+                 border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
+                 font-size: 12.5px; color: #374151; font-weight: 600; }
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #8b5cf6; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .arr { color: #9ca3af; font-size: 15px; }
+  .flow .repeat { color: #16a34a; font-weight: 600; font-size: 12px; }
+
+  .panel { width: min(760px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+
+  /* text vstup (kontext) */
+  .seqwrap { position: relative; }
+  #text { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 13px;
+    font-size: 18px; font-family: Georgia, "Times New Roman", serif; color: #111827; background: #fafafa;
+    line-height: 1.5; min-height: 56px; resize: vertical; }
+  #text:focus { outline: 2px solid #93c5fd; border-color: #93c5fd; }
+
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .presets button { font-size: 12px; font-weight: 600; padding: 6px 12px; border: 1px solid #e5e7eb;
+    background: #fff; color: #374151; border-radius: 999px; cursor: pointer; }
+  .presets button:hover { background: #f3f4f6; }
+
+  /* sloupcový graf kandidátů */
+  .bars { margin-top: 6px; }
+  .cand { display: flex; align-items: center; gap: 10px; padding: 3px 0; }
+  .cand.cut { opacity: .32; }
+  .cand .cw { width: 120px; flex: 0 0 120px; text-align: right; font-family: Georgia, serif;
+              font-size: 15px; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cand .cbarwrap { flex: 1; background: #f1f3f5; border-radius: 6px; height: 20px; overflow: hidden; }
+  .cand .cbar { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#a78bfa,#7c3aed);
+                border-radius: 6px; transition: width .18s ease; }
+  .cand.cut .cbar { background: #cbd5e1; }
+  .cand .cp { width: 50px; flex: 0 0 50px; text-align: right; font-family: "SF Mono", Menlo, Consolas, monospace;
+              font-size: 12px; color: #475569; }
+  .barlegend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11.5px; color: #9ca3af; margin-top: 10px; }
+  .barlegend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+
+  .meta { font-size: 12.5px; color: #6b7280; line-height: 1.55; margin-top: 12px;
+          border-top: 1px solid #f0f1f3; padding-top: 12px; }
+  .meta b { color: #111827; }
+  .meta .warn { color: #b45309; }
+
+  /* ovládání vzorkování */
+  .controls2 { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-end; }
+  .opt { display: flex; flex-direction: column; gap: 6px; }
+  .opt .label { margin: 0; }
+  input[type=range] { width: 180px; }
+  .rv { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; color: #374151; }
+
+  .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+  button.go   { font-size: 14px; font-weight: 700; padding: 10px 22px; border: none; border-radius: 8px;
+                cursor: pointer; background: #2563eb; color: #fff; transition: background .12s, transform .05s; }
+  button.go:hover { background: #1d4ed8; } button.go:active { transform: scale(.97); }
+  button.go.running { background: #dc2626; } button.go.running:hover { background: #b91c1c; }
+  button.util { font-size: 14px; font-weight: 600; padding: 10px 18px; border: none; border-radius: 8px;
+                cursor: pointer; background: #e5e7eb; color: #374151; }
+  button.util:hover { background: #d1d5db; }
+
+  .theory { width: min(760px, 96vw); margin-top: 24px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
+</style>
+</head>
+<body>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">10</span><span class="cs">Jak LLM píše — predikce dalšího tokenu</span><span class="en">How an LLM writes — next-token prediction</span></h1>
+  <p class="intro">
+    <span class="cs">Skutečné jazykové modely (jako ChatGPT) nevyhrknou hotovou odpověď — píšou ji <b>slovo po slově</b>
+    (token po tokenu). V každém kroku spočítají <b>pravděpodobnost</b> pro každé možné další slovo a jedno
+    z nich <b>losují</b>. Tady ten krok vidíš naživo a můžeš si pohrát s tím, jak odvážně model losuje.</span>
+    <span class="en">Real language models (like ChatGPT) don't blurt out a finished answer — they write it <b>word by word</b>
+    (token by token). At each step they compute a <b>probability</b> for every possible next word and <b>sample</b>
+    one of them. Here you see that step live and can play with how boldly the model gambles.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co tenhle příklad dělá</span><span class="en">What this example does</span></h2>
+    <p>
+      <span class="cs">Náš mini-model se z krátkého textu naučil, <b>jak často po kterém slově následuje které</b>
+      (jako Markovův řetězec z příkladu 4). Napíšeš začátek věty, model se podívá na <b>poslední slovo</b>
+      a nabídne rozdělení pravděpodobností dalšího slova — sloupečky dole. Tlačítkem <b>Další token</b> jedno
+      slovo losuje a přidá ho na konec; <b>Generuj</b> to dělá opakovaně, takže vidíš, jak text vzniká.</span>
+      <span class="en">Our mini-model learned from a short text <b>how often each word is followed by which</b>
+      (like the Markov chain in example 4). You type the start of a sentence, the model looks at the <b>last word</b>
+      and offers a probability distribution over the next word — the bars below. The <b>Next token</b> button samples
+      one word and appends it; <b>Generate</b> does it repeatedly, so you watch text come into being.</span>
+    </p>
+    <p>
+      <span class="cs">Skutečné LLM se dívají na <b>celou větu</b> (ne jen na poslední slovo — to řeší attention z příkladu 9)
+      a pracují s <b>tokeny</b> (kousky slov, příklad 8), ale princip „spočítej pravděpodobnosti a losuj" je
+      <b>úplně stejný</b>. Posuvníky mění, <i>jak</i> se losuje — sleduj přitom <b>jistotu</b> modelu.</span>
+      <span class="en">Real LLMs look at the <b>whole sentence</b> (not just the last word — that's what attention in example 9 does)
+      and work with <b>tokens</b> (pieces of words, example 8), but the principle "compute probabilities and sample" is
+      <b>exactly the same</b>. The sliders change <i>how</i> it samples — watch the model's <b>confidence</b> as you do.</span>
+    </p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">kontext (co bylo dosud)</span><span class="en">context (so far)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">rozdělení pravděpodobností</span><span class="en">probability distribution</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">ořež (top-k / top-p)</span><span class="en">prune (top-k / top-p)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">los (teplota)</span><span class="en">sample (temperature)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">5</span> <span class="cs">další token</span><span class="en">next token</span></span>
+      <span class="arr">↺</span>
+      <span class="repeat"><span class="cs">a celé znovu</span><span class="en">and all over again</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="block">
+      <div class="label"><span class="cs">1 · text dosud (uprav podle libosti)</span><span class="en">1 · text so far (edit freely)</span></div>
+      <div class="seqwrap"><textarea id="text" rows="2"></textarea></div>
+      <div class="presets" id="presets">
+        <button class="cs" data-seed="Kočka sedí na">Kočka sedí na…</button>
+        <button class="cs" data-seed="Pes běží do">Pes běží do…</button>
+        <button class="cs" data-seed="Ráno slunce">Ráno slunce…</button>
+        <button class="cs" data-seed="Na stole leží">Na stole leží…</button>
+        <button class="en" data-seed="The cat sits on the">The cat sits on the…</button>
+        <button class="en" data-seed="The dog runs into the">The dog runs into the…</button>
+        <button class="en" data-seed="In the morning the">In the morning the…</button>
+        <button class="en" data-seed="On the table lies the">On the table lies the…</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">2 · co model nabízí jako další slovo (pravděpodobnosti)</span><span class="en">2 · what the model offers as the next word (probabilities)</span></div>
+      <div class="bars" id="bars"></div>
+      <div class="barlegend">
+        <span><i style="background:#7c3aed"></i><span class="cs">vybírá se z těchto</span><span class="en">sampled from these</span></span>
+        <span><i style="background:#cbd5e1"></i><span class="cs">odříznuto pomocí top-k / top-p</span><span class="en">cut by top-k / top-p</span></span>
+      </div>
+      <div class="meta" id="meta"></div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">3 · jak losovat</span><span class="en">3 · how to sample</span></div>
+      <div class="controls2">
+        <div class="opt">
+          <span class="label"><span class="cs">teplota</span><span class="en">temperature</span></span>
+          <input type="range" id="temp" min="0.2" max="1.6" value="0.9" step="0.1">
+          <span class="rv" id="tempVal">0.9</span>
+        </div>
+        <div class="opt">
+          <span class="label">top-k</span>
+          <input type="range" id="topk" min="0" max="12" value="5" step="1">
+          <span class="rv" id="topkVal">5</span>
+        </div>
+        <div class="opt">
+          <span class="label">top-p</span>
+          <input type="range" id="topp" min="0.2" max="1" value="1" step="0.05">
+          <span class="rv" id="toppVal">1.00</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="go" id="btnStep"><span class="cs">Další token</span><span class="en">Next token</span></button>
+        <button class="go" id="btnGen"><span class="cs">Generuj</span><span class="en">Generate</span></button>
+        <button class="util" id="btnReset"><span class="cs">Reset</span><span class="en">Reset</span></button>
+      </div>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Jak vzniká text — a proč modely občas „kecají"</span><span class="en">How text is generated — and why models sometimes "make things up"</span></div>
+    <p class="lead">
+      <span class="cs">Tady je srdce každého jazykového modelu: text vzniká <b>po jednom tokenu</b>. V každém kroku model spočítá,
+      jak je které další slovo pravděpodobné, podle nastavení trochu „zatřese" pravděpodobnostmi a jedno slovo
+      <b>losuje</b>. To se přidá na konec — a celé se to opakuje.</span>
+      <span class="en">This is the heart of every language model: text is generated <b>one token at a time</b>. At each step the model
+      computes how likely each next word is, "shakes" the probabilities a little according to the settings, and
+      <b>samples</b> one word. It's appended to the end — and the whole thing repeats.</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#7c3aed">
+        <h3><span class="dot"></span><span class="cs">Generování = losování</span><span class="en">Generation = sampling</span></h3>
+        <p><span class="cs">Model nevybere „to správné" slovo — pro každé možné má pravděpodobnost a jedno z nich losuje.
+           Proto stejný začátek může pokaždé pokračovat jinak.</span>
+           <span class="en">The model doesn't pick "the right" word — it has a probability for each and samples one of them.
+           That's why the same beginning can continue differently each time.</span></p>
+      </div>
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span><span class="cs">Teplota</span><span class="en">Temperature</span></h3>
+        <p><span class="cs">Mění ostrost rozdělení. <b>Nízká</b> → skoro vždy nejpravděpodobnější slovo (jisté, ale nudné a opakující se).
+           <b>Vysoká</b> → šanci dostanou i méně pravděpodobná slova (kreativní až nesmyslné).</span>
+           <span class="en">Changes how sharp the distribution is. <b>Low</b> → almost always the most likely word (safe, but dull and
+           repetitive). <b>High</b> → less likely words get a chance too (creative, even nonsensical).</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">top-k a top-p</span><span class="en">top-k and top-p</span></h3>
+        <p><span class="cs">Ořežou nabídku ještě <b>před</b> losováním. <b>top-k</b> = ponech k nejpravděpodobnějších slov.
+           <b>top-p</b> (nucleus) = ponech nejmenší skupinu slov, která dohromady dá p % pravděpodobnosti. Brání výběru
+           úplných nesmyslů z dlouhého chvostu.</span>
+           <span class="en">They prune the choices <b>before</b> sampling. <b>top-k</b> = keep the k most likely words.
+           <b>top-p</b> (nucleus) = keep the smallest group of words that together make p % of the probability. This stops
+           total nonsense from the long tail being picked.</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">Proč model „kecá"</span><span class="en">Why the model "makes things up"</span></h3>
+        <p><span class="cs">I když si <b>není jistý</b> (ploché rozdělení nebo neznámý kontext), stejně něco vybere — a tváří se
+           sebevědomě. Halucinace = <b>sebevědomý odhad bez opory v datech</b>. Model nikdy neřekne „nevím", protože
+           pořád jen losuje další token.</span>
+           <span class="en">Even when it's <b>not sure</b> (a flat distribution or unfamiliar context) it still picks something — and
+           sounds confident. A hallucination = <b>a confident guess with no support in the data</b>. The model never says
+           "I don't know", because all it ever does is sample the next token.</span></p>
+      </div>
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span><span class="cs">Trénink × používání (inference)</span><span class="en">Training vs. use (inference)</span></h3>
+        <p><span class="cs">Tady model jen <b>používáme</b> (inference) — četnosti jsou hotové a my z nich jen losujeme.
+           <b>Trénink</b> je něco jiného: tam se ty pravděpodobnosti teprve nastavují z obrovského množství textu
+           (u velkých modelů miliardy vět).</span>
+           <span class="en">Here we only <b>use</b> the model (inference) — the frequencies are fixed and we just sample from them.
+           <b>Training</b> is something else: that's where those probabilities are set from a huge amount of text
+           (billions of sentences for large models).</span></p>
+      </div>
+      <div class="tcard" style="--c:#ec4899">
+        <h3><span class="dot"></span><span class="cs">Vztah ke „skutečným" LLM</span><span class="en">Relation to "real" LLMs</span></h3>
+        <p><span class="cs">Princip je totožný, jen větší: místo posledního slova se model dívá na <b>celou větu</b> (attention,
+           příklad 9), místo slov má <b>tokeny</b> (příklad 8) a pravděpodobnosti počítá <b>neuronová síť</b>
+           (příklady 5–6) naučená z miliard vět.</span>
+           <span class="en">The principle is identical, just bigger: instead of the last word the model looks at the <b>whole sentence</b>
+           (attention, example 9), instead of words it has <b>tokens</b> (example 8), and the probabilities are computed by a
+           <b>neural network</b> (examples 5–6) trained on billions of sentences.</span></p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:16px">
+      <span class="cs"><b>Pointa:</b> model nikdy nezná „správnou odpověď" — jen <b>pravděpodobné pokračování</b>. Teplota a top-k/top-p
+      rozhodují, jak odvážně losuje. A protože vždycky <b>něco</b> vybrat musí, umí i sebevědomě plácnout nesmysl.</span>
+      <span class="en"><b>The point:</b> the model never knows "the right answer" — only a <b>likely continuation</b>. Temperature and
+      top-k/top-p decide how boldly it gambles. And because it always has to pick <b>something</b>, it can confidently blurt
+      out nonsense too.</span>
+    </p>
+  </section>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+
+  // výchozí začátek věty a malý trénovací korpus pro každý jazyk
+  const SEED = { cs: 'Kočka sedí na', en: 'The cat sits on the' };
+  const CORPUS = {
+    cs: `Kočka sedí na stole a dívá se z okna.
+Kočka spí na židli vedle kamen.
+Kočka leží na okně a hřeje se na slunci.
+Pes leží na zemi u dveří.
+Pes běží do zahrady za míčem.
+Malý pes spí na koberci v obýváku.
+Na stole leží kniha a hrnek čaje.
+Na zemi se válí hračky a bota.
+Děti sedí na louce a pozorují mraky.
+Stará kočka odpočívá na střeše domu.
+Pes sedí na zahradě a hlídá dům.
+Kočka skáče na postel a usíná.
+Na okně kvete červená muškát.
+Pes pije vodu z misky na zemi.
+Kočka loví myš na půdě.
+Ráno slunce svítí do kuchyně.
+Večer měsíc svítí na zahradu.
+Dívka čte knihu na posteli.
+Chlapec si hraje na dvoře se psem.
+Na louce se pasou koně a krávy.
+Kočka mňouká na ptáka za oknem.
+Pes štěká na pošťáka u branky.
+Na stromě sedí dva malí ptáci.
+Voda teče v potoce mezi kameny.
+Babička peče koláč v troubě.
+Na talíři leží jablko a kus chleba.
+Kočka se schovává pod stolem.
+Pes spí celý den na slunci.
+Děti běhají po louce a smějí se.
+Na nebi plují bílé mraky.
+Pes běží do lesa za zajícem.
+Kočka sedí na plotě a mňouká.
+Ráno slunce svítí na louku.
+Na stole stojí váza s květinami.`,
+    en: `The cat sits on the table and looks out of the window.
+The cat sleeps on the chair next to the stove.
+The cat lies on the windowsill and warms in the sun.
+The dog lies on the floor by the door.
+The dog runs into the garden after the ball.
+The small dog sleeps on the carpet in the living room.
+On the table lies a book and a cup of tea.
+On the floor lie the toys and a shoe.
+The children sit on the meadow and watch the clouds.
+The old cat rests on the roof of the house.
+The dog sits in the garden and guards the house.
+The cat jumps onto the bed and falls asleep.
+On the windowsill a red flower blooms.
+The dog drinks water from the bowl on the floor.
+The cat hunts a mouse in the attic.
+In the morning the sun shines into the kitchen.
+In the evening the moon shines on the garden.
+The girl reads a book on the bed.
+The boy plays in the yard with the dog.
+On the meadow the horses and cows graze.
+The cat meows at the bird behind the window.
+The dog barks at the postman by the gate.
+On the tree sit two little birds.
+The water flows in the stream between the stones.
+The grandmother bakes a cake in the oven.
+On the plate lies an apple and a piece of bread.
+The cat hides under the table.
+The dog sleeps all day in the sun.
+The children run on the meadow and laugh.
+In the sky white clouds drift.
+The dog runs into the forest after the hare.
+The cat sits on the fence and meows.
+In the morning the sun shines on the meadow.
+On the table stands a vase with flowers.`,
+  };
+
+  const I18N = {
+    cs: {
+      off: 'vyp',
+      empty: 'Napiš nahoře pár slov (nebo klikni na předvolbu) a model nabídne, co by mohlo následovat.',
+      conf: (w, p) => `Po slově „<b>${w}</b>" je model na <b>${p} %</b> jistý nejlepší volbou.`,
+      lowConf: ' Rozdělení je ploché → model si moc nevěří, ale stejně losuje.',
+      halluc: w => `⚠️ Slovo „<b>${w}</b>" model v trénovacím textu nezná — hádá z celkové četnosti slov. Přesně takhle vzniká <b>halucinace</b>: sebevědomý odhad bez opory v datech.`,
+    },
+    en: {
+      off: 'off',
+      empty: 'Type a few words above (or click a preset) and the model will offer what could follow.',
+      conf: (w, p) => `After the word "<b>${w}</b>" the model is <b>${p} %</b> sure of its top choice.`,
+      lowConf: ' The distribution is flat → the model isn’t very sure, yet it still samples.',
+      halluc: w => `⚠️ The model doesn’t know the word "<b>${w}</b>" from its training text — it guesses from overall word frequencies. This is exactly how a <b>hallucination</b> arises: a confident guess with no support in the data.`,
+    },
+  };
+
+  let MODEL = null;
+  function tokenize(t){ return (t.toLowerCase().match(/\p{L}+/gu) || []); }
+  function buildModel(){
+    const words = tokenize(CORPUS[curLang]);
+    const bi = new Map(), uni = new Map();
+    for (let i = 0; i < words.length; i++){
+      uni.set(words[i], (uni.get(words[i]) || 0) + 1);
+      if (i + 1 < words.length){
+        const w = words[i];
+        if (!bi.has(w)) bi.set(w, new Map());
+        const f = bi.get(w); f.set(words[i+1], (f.get(words[i+1]) || 0) + 1);
+      }
+    }
+    MODEL = { bi, uni };
+  }
+
+  // základní rozdělení: pravděpodobnosti dalšího slova po `prev`
+  function baseDist(prev){
+    let counts = MODEL.bi.get(prev), known = true;
+    if (!counts || counts.size === 0){ counts = MODEL.uni; known = false; }
+    const total = [...counts.values()].reduce((a,b)=>a+b, 0);
+    const arr = [...counts.entries()].map(([word,c]) => ({ word, p: c/total }))
+                  .sort((a,b)=>b.p-a.p);
+    return { arr, known };
+  }
+
+  let temp = 0.9, topk = 5, topp = 1;
+
+  // aplikuj teplotu a označ, co projde přes top-k / top-p
+  function shaped(arr){
+    let a = arr.map(d => ({ word: d.word, p: Math.pow(d.p, 1/temp) }));
+    const s = a.reduce((x,y)=>x+y.p, 0); a.forEach(d => d.p /= s);
+    a.sort((x,y)=>y.p-x.p);
+    let cum = 0, reached = false;
+    a.forEach((d,i) => {
+      const keepP = !reached;                 // top-p: drž, dokud jsme nedosáhli p
+      cum += d.p;
+      if (cum >= topp) reached = true;         // tímhle slovem jsme dosáhli p → poslední ponechané
+      const keepK = !(topk > 0 && i >= topk);  // top-k: jen prvních k
+      d.kept = keepP && keepK;
+    });
+    if (!a.some(d => d.kept)) a[0].kept = true;
+    return a;
+  }
+
+  function sampleNext(a){
+    const kept = a.filter(d => d.kept);
+    const s = kept.reduce((x,y)=>x+y.p, 0);
+    let r = Math.random() * s, cum = 0;
+    for (const d of kept){ cum += d.p; if (r <= cum) return d.word; }
+    return kept[kept.length-1].word;
+  }
+
+  function render(){
+    const words = tokenize($('text').value);
+    const prev = words.length ? words[words.length-1] : null;
+    if (!prev){ $('bars').innerHTML = ''; $('meta').innerHTML = I18N[curLang].empty; return; }
+    const { arr, known } = baseDist(prev);
+    const a = shaped(arr);
+    const top = a.slice(0, 9);
+    $('bars').innerHTML = top.map(d => {
+      const pct = Math.round(d.p*100);
+      return `<div class="cand ${d.kept?'':'cut'}">` +
+             `<span class="cw">${d.word}</span>` +
+             `<span class="cbarwrap"><span class="cbar" style="width:${Math.max(2, d.p*100)}%"></span></span>` +
+             `<span class="cp">${pct} %</span></div>`;
+    }).join('');
+    const top1 = Math.round(a[0].p*100);
+    let html = known ? '' : I18N[curLang].halluc(prev) + '<br>';
+    html += I18N[curLang].conf(prev, top1);
+    if (known && top1 < 30) html += '<span class="warn">' + I18N[curLang].lowConf + '</span>';
+    $('meta').innerHTML = html;
+  }
+
+  function step(){
+    const words = tokenize($('text').value);
+    const prev = words.length ? words[words.length-1] : [...MODEL.uni.keys()][0];
+    const a = shaped(baseDist(prev).arr);
+    const nxt = sampleNext(a);
+    $('text').value = ($('text').value.trim() + ' ' + nxt).replace(/\s+/g, ' ');
+    render();
+  }
+
+  // ── ovládání ─────────────────────────────────────────────────
+  function setTempLabel(){ $('tempVal').textContent = temp.toFixed(1); }
+  function setTopkLabel(){ $('topkVal').textContent = topk === 0 ? I18N[curLang].off : String(topk); }
+  function setToppLabel(){ $('toppVal').textContent = topp >= 1 ? '1.00 ('+I18N[curLang].off+')' : topp.toFixed(2); }
+
+  $('temp').addEventListener('input', e => { temp = +e.target.value; setTempLabel(); render(); });
+  $('topk').addEventListener('input', e => { topk = +e.target.value; setTopkLabel(); render(); });
+  $('topp').addEventListener('input', e => { topp = +e.target.value; setToppLabel(); render(); });
+  $('text').addEventListener('input', render);
+
+  $('btnStep').addEventListener('click', () => { stopGen(); step(); });
+
+  let genTimer = null;
+  function setGenRunning(on){
+    $('btnGen').classList.toggle('running', on);
+    const b = $('btnGen');
+    b.querySelector('.cs').textContent = on ? 'Stop' : 'Generuj';
+    b.querySelector('.en').textContent = on ? 'Stop' : 'Generate';
+    $('btnStep').disabled = on;
+  }
+  function stopGen(){ if (genTimer){ clearInterval(genTimer); genTimer = null; setGenRunning(false); } }
+  $('btnGen').addEventListener('click', () => {
+    if (genTimer){ stopGen(); return; }
+    let n = 0; setGenRunning(true);
+    genTimer = setInterval(() => { step(); if (++n >= 16) stopGen(); }, 240);
+  });
+  $('btnReset').addEventListener('click', () => { stopGen(); $('text').value = SEED[curLang]; render(); });
+
+  document.querySelectorAll('#presets button').forEach(b =>
+    b.addEventListener('click', () => { stopGen(); $('text').value = b.dataset.seed; render(); }));
+
+  // ── start ────────────────────────────────────────────────────
+  buildModel();
+  $('text').value = SEED[curLang];
+  setTempLabel(); setTopkLabel(); setToppLabel();
+  render();
+
+  // přepnutí jazyka: nový korpus, výchozí věta (pokud neupravená), překreslení
+  window.onLangChange = function(l){
+    const prev = (l === 'en') ? 'cs' : 'en';
+    const wasDefault = $('text').value.trim() === SEED[prev];
+    curLang = l;
+    buildModel();
+    if (wasDefault) $('text').value = SEED[l];
+    setTopkLabel(); setToppLabel();
+    render();
+  };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #10 — Jak LLM píše: predikce dalšího tokenu",
+      en: "Example #10 — How an LLM writes: next-token prediction"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
+</script>
+</body>
+</html>

@@ -55,7 +55,8 @@
   .card.c7 .accent { background: linear-gradient(180deg,#f59e0b,#16a34a); }
   .card.c8 .accent { background: linear-gradient(180deg,#0ea5e9,#a855f7); }
   .card.c9 .accent { background: linear-gradient(180deg,#111827,#2563eb); }
-  .card.c10 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
+  .card.c10 .accent { background: linear-gradient(180deg,#8b5cf6,#ec4899); }
+  .card.c11 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
 
   .card .num {
     font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -254,10 +255,23 @@
         </div>
       </div>
 
+      <div class="stage" style="--c:#7c3aed">
+        <div class="node">✍️</div>
+        <div class="body">
+          <div class="pills"><a href="10-token.html">10</a></div>
+          <h3><span class="cs">Jak LLM píše</span><span class="en">How an LLM writes</span></h3>
+          <p><span class="cs">Spojení všeho dohromady: model píše <b>token po tokenu</b> — spočítá pravděpodobnost
+             dalšího slova a jedno <b>losuje</b>. Teplota a top-k/top-p řídí odvahu; tak vzniká i <b>halucinace</b>.</span>
+             <span class="en">Putting it all together: the model writes <b>token by token</b> — it computes the next word's
+             probability and <b>samples</b> one. Temperature and top-k/top-p control the boldness; this is also how a
+             <b>hallucination</b> arises.</span></p>
+        </div>
+      </div>
+
       <div class="stage" style="--c:#6366f1">
         <div class="node">🚚</div>
         <div class="body">
-          <div class="pills"><a href="10-tsp.html">10</a></div>
+          <div class="pills"><a href="11-tsp.html">11</a></div>
           <h3><span class="cs">Bonus — optimalizace v praxi</span><span class="en">Bonus — optimization in practice</span></h3>
           <p><span class="cs">Problém obchodního cestujícího: obří prostor tras zkrocený <b>evolucí</b>. Spojuje
              kombinatoriku z příkladu 1 s genetikou z příkladu 7 na reálné úloze.</span>
@@ -410,9 +424,24 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c10" href="10-tsp.html">
+    <a class="card c10" href="10-token.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 10 · bonus</span><span class="en">Example 10 · bonus</span></div>
+      <div class="num"><span class="cs">Příklad 10</span><span class="en">Example 10</span></div>
+      <div class="icon">✍️</div>
+      <h2><span class="cs">Jak LLM píše</span><span class="en">How an LLM writes</span></h2>
+      <p>
+        <span class="cs">Skutečné LLM píšou slovo po slově: spočítají pravděpodobnost dalšího tokenu a jeden losují.
+        Pohraj si s teplotou a top-k/top-p — a uvidíš, proč model občas sebevědomě „kecá".</span>
+        <span class="en">Real LLMs write word by word: they compute the next-token probability and sample one.
+        Play with temperature and top-k/top-p — and see why a model sometimes confidently "makes things up".</span>
+      </p>
+      <div class="tags"><span class="cs">vzorkování</span><span class="en">sampling</span><span class="cs">teplota</span><span class="en">temperature</span><span class="cs">halucinace</span><span class="en">hallucination</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c11" href="11-tsp.html">
+      <span class="accent"></span>
+      <div class="num"><span class="cs">Příklad 11 · bonus</span><span class="en">Example 11 · bonus</span></div>
       <div class="icon">🚚</div>
       <h2><span class="cs">Obchodní cestující (TSP)</span><span class="en">Travelling salesman (TSP)</span></h2>
       <p>
