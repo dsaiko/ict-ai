@@ -40,7 +40,9 @@ The examples build on each other — each one solves the limitation of the previ
 | 🧬 Evolutionary optimization | 07 | We let the solution "evolve" through selection, crossover and mutation |
 | ✨ The road to today's LLMs | 08, 09 | How models represent meaning (embeddings) and context (attention) |
 | ✍️ How an LLM writes | 10 | Generating text token by token: probabilities, sampling, temperature/top-k/top-p, hallucination |
-| 🚚 Bonus — optimization in practice | 11 | The travelling salesman problem solved by evolution (joins 01 and 07) |
+| 📎 Giving the model sources (RAG) | 11 | Retrieve relevant documents (similarity), then answer from them — fewer hallucinations |
+| ⚖️ Data and bias | 12 | Biased training data → a biased model; per-group fairness (builds on 05–06) |
+| 🚚 Bonus — optimization in practice | 13 | The travelling salesman problem solved by evolution (joins 01 and 07) |
 
 ---
 
@@ -136,10 +138,28 @@ Real language models don't blurt out a finished answer — they write it **token
 
 ---
 
-### 11 · The travelling salesman problem (TSP) — bonus
-[→ open `11-tsp.html`](11-tsp.html) · [app ↗](https://saiko.cz/tsp/) · [source code ↗](https://github.com/dsaiko/tsp)
+### 11 · RAG — a model with sources
+[→ open `11-rag.html`](11-rag.html)
 
-![Travelling salesman problem](images/11.png)
+![RAG — a model with sources](images/11.png)
+
+A language model only knows what it learned during training — and sounds confident even when it doesn't. **RAG** (retrieval-augmented generation) fixes this: faced with a question, the model first **retrieves** the most relevant document from a knowledge base (by similarity — the embeddings idea from 08) and then answers **from it**. The demo puts the two answers side by side: the model **alone** (it guesses and hallucinates the made-up facts) vs **model + RAG** (it ranks the documents by similarity, attaches the best one, and gives a grounded, source-backed answer). RAG is by far the most common real-world way to deploy an LLM over your own data.
+
+---
+
+### 12 · Biased data, biased model
+[→ open `12-bias.html`](12-bias.html)
+
+![Biased data, biased model](images/12.png)
+
+The classifiers in 05–06 learn from data — so **what happens when the data is biased?** The same perceptron is trained on either fair or biased historical decisions. With fair data the decision boundary is vertical (only qualification matters); with biased data — where one group was historically held to a higher bar — the boundary **tilts**, and equally qualified people from that group get rejected. A per-group acceptance-rate readout makes the unfairness explicit. The model never "meant" to discriminate; it just faithfully copied the pattern in the data — which is exactly why bias in AI is so easy to miss. Applies to LLMs too.
+
+---
+
+### 13 · The travelling salesman problem (TSP) — bonus
+[→ open `13-tsp.html`](13-tsp.html) · [app ↗](https://saiko.cz/tsp/) · [source code ↗](https://github.com/dsaiko/tsp)
+
+![Travelling salesman problem](images/13.png)
 
 A bonus card with an embedded older project: a **TSP visualizer that solves the shortest route through all the cities with a genetic algorithm** right in the browser. It joins two principles of this series — **combinatorial explosion** (there are `(n−1)!/2` routes, going through them all is impossible) and **evolution** (a population of routes crosses over and mutates toward better ones), plus the **2-opt** heuristic (uncrossing edges). Built in TypeScript + Canvas + Web Workers, 12 maps including real Czech cities. It's a modernized rewrite of the original Java app from 2006.
 
@@ -214,7 +234,9 @@ Příklady na sebe navazují — každý vyřeší hranici toho předchozího:
 | 🧬 Evoluční optimalizace | 07 | Řešení necháme „vyvinout" výběrem, křížením a mutací |
 | ✨ Cesta k dnešním LLM | 08, 09 | Jak modely reprezentují význam (embeddingy) a kontext (attention) |
 | ✍️ Jak LLM píše | 10 | Generování textu token po tokenu: pravděpodobnosti, vzorkování, teplota/top-k/top-p, halucinace |
-| 🚚 Bonus — optimalizace v praxi | 11 | Problém obchodního cestujícího řešený evolucí (spojuje 01 a 07) |
+| 📎 Dát modelu zdroje (RAG) | 11 | Vyhledá relevantní dokumenty (podobnost) a odpoví z nich — méně halucinací |
+| ⚖️ Data a zaujatost | 12 | Zaujatá trénovací data → zaujatý model; spravedlnost po skupinách (navazuje na 05–06) |
+| 🚚 Bonus — optimalizace v praxi | 13 | Problém obchodního cestujícího řešený evolucí (spojuje 01 a 07) |
 
 ---
 
@@ -310,10 +332,28 @@ Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token 
 
 ---
 
-### 11 · Problém obchodního cestujícího (TSP) — bonus
-[→ otevřít `11-tsp.html`](11-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
+### 11 · RAG — model se zdroji
+[→ otevřít `11-rag.html`](11-rag.html)
 
-![Problém obchodního cestujícího](images/11.png)
+![RAG — model se zdroji](images/11.png)
+
+Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví. **RAG** (vyhledáním rozšířená generace) to řeší: na otázku model nejdřív **vyhledá** nejrelevantnější dokument ze znalostní báze (podle podobnosti — princip embeddingů z 08) a teprve pak odpoví **z něj**. Ukázka staví obě odpovědi vedle sebe: **jen model** (tipne si a vymyšlené údaje halucinuje) vs **model + RAG** (seřadí dokumenty podle podobnosti, ten nejlepší přiloží a dá odpověď podloženou zdrojem). RAG je dnes zdaleka nejčastější způsob, jak nasadit LLM nad vlastní data.
+
+---
+
+### 12 · Zaujatá data, zaujatý model
+[→ otevřít `12-bias.html`](12-bias.html)
+
+![Zaujatá data, zaujatý model](images/12.png)
+
+Klasifikátory z 05–06 se učí z dat — a **co když jsou data zaujatá?** Stejný perceptron se natrénuje buď na férových, nebo na zaujatých historických rozhodnutích. U férových dat je dělicí hranice svislá (rozhoduje jen kvalifikace); u zaujatých — kde jedna skupina musela historicky splnit víc — se hranice **nakloní** a stejně kvalifikovaní lidé z té skupiny neprojdou. Míra přijetí po skupinách dělá nespravedlnost viditelnou. Model nikdy „nechtěl" diskriminovat; jen věrně zopakoval vzor z dat — a právě proto se zaujatost v AI tak snadno přehlédne. Týká se i LLM.
+
+---
+
+### 13 · Problém obchodního cestujícího (TSP) — bonus
+[→ otevřít `13-tsp.html`](13-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
+
+![Problém obchodního cestujícího](images/13.png)
 
 Bonusová karta s vloženým starším projektem: **vizualizér TSP řešící nejkratší trasu přes všechna města genetickým algoritmem** přímo v prohlížeči. Spojuje dva principy z této série — **kombinatorickou explozi** (tras je `(n−1)!/2`, projít všechny nejde) a **evoluci** (populace tras se kříží a mutuje k lepšímu), doplněnou o heuristiku **2-opt** (odkřížení hran). Postaveno v TypeScriptu + Canvas + Web Workers, 12 map včetně reálných českých měst. Je to modernizovaný přepis původní Java aplikace z roku 2006.
 

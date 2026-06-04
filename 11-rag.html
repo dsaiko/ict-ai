@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
+<title>Příklad #11 — RAG: model se zdroji</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
+           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+
+  .explain { width: min(820px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
+  .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  .explain p b { color: #374151; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
+                 border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
+                 font-size: 12.5px; color: #374151; font-weight: 600; }
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #0d9488; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .arr { color: #9ca3af; font-size: 15px; }
+
+  .panel { width: min(820px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+
+  /* znalostní báze */
+  .docs { display: grid; gap: 8px; }
+  .doc { font-size: 13px; color: #4b5563; line-height: 1.5; background: #f9fafb;
+         border: 1px solid #eef0f3; border-radius: 8px; padding: 9px 12px; }
+  .doc .docnum { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 11px; color: #9ca3af; margin-right: 7px; }
+
+  input[type=text] { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 11px 12px;
+    font-size: 15px; color: #374151; background: #fafafa; }
+  input[type=text]:focus { outline: 2px solid #93c5fd; border-color: #93c5fd; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .presets button { font-size: 12px; font-weight: 600; padding: 6px 12px; border: 1px solid #e5e7eb;
+    background: #fff; color: #374151; border-radius: 999px; cursor: pointer; }
+  .presets button:hover { background: #f3f4f6; }
+  .askrow { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+  button.go { font-size: 14px; font-weight: 700; padding: 10px 22px; border: none; border-radius: 8px;
+              cursor: pointer; background: #2563eb; color: #fff; transition: background .12s, transform .05s; }
+  button.go:hover { background: #1d4ed8; } button.go:active { transform: scale(.97); }
+
+  /* dva sloupce odpovědí */
+  .answers { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .ans { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; background: #fff;
+         box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .ans h3 { font-size: 14px; font-weight: 700; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .ans.bad { border-left: 4px solid #f59e0b; }
+  .ans.good { border-left: 4px solid #16a34a; }
+  .ans .body { font-size: 14px; color: #1f2937; line-height: 1.55; min-height: 40px; }
+  .ans .note { font-size: 12px; line-height: 1.5; margin-top: 12px; border-top: 1px solid #f0f1f3; padding-top: 10px; }
+  .ans.bad .note { color: #b45309; } .ans.good .note { color: #15803d; }
+  .ans .note b { color: inherit; }
+  mark { background: #fde68a; color: #78350f; border-radius: 3px; padding: 0 2px; }
+
+  /* žebříček vyhledání */
+  .rank { margin: 4px 0 12px; }
+  .rk { display: flex; align-items: center; gap: 10px; padding: 3px 0; font-size: 12px; }
+  .rk.top .rkbar { background: linear-gradient(90deg,#34d399,#0d9488); }
+  .rk .rkdoc { flex: 0 0 38px; font-family: "SF Mono", Menlo, Consolas, monospace; color: #64748b; }
+  .rk .rkbarwrap { flex: 1; background: #f1f3f5; border-radius: 5px; height: 14px; overflow: hidden; }
+  .rk .rkbar { display: block; height: 100%; width: 0; background: #cbd5e1; border-radius: 5px; transition: width .2s; }
+  .rk .rkpct { flex: 0 0 44px; text-align: right; font-family: "SF Mono", Menlo, Consolas, monospace; color: #64748b; }
+
+  .theory { width: min(820px, 96vw); margin-top: 24px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
+</style>
+</head>
+<body>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">11</span><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h1>
+  <p class="intro">
+    <span class="cs">Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví.
+    <b>RAG</b> (vyhledáním rozšířená generace) to řeší: model nejdřív <b>najde relevantní text</b> a teprve pak
+    odpoví — <b>z něj</b>. Porovnej, jak model odpovídá bez dokumentu a s ním.</span>
+    <span class="en">A language model only knows what it learned during training — and sounds confident even when it
+    doesn't. <b>RAG</b> (retrieval-augmented generation) fixes this: the model first <b>finds relevant text</b> and only
+    then answers — <b>from it</b>. Compare how the model answers without a document and with one.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co tenhle příklad dělá</span><span class="en">What this example does</span></h2>
+    <p>
+      <span class="cs">Níže je malá <b>znalostní báze</b> — pár dokumentů, které model při tréninku neviděl. Napíšeš
+      otázku a podíváš se na dvě odpovědi: <b>jen model</b> (musí si tipnout — a halucinuje) a <b>model + RAG</b>
+      (nejdřív vyhledá nejpodobnější dokument, přiloží ho k otázce a odpoví z něj). Vyhledávání používá <b>podobnost</b>
+      jako v příkladu 8 (embeddingy) — otázku i dokumenty porovná a vybere nejbližší.</span>
+      <span class="en">Below is a small <b>knowledge base</b> — a few documents the model never saw during training. You type a
+      question and look at two answers: <b>the model alone</b> (it has to guess — and hallucinates) and <b>the model + RAG</b>
+      (it first finds the most similar document, attaches it to the question and answers from it). Retrieval uses <b>similarity</b>
+      like example 8 (embeddings) — it compares the question with the documents and picks the closest.</span>
+    </p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">otázka</span><span class="en">question</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">najdi podobné dokumenty</span><span class="en">find similar documents</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">přilož text k otázce</span><span class="en">attach text to the question</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">odpověz z textu</span><span class="en">answer from the text</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="block">
+      <div class="label"><span class="cs">znalostní báze (dokumenty, které model „nezná" z tréninku)</span><span class="en">knowledge base (documents the model doesn't "know" from training)</span></div>
+      <div class="docs" id="docs"></div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">tvoje otázka</span><span class="en">your question</span></div>
+      <input type="text" id="q">
+      <div class="presets" id="presets"></div>
+      <div class="askrow">
+        <button class="go" id="btnAsk"><span class="cs">Zeptat se</span><span class="en">Ask</span></button>
+      </div>
+    </div>
+
+    <div class="answers">
+      <div class="ans bad">
+        <h3>🧠 <span class="cs">Jen model (bez RAG)</span><span class="en">Model alone (no RAG)</span></h3>
+        <div class="body" id="ansPlain"></div>
+        <div class="note" id="notePlain"></div>
+      </div>
+      <div class="ans good">
+        <h3>📎 <span class="cs">Model + RAG</span><span class="en">Model + RAG</span></h3>
+        <div class="rank" id="rank"></div>
+        <div class="body" id="ansRag"></div>
+        <div class="note" id="noteRag"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Jak RAG funguje a proč je v praxi nejdůležitější</span><span class="en">How RAG works and why it matters most in practice</span></div>
+    <p class="lead">
+      <span class="cs">Samotný model je jako student, který píše test <b>jen z hlavy</b> — co nezná, to si domyslí. <b>RAG</b>
+      je jako test s <b>otevřenou knihou</b>: nejdřív si najde správnou stránku a teprve pak odpovídá. Proto je RAG dnes
+      nejčastější způsob, jak nasadit LLM nad <b>vlastní data</b>.</span>
+      <span class="en">The model on its own is like a student taking a test <b>from memory</b> — whatever it doesn't know, it makes up.
+      <b>RAG</b> is like an <b>open-book</b> test: it first finds the right page and only then answers. That's why RAG is today the most
+      common way to deploy an LLM over <b>your own data</b>.</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#0d9488">
+        <h3><span class="dot"></span><span class="cs">Co je RAG</span><span class="en">What RAG is</span></h3>
+        <p><span class="cs">RAG = vyhledáním rozšířená generace. Model nejdřív <b>vyhledá</b> relevantní text v databázi a teprve
+           pak <b>generuje</b> odpověď — opírá se o zdroj, ne jen o paměť.</span>
+           <span class="en">RAG = retrieval-augmented generation. The model first <b>retrieves</b> relevant text from a database and only
+           then <b>generates</b> the answer — leaning on a source, not just memory.</span></p>
+      </div>
+      <div class="tcard" style="--c:#a855f7">
+        <h3><span class="dot"></span><span class="cs">Vyhledání = podobnost</span><span class="en">Retrieval = similarity</span></h3>
+        <p><span class="cs">Hledá se přes <b>podobnost významu</b> (embeddingy z příkladu 8). Otázka i dokumenty se převedou na
+           čísla a vybere se text, který je otázce nejblíž.</span>
+           <span class="en">It searches by <b>similarity of meaning</b> (embeddings from example 8). The question and the documents are
+           turned into numbers and the text closest to the question is picked.</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">Proč to pomáhá</span><span class="en">Why it helps</span></h3>
+        <p><span class="cs">Méně halucinací, <b>aktuální</b> a ověřitelné informace, a model může uvést <b>zdroj</b>. Funguje i pro
+           data, která model při tréninku nikdy neviděl.</span>
+           <span class="en">Fewer hallucinations, <b>up-to-date</b> and verifiable information, and the model can cite a <b>source</b>. It works
+           even for data the model never saw during training.</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">Limity</span><span class="en">Limits</span></h3>
+        <p><span class="cs">Když vyhledání najde <b>špatný</b> nebo žádný dokument, odpověď bude taky špatná. RAG je jen tak dobré,
+           jak dobré je vyhledávání.</span>
+           <span class="en">If retrieval finds the <b>wrong</b> document or none, the answer will be wrong too. RAG is only as good as its
+           search.</span></p>
+      </div>
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span><span class="cs">K čemu v praxi</span><span class="en">Real-world use</span></h3>
+        <p><span class="cs">Firemní znalostní báze, školní materiály, dokumentace, chatboti nad vlastními dokumenty — vůbec
+           <b>nejčastější</b> reálné nasazení LLM.</span>
+           <span class="en">Company knowledge bases, school materials, documentation, chatbots over your own documents — by far the
+           <b>most common</b> real-world deployment of an LLM.</span></p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+
+  // ── dvojjazyčná data ─────────────────────────────────────────
+  // dokumenty (znalostní báze) + ukázkové otázky s ilustrativním „tipem" modelu bez RAG
+  const DATA = {
+    cs: {
+      docs: [
+        'Školní knihovna otevírá v 8:00 a zavírá v 17:00. V pátek je otevřeno jen do 14:00.',
+        'Wi-Fi pro studenty má heslo delfin2026 a funguje v celé budově.',
+        'Školní jídelna vydává oběd od 11:30 do 13:30. Vegetariánské menu je k dispozici každý den.',
+        'Ředitelem školy je pan Novák. Jeho kancelář je ve druhém patře, dveře číslo 204.',
+        'Kroužek robotiky se koná každé úterý od 15:00 v učebně číslo 7.',
+        'Tělocvična je v přízemí a o víkendu je přístupná po domluvě se správcem budovy.',
+      ],
+      presets: [
+        { q: 'Kdy zavírá knihovna v pátek?', guess: 'Nejspíš v 16:00, jako každý všední den.' },
+        { q: 'Jaké je heslo na Wi-Fi?', guess: 'Zkus třeba „skola123" nebo „admin".' },
+        { q: 'Kdo je ředitel školy?', guess: 'Asi pan Svoboda? Nejsem si úplně jistý.' },
+        { q: 'Kdy a kde je kroužek robotiky?', guess: 'Možná ve středu odpoledne v počítačové učebně.' },
+      ],
+      genericGuess: 'Něco si domyslím a budu znít sebejistě…',
+    },
+    en: {
+      docs: [
+        'The school library opens at 8:00 and closes at 17:00. On Friday it is open only until 14:00.',
+        'The student Wi-Fi password is delfin2026 and it works throughout the building.',
+        'The school canteen serves lunch from 11:30 to 13:30. A vegetarian menu is available every day.',
+        'The school principal is Mr Novák. His office is on the second floor, door number 204.',
+        'The robotics club meets every Tuesday at 15:00 in classroom number 7.',
+        'The gym is on the ground floor and is open on weekends by arrangement with the caretaker.',
+      ],
+      presets: [
+        { q: 'When does the library close on Friday?', guess: 'Probably at 16:00, like every weekday.' },
+        { q: 'What is the Wi-Fi password?', guess: 'Try "school123" or maybe "admin".' },
+        { q: 'Who is the school principal?', guess: 'Mr Svoboda, perhaps? I’m not quite sure.' },
+        { q: 'When and where is the robotics club?', guess: 'Maybe Wednesday afternoon in the computer room.' },
+      ],
+      genericGuess: 'I’ll make something up and sound confident about it…',
+    },
+  };
+
+  const I18N = {
+    cs: {
+      simLabel: 'podobnost',
+      guessPrefix: '„',
+      guessSuffix: '"',
+      notePlain: '⚠️ Tyhle konkrétní informace se model nikde nenaučil, takže si je <b>vymyslí</b> — a tváří se sebejistě. To je halucinace.',
+      retrieved: 'Nejpodobnější dokument se přiloží k otázce a model odpoví <b>z něj</b>:',
+      grounded: '✓ Odpověď je <b>podložená</b> nalezeným dokumentem (#DOC#).',
+      noneFound: 'Žádný dokument nevypadá dost podobně — RAG by tu nepomohl (a model by zase jen hádal).',
+      empty: 'Napiš otázku nebo klikni na předvolbu a porovnej obě odpovědi.',
+    },
+    en: {
+      simLabel: 'similarity',
+      guessPrefix: '“',
+      guessSuffix: '”',
+      notePlain: '⚠️ The model never learned these specific facts, so it <b>makes them up</b> — and sounds confident. That is a hallucination.',
+      retrieved: 'The most similar document is attached to the question and the model answers <b>from it</b>:',
+      grounded: '✓ The answer is <b>grounded</b> in the retrieved document (#DOC#).',
+      noneFound: 'No document looks similar enough — RAG would not help here (and the model would just guess again).',
+      empty: 'Type a question or click a preset and compare the two answers.',
+    },
+  };
+
+  const STOP = {
+    cs: new Set('a i o u v k s z na do je se si že to co jak kdy kde kdo ve pro po jaké jaká jaký ten ta nebo ale můj má v'.split(' ')),
+    en: new Set('a an the is are of to in on at for what when where who how do does it and or my your this that with'.split(' ')),
+  };
+
+  function tokenize(t){ return (t.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []); }
+  function sig(t){ return tokenize(t).filter(w => w.length > 1 && !STOP[curLang].has(w)); }
+
+  // podobnost otázky a dokumentu = podíl významových slov otázky, která se vyskytují v dokumentu
+  function similarity(q, doc){
+    const qs = [...new Set(sig(q))];
+    if (!qs.length) return 0;
+    const ds = new Set(sig(doc));
+    let m = 0; for (const w of qs) if (ds.has(w)) m++;
+    return m / qs.length;
+  }
+
+  function renderDocs(){
+    $('docs').innerHTML = DATA[curLang].docs.map((d,i) =>
+      `<div class="doc"><span class="docnum">#${i+1}</span>${d}</div>`).join('');
+  }
+  function renderPresets(){
+    $('presets').innerHTML = DATA[curLang].presets.map((p,i) =>
+      `<button data-i="${i}">${p.q}</button>`).join('');
+    $('presets').querySelectorAll('button').forEach(b =>
+      b.addEventListener('click', () => { $('q').value = DATA[curLang].presets[+b.dataset.i].q; ask(); }));
+  }
+
+  // zvýrazni v textu významová slova sdílená s otázkou
+  function highlight(doc, q){
+    const qs = new Set(sig(q));
+    return doc.replace(/[\p{L}\p{N}]+/gu, w => qs.has(w.toLowerCase()) ? `<mark>${w}</mark>` : w);
+  }
+
+  function findGuess(q){
+    const p = DATA[curLang].presets.find(p => p.q.toLowerCase() === q.trim().toLowerCase());
+    return p ? p.guess : DATA[curLang].genericGuess;
+  }
+
+  function ask(){
+    const q = $('q').value.trim();
+    if (!q){ $('ansPlain').textContent=''; $('notePlain').textContent=''; $('rank').innerHTML='';
+             $('ansRag').textContent=''; $('noteRag').innerHTML = I18N[curLang].empty; return; }
+
+    // ── bez RAG: model si tipne ──
+    $('ansPlain').innerHTML = I18N[curLang].guessPrefix + findGuess(q) + I18N[curLang].guessSuffix;
+    $('notePlain').innerHTML = I18N[curLang].notePlain;
+
+    // ── s RAG: seřaď dokumenty podle podobnosti ──
+    const docs = DATA[curLang].docs;
+    const scored = docs.map((d,i) => ({ i, d, s: similarity(q, d) })).sort((a,b)=>b.s-a.s);
+    const maxS = scored[0].s;
+    $('rank').innerHTML = scored.map((r,rank) => {
+      const pct = Math.round(r.s*100);
+      return `<div class="rk ${rank===0 && r.s>0 ? 'top':''}"><span class="rkdoc">#${r.i+1}</span>` +
+             `<span class="rkbarwrap"><span class="rkbar" style="width:${Math.max(2, r.s*100)}%"></span></span>` +
+             `<span class="rkpct">${pct} %</span></div>`;
+    }).join('');
+
+    if (maxS <= 0){
+      $('ansRag').textContent = '';
+      $('noteRag').innerHTML = I18N[curLang].noneFound;
+      return;
+    }
+    const top = scored[0];
+    $('ansRag').innerHTML = I18N[curLang].retrieved + '<br><br>' + highlight(top.d, q);
+    $('noteRag').innerHTML = I18N[curLang].grounded.replace('#DOC#', '#' + (top.i+1));
+  }
+
+  $('btnAsk').addEventListener('click', ask);
+  $('q').addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
+
+  // ── start ────────────────────────────────────────────────────
+  function boot(){
+    renderDocs(); renderPresets();
+    $('q').placeholder = curLang === 'cs' ? 'např. Kdy zavírá knihovna v pátek?' : 'e.g. When does the library close on Friday?';
+    $('q').value = DATA[curLang].presets[0].q;
+    ask();
+  }
+  boot();
+
+  // přepnutí jazyka: nová data, nová otázka (pokud byla výchozí), překresli
+  window.onLangChange = function(l){
+    const prevDefault = DATA[curLang].presets.some(p => p.q === $('q').value.trim());
+    curLang = l;
+    renderDocs(); renderPresets();
+    $('q').placeholder = l === 'cs' ? 'např. Kdy zavírá knihovna v pátek?' : 'e.g. When does the library close on Friday?';
+    if (prevDefault) $('q').value = DATA[l].presets[0].q;
+    ask();
+  };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #11 — RAG: model se zdroji",
+      en: "Example #11 — RAG: a model with sources"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
+</script>
+</body>
+</html>

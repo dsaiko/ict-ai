@@ -56,7 +56,9 @@
   .card.c8 .accent { background: linear-gradient(180deg,#0ea5e9,#a855f7); }
   .card.c9 .accent { background: linear-gradient(180deg,#111827,#2563eb); }
   .card.c10 .accent { background: linear-gradient(180deg,#8b5cf6,#ec4899); }
-  .card.c11 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
+  .card.c11 .accent { background: linear-gradient(180deg,#0d9488,#a855f7); }
+  .card.c12 .accent { background: linear-gradient(180deg,#dc2626,#f59e0b); }
+  .card.c13 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
 
   .card .num {
     font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -268,10 +270,34 @@
         </div>
       </div>
 
+      <div class="stage" style="--c:#0d9488">
+        <div class="node">📎</div>
+        <div class="body">
+          <div class="pills"><a href="11-rag.html">11</a></div>
+          <h3><span class="cs">Dát modelu zdroje (RAG)</span><span class="en">Giving the model sources (RAG)</span></h3>
+          <p><span class="cs">Model umí jen to, co se naučil — a halucinuje. <b>RAG</b> mu nejdřív <b>vyhledá</b> relevantní text
+             (podobnost jako u embeddingů) a model odpoví <b>z něj</b>. Nejčastější reálné nasazení LLM.</span>
+             <span class="en">A model only knows what it learned — and hallucinates. <b>RAG</b> first <b>retrieves</b> relevant text for it
+             (similarity, like embeddings) and the model answers <b>from it</b>. The most common real-world use of an LLM.</span></p>
+        </div>
+      </div>
+
+      <div class="stage" style="--c:#dc2626">
+        <div class="node">⚖️</div>
+        <div class="body">
+          <div class="pills"><a href="12-bias.html">12</a></div>
+          <h3><span class="cs">Data a zaujatost</span><span class="en">Data and bias</span></h3>
+          <p><span class="cs">Tečka za sérií: všechno, co jsme postavili, se učí <b>z dat</b>. Zaujatá data → zaujatý model
+             (jako u perceptronu z příkladů 5–6) — a výsledek se tváří objektivně.</span>
+             <span class="en">A coda to the series: everything we built learns <b>from data</b>. Biased data → a biased model
+             (like the perceptron in examples 5–6) — and the result looks objective.</span></p>
+        </div>
+      </div>
+
       <div class="stage" style="--c:#6366f1">
         <div class="node">🚚</div>
         <div class="body">
-          <div class="pills"><a href="11-tsp.html">11</a></div>
+          <div class="pills"><a href="13-tsp.html">13</a></div>
           <h3><span class="cs">Bonus — optimalizace v praxi</span><span class="en">Bonus — optimization in practice</span></h3>
           <p><span class="cs">Problém obchodního cestujícího: obří prostor tras zkrocený <b>evolucí</b>. Spojuje
              kombinatoriku z příkladu 1 s genetikou z příkladu 7 na reálné úloze.</span>
@@ -439,9 +465,39 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c11" href="11-tsp.html">
+    <a class="card c11" href="11-rag.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 11 · bonus</span><span class="en">Example 11 · bonus</span></div>
+      <div class="num"><span class="cs">Příklad 11</span><span class="en">Example 11</span></div>
+      <div class="icon">📎</div>
+      <h2><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h2>
+      <p>
+        <span class="cs">Model umí jen to, co se naučil — a sebevědomě halucinuje. RAG mu nejdřív vyhledá relevantní
+        dokument a nechá ho odpovědět z něj. Porovnej odpověď bez dokumentu a s ním.</span>
+        <span class="en">A model only knows what it learned — and confidently hallucinates. RAG first retrieves a relevant
+        document and lets it answer from that. Compare the answer without a document and with one.</span>
+      </p>
+      <div class="tags"><span class="cs">vyhledání</span><span class="en">retrieval</span><span class="cs">zdroje</span><span class="en">sources</span><span class="cs">méně halucinací</span><span class="en">fewer hallucinations</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c12" href="12-bias.html">
+      <span class="accent"></span>
+      <div class="num"><span class="cs">Příklad 12</span><span class="en">Example 12</span></div>
+      <div class="icon">⚖️</div>
+      <h2><span class="cs">Zaujatá data, zaujatý model</span><span class="en">Biased data, biased model</span></h2>
+      <p>
+        <span class="cs">Stejný perceptron jako v 5, ale na zaujatých historických datech. Uvidíš, jak model převezme
+        nespravedlnost z dat — a stejně kvalifikovaní lidé dopadnou jinak.</span>
+        <span class="en">The same perceptron as in 5, but on biased historical data. You'll see the model inherit the unfairness
+        from the data — and equally qualified people fare differently.</span>
+      </p>
+      <div class="tags"><span class="cs">zaujatost</span><span class="en">bias</span><span class="cs">etika</span><span class="en">ethics</span><span class="cs">spravedlnost</span><span class="en">fairness</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c13" href="13-tsp.html">
+      <span class="accent"></span>
+      <div class="num"><span class="cs">Příklad 13 · bonus</span><span class="en">Example 13 · bonus</span></div>
       <div class="icon">🚚</div>
       <h2><span class="cs">Obchodní cestující (TSP)</span><span class="en">Travelling salesman (TSP)</span></h2>
       <p>

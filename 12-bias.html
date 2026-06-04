@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
+<title>Příklad #12 — Zaujatá data, zaujatý model</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
+           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+
+  .explain { width: min(700px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
+  .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  .explain p b { color: #374151; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
+                 border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
+                 font-size: 12.5px; color: #374151; font-weight: 600; }
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #dc2626; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .arr { color: #9ca3af; font-size: 15px; }
+
+  canvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           box-shadow: 0 4px 20px rgba(0,0,0,0.07); display: block; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 18px 0 6px; }
+  .seg { display: inline-flex; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; }
+  .seg button { border: none; background: #fff; padding: 9px 16px; font-size: 13px; font-weight: 600;
+                color: #6b7280; cursor: pointer; }
+  .seg button.on { background: #2563eb; color: #fff; }
+  button.util { font-size: 13px; font-weight: 600; padding: 9px 16px; border: none; border-radius: 8px;
+                cursor: pointer; background: #e5e7eb; color: #374151; }
+  button.util:hover { background: #d1d5db; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; font-size: 12px; color: #6b7280; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+  /* karta spravedlnosti */
+  .fair { width: min(640px, 96vw); margin-top: 16px; background: #fff; border: 1px solid #e5e7eb;
+          border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .fair .ftitle { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #9ca3af; margin-bottom: 12px; text-align: center; }
+  .grates { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .grate { flex: 1; min-width: 180px; border: 1px solid #eef0f3; border-radius: 10px; padding: 12px 14px; text-align: center; }
+  .grate .gname { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+  .grate .gpct { font-size: 30px; font-weight: 800; color: #111827; line-height: 1; }
+  .grate .gbarwrap { height: 8px; background: #f1f3f5; border-radius: 4px; overflow: hidden; margin-top: 10px; }
+  .grate .gbar { display: block; height: 100%; width: 0; border-radius: 4px; transition: width .25s; }
+  .verdict { margin-top: 14px; font-size: 13.5px; line-height: 1.5; text-align: center; padding: 10px 12px; border-radius: 8px; }
+  .verdict.ok  { background: #ecfdf5; color: #15803d; }
+  .verdict.bad { background: #fef2f2; color: #b91c1c; }
+  .verdict b { color: inherit; }
+
+  .theory { width: min(760px, 96vw); margin-top: 28px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
+</style>
+</head>
+<body>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">12</span><span class="cs">Zaujatá data, zaujatý model</span><span class="en">Biased data, biased model</span></h1>
+  <p class="intro">
+    <span class="cs">Modely z příkladů 5 a 6 se učí <b>z dat</b>. Ale co když jsou data <b>zaujatá</b>? Tady stejný klasifikátor
+    (perceptron) dostane buď férová, nebo zaujatá historická rozhodnutí — a uvidíš, že <b>zaujatá data = zaujatý model</b>,
+    i když jsme mu nikdy neřekli, aby někoho znevýhodňoval.</span>
+    <span class="en">The models in examples 5 and 6 learn <b>from data</b>. But what if the data is <b>biased</b>? Here the same
+    classifier (a perceptron) is given either fair or biased historical decisions — and you'll see that <b>biased data = a biased
+    model</b>, even though we never told it to disadvantage anyone.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co tenhle příklad dělá</span><span class="en">What this example does</span></h2>
+    <p>
+      <span class="cs">Každý bod je člověk, který žádá o přijetí. Vodorovně je jeho <b>kvalifikace</b> (vpravo = kvalifikovanější),
+      svisle <b>skupina</b> (A nahoře, B dole) — což by na rozhodnutí <b>nemělo mít vliv</b>. Barva bodu ukazuje, jak se rozhodlo
+      v <b>historických datech</b> (zeleně přijat, šedě zamítnut). Model se z těch dat naučí <b>dělicí hranici</b> a pak rozhoduje
+      nově (modré a červené pole).</span>
+      <span class="en">Each dot is a person applying to be accepted. Horizontally is their <b>qualification</b> (right = more qualified),
+      vertically their <b>group</b> (A on top, B at the bottom) — which <b>should not matter</b> for the decision. The dot's color shows how
+      the <b>historical data</b> decided (green = accepted, grey = rejected). The model learns a <b>decision boundary</b> from that data and
+      then decides anew (the blue and red areas).</span>
+    </p>
+    <p>
+      <span class="cs">Přepni mezi <b>férovými</b> a <b>zaujatými</b> daty a sleduj dole <b>míru přijetí stejně kvalifikovaných</b>
+      lidí v obou skupinách. U férových dat je hranice svislá (rozhoduje jen kvalifikace). U zaujatých se nakloní — a stejně
+      kvalifikovaní lidé ze skupiny B najednou neprojdou.</span>
+      <span class="en">Switch between <b>fair</b> and <b>biased</b> data and watch the <b>acceptance rate of equally qualified</b> people in
+      both groups below. With fair data the boundary is vertical (only qualification matters). With biased data it tilts — and equally
+      qualified people from group B suddenly don't make it.</span>
+    </p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">historická data (s rozhodnutími)</span><span class="en">historical data (with decisions)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">model se naučí vzor</span><span class="en">the model learns the pattern</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">model rozhoduje nově</span><span class="en">the model makes new decisions</span></span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="seg" id="mode">
+      <button data-mode="fair" class="on"><span class="cs">Férová data</span><span class="en">Fair data</span></button>
+      <button data-mode="biased"><span class="cs">Zaujatá data</span><span class="en">Biased data</span></button>
+    </div>
+    <button class="util" id="btnNew"><span class="cs">Nová data</span><span class="en">New data</span></button>
+  </div>
+  <canvas id="cv" width="640" height="440"></canvas>
+  <div class="legend">
+    <span><i style="background:#16a34a"></i><span class="cs">v datech přijat</span><span class="en">accepted in data</span></span>
+    <span><i style="background:#94a3b8"></i><span class="cs">v datech zamítnut</span><span class="en">rejected in data</span></span>
+    <span><i style="background:#bfdbfe;border-radius:3px"></i><span class="cs">model přijímá</span><span class="en">model accepts</span></span>
+    <span><i style="background:#fecaca;border-radius:3px"></i><span class="cs">model zamítá</span><span class="en">model rejects</span></span>
+  </div>
+
+  <div class="fair">
+    <div class="ftitle"><span class="cs">Míra přijetí stejně kvalifikovaných lidí (kvalifikace vpravo od poloviny)</span><span class="en">Acceptance rate of equally qualified people (qualification right of the middle)</span></div>
+    <div class="grates">
+      <div class="grate"><div class="gname"><span class="cs">Skupina A</span><span class="en">Group A</span></div><div class="gpct" id="pctA">– %</div><div class="gbarwrap"><div class="gbar" id="barA" style="background:#2563eb"></div></div></div>
+      <div class="grate"><div class="gname"><span class="cs">Skupina B</span><span class="en">Group B</span></div><div class="gpct" id="pctB">– %</div><div class="gbarwrap"><div class="gbar" id="barB" style="background:#2563eb"></div></div></div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Proč na datech tak záleží</span><span class="en">Why the data matters so much</span></div>
+    <p class="lead">
+      <span class="cs">Model nehledá „spravedlnost" — hledá <b>vzor v datech</b> a co nejvěrněji ho zopakuje. Když lidé v minulosti
+      rozhodovali zaujatě, je ta zaujatost v datech — a model ji <b>převezme</b>, aniž by „chtěl". Nebezpečné je, že výsledek pak
+      vypadá objektivně: „rozhodl počítač".</span>
+      <span class="en">The model isn't looking for "fairness" — it's looking for a <b>pattern in the data</b> and reproducing it as faithfully as it
+      can. If people decided in a biased way in the past, that bias is in the data — and the model <b>inherits</b> it without "meaning to". The
+      danger is that the result then looks objective: "the computer decided".</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#dc2626">
+        <h3><span class="dot"></span><span class="cs">Model = zrcadlo dat</span><span class="en">The model mirrors the data</span></h3>
+        <p><span class="cs">Model nezná „spravedlnost" — jen kopíruje vzory z trénovacích dat. Co bylo v datech, to bude i ve
+           výstupu.</span>
+           <span class="en">The model has no notion of "fairness" — it just copies patterns from the training data. Whatever was in the data
+           shows up in the output.</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">Odkud se bere zaujatost</span><span class="en">Where bias comes from</span></h3>
+        <p><span class="cs">Z historických rozhodnutí lidí, z <b>nevyvážených</b> dat (jedné skupiny málo) nebo z chybných štítků. Model
+           to věrně zopakuje — a klidně i posílí.</span>
+           <span class="en">From people's historical decisions, from <b>unbalanced</b> data (too few of one group), or from wrong labels. The model
+           faithfully repeats it — and may even amplify it.</span></p>
+      </div>
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span><span class="cs">Tváří se objektivně</span><span class="en">It looks objective</span></h3>
+        <p><span class="cs">„Rozhodl počítač" zní neutrálně, ale model jen zopakoval <b>lidskou zaujatost</b> schovanou za čísla. Proto je
+           dobré výsledky kontrolovat podle skupin — jako tady.</span>
+           <span class="en">"The computer decided" sounds neutral, but the model only repeated <b>human bias</b> hidden behind numbers. That's why
+           it's good to check outcomes by group — like here.</span></p>
+      </div>
+      <div class="tcard" style="--c:#a855f7">
+        <h3><span class="dot"></span><span class="cs">Týká se i LLM</span><span class="en">It applies to LLMs too</span></h3>
+        <p><span class="cs">Stejně jako tenhle klasifikátor (příklady 5–6) se i velké jazykové modely učí z dat — a přebírají jejich
+           zaujatost a stereotypy. Větší model problém nevyřeší, jen schová.</span>
+           <span class="en">Just like this classifier (examples 5–6), large language models also learn from data — and pick up its biases and
+           stereotypes. A bigger model doesn't solve the problem, it just hides it.</span></p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+
+  const I18N = {
+    cs: {
+      bandA: 'Skupina A', bandB: 'Skupina B',
+      qual: 'kvalifikace →', threshold: 'hranice kvalifikace',
+      verdictOk: 'Férové: při stejné kvalifikaci mají obě skupiny <b>podobnou šanci</b>. Hranice je svislá — rozhoduje jen kvalifikace.',
+      verdictBad: g => `Nespravedlivé: stejně kvalifikovaní lidé ze <b>skupiny B</b> jsou přijímáni o <b>${g} bodů</b> méně. Model převzal zaujatost z dat — hranice se naklonila a začala trestat skupinu.`,
+    },
+    en: {
+      bandA: 'Group A', bandB: 'Group B',
+      qual: 'qualification →', threshold: 'qualification line',
+      verdictOk: 'Fair: at the same qualification both groups have a <b>similar chance</b>. The boundary is vertical — only qualification matters.',
+      verdictBad: g => `Unfair: equally qualified people from <b>group B</b> are accepted <b>${g} points</b> less often. The model inherited the bias from the data — the boundary tilted and started penalising a group.`,
+    },
+  };
+
+  // ── data: x = kvalifikace (0..1), y = pozice dle skupiny, group 0=A(nahoře)/1=B(dole) ──
+  let points = [], mode = 'fair';
+  let w = [0, 0, 0];                 // [bias, w_x, w_y]
+  const rnd = (a,b) => a + Math.random()*(b-a);
+
+  function genData(biased){
+    const pts = [];
+    for (let i = 0; i < 130; i++){
+      const x = Math.random();
+      const group = Math.random() < 0.5 ? 0 : 1;        // 0 = A (nahoře), 1 = B (dole)
+      const y = group ? rnd(0.56, 0.93) : rnd(0.07, 0.44);
+      // skutečná kvalifikace: x >= 0.5. Férový štítek závisí jen na kvalifikaci.
+      // Zaujatá data: skupina B byla historicky znevýhodněna (potřebovala vyšší kvalifikaci).
+      let label;
+      if (!biased) label = x >= 0.5 ? 1 : 0;
+      else label = group === 1 ? (x >= 0.72 ? 1 : 0) : (x >= 0.5 ? 1 : 0);
+      pts.push({ x, y, group, label });
+    }
+    return pts;
+  }
+
+  const predict = p => (w[0] + w[1]*p.x + w[2]*p.y) >= 0 ? 1 : -1;
+  function trainEpoch(){
+    const lr = 0.05;
+    for (const p of points){
+      const t = p.label ? 1 : -1;
+      if (predict(p) !== t){ w[0] += lr*t; w[1] += lr*t*p.x; w[2] += lr*t*p.y; }
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // rozhodovací pole modelu (model přijímá / zamítá)
+    const cell = 10;
+    for (let px=0; px<W; px+=cell) for (let py=0; py<H; py+=cell){
+      const x=(px+cell/2)/W, y=(py+cell/2)/H;
+      ctx.fillStyle = (w[0]+w[1]*x+w[2]*y >= 0) ? 'rgba(37,99,235,0.07)' : 'rgba(239,68,68,0.07)';
+      ctx.fillRect(px,py,cell,cell);
+    }
+    // pás skupin (vodorovný předěl) + svislá hranice kvalifikace
+    ctx.strokeStyle = '#cbd5e1'; ctx.setLineDash([5,5]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(0,H*0.5); ctx.lineTo(W,H*0.5); ctx.stroke();
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.beginPath(); ctx.moveTo(W*0.5,0); ctx.lineTo(W*0.5,H); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#94a3b8'; ctx.font='12px -apple-system, sans-serif';
+    ctx.fillText(I18N[curLang].bandA, 12, 20);
+    ctx.fillText(I18N[curLang].bandB, 12, H-12);
+    ctx.fillText(I18N[curLang].qual, W-96, H*0.5-8);
+    // dělicí hranice modelu
+    if (w[1] !== 0 || w[2] !== 0){
+      ctx.strokeStyle='#111827'; ctx.lineWidth=3; ctx.beginPath();
+      if (Math.abs(w[2]) > Math.abs(w[1])){
+        const yAt = x => -(w[0]+w[1]*x)/w[2];
+        ctx.moveTo(0, yAt(0)*H); ctx.lineTo(W, yAt(1)*H);
+      } else {
+        const xAt = y => -(w[0]+w[2]*y)/w[1];
+        ctx.moveTo(xAt(0)*W, 0); ctx.lineTo(xAt(1)*W, H);
+      }
+      ctx.stroke();
+    }
+    // body (barva = historický štítek)
+    for (const p of points){
+      ctx.beginPath(); ctx.arc(p.x*W, p.y*H, 5.5, 0, 7);
+      ctx.fillStyle = p.label ? '#16a34a' : '#94a3b8';
+      ctx.fill(); ctx.lineWidth=1.5; ctx.strokeStyle='#fff'; ctx.stroke();
+    }
+    updateFairness();
+  }
+
+  function updateFairness(){
+    let qa=0,aa=0,qb=0,ab=0;
+    for (const p of points){
+      if (p.x >= 0.5){                         // skutečně kvalifikovaní
+        if (p.group === 0){ qa++; if (predict(p)===1) aa++; }
+        else { qb++; if (predict(p)===1) ab++; }
+      }
+    }
+    const ra = qa ? Math.round(aa/qa*100) : null;
+    const rb = qb ? Math.round(ab/qb*100) : null;
+    $('pctA').textContent = ra===null ? '– %' : ra+' %';
+    $('pctB').textContent = rb===null ? '– %' : rb+' %';
+    $('barA').style.width = (ra||0)+'%';
+    $('barB').style.width = (rb||0)+'%';
+    const gap = (ra!==null && rb!==null) ? ra-rb : 0;
+    $('barB').style.background = gap > 20 ? '#dc2626' : '#2563eb';
+    const v = $('verdict');
+    if (gap > 20){ v.className='verdict bad'; v.innerHTML = I18N[curLang].verdictBad(gap); }
+    else { v.className='verdict ok'; v.innerHTML = I18N[curLang].verdictOk; }
+  }
+
+  // ── animovaný trénink ────────────────────────────────────────
+  let timer = null;
+  function loadData(){
+    if (timer){ clearInterval(timer); timer=null; }
+    points = genData(mode === 'biased');
+    w = [0,0,0];
+    let ep = 0;
+    timer = setInterval(() => {
+      trainEpoch(); ep++;
+      draw();
+      if (ep >= 120){ clearInterval(timer); timer=null; }
+    }, 24);
+  }
+
+  document.querySelectorAll('#mode button').forEach(b =>
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#mode button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on'); mode = b.dataset.mode; loadData();
+    }));
+  $('btnNew').addEventListener('click', loadData);
+
+  loadData();
+
+  // přepnutí jazyka: jen překresli popisky a verdikt (data zůstanou)
+  window.onLangChange = function(l){ curLang = l; draw(); };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #12 — Zaujatá data, zaujatý model",
+      en: "Example #12 — Biased data, biased model"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
+</script>
+</body>
+</html>
