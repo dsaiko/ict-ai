@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #7 — Genetický algoritmus</title>
 <style>
   * { box-sizing: border-box; }
@@ -87,58 +94,108 @@
   .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
   .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
   .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">07</span>Genetický algoritmus</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">07</span><span class="cs">Genetický algoritmus</span><span class="en">Genetic algorithm</span></h1>
   <p class="intro">
-    Příroda hledá řešení <b>evolucí</b> — a stejně může i počítač. Začneme s populací
+    <span class="cs">Příroda hledá řešení <b>evolucí</b> — a stejně může i počítač. Začneme s populací
     <b>úplně náhodných</b> vět (jako příklad 1) a necháme „přežít a množit se" ty nejlepší.
-    Křížením a mutací se populace generaci po generaci přiblíží k <b>cíli</b>.
+    Křížením a mutací se populace generaci po generaci přiblíží k <b>cíli</b>.</span>
+    <span class="en">Nature finds solutions by <b>evolution</b> — and so can a computer. We start with a population of
+    <b>completely random</b> sentences (like example 1) and let the best ones "survive and reproduce".
+    Through crossover and mutation the population edges toward the <b>target</b> generation by generation.</span>
   </p>
 
   <div class="explain">
-    <h2>Co tenhle příklad dělá</h2>
+    <h2><span class="cs">Co tenhle příklad dělá</span><span class="en">What this example does</span></h2>
     <p>
-      Zadáš <b>cílovou větu</b> a algoritmus se k ní snaží dopracovat — ale nesmí ji „opsat".
+      <span class="cs">Zadáš <b>cílovou větu</b> a algoritmus se k ní snaží dopracovat — ale nesmí ji „opsat".
       Začne se <b>stovkami úplně náhodných</b> řetězců stejné délky (samý nesmysl) a v každé generaci
       nechá přežít a „rozmnožit" ty, které se cíli nejvíc podobají. Po pár desítkách generací
       obvykle uhodne celou větu. Je to ukázka, jak lze hledat řešení <b>bez toho, abychom ho znali</b> —
-      stačí umět ohodnotit, jak je dané řešení dobré.
+      stačí umět ohodnotit, jak je dané řešení dobré.</span>
+      <span class="en">You enter a <b>target sentence</b> and the algorithm tries to reach it — but it isn't allowed to "copy"
+      it. It starts with <b>hundreds of completely random</b> strings of the same length (pure nonsense) and in each
+      generation lets the ones most similar to the target survive and "reproduce". After a few dozen generations it
+      usually guesses the whole sentence. It shows how you can search for a solution <b>without knowing it</b> —
+      all you need is to be able to score how good a candidate is.</span>
     </p>
     <p>
-      V poli <b>„nejlepší jedinec"</b> se <b style="color:#16a34a">zeleně</b> zvýrazní písmena, která už
+      <span class="cs">V poli <b>„nejlepší jedinec"</b> se <b style="color:#16a34a">zeleně</b> zvýrazní písmena, která už
       sedí na správném místě, a <b>pruh</b> ukazuje shodu v procentech. Úplně dole je ukázka populace —
-      od slušného přes průměrného až po nejhoršího jedince. Posuvníky měníš velikost populace a míru mutace.
+      od slušného přes průměrného až po nejhoršího jedince. Posuvníky měníš velikost populace a míru mutace.</span>
+      <span class="en">In the <b>"best individual"</b> field, letters already in the right place are highlighted
+      <b style="color:#16a34a">green</b>, and the <b>bar</b> shows the match as a percentage. At the very bottom is a
+      sample of the population — from a decent one through an average one to the worst. The sliders change the population
+      size and the mutation rate.</span>
     </p>
     <div class="loop">
-      <span class="stepc"><span class="n">1</span> náhodná populace</span>
+      <span class="stepc"><span class="n">1</span> <span class="cs">náhodná populace</span><span class="en">random population</span></span>
       <span class="arr">→</span>
-      <span class="stepc"><span class="n">2</span> ohodnoť (fitness)</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">ohodnoť (fitness)</span><span class="en">score (fitness)</span></span>
       <span class="arr">→</span>
-      <span class="stepc"><span class="n">3</span> vyber nejlepší</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">vyber nejlepší</span><span class="en">select the best</span></span>
       <span class="arr">→</span>
-      <span class="stepc"><span class="n">4</span> křížení</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">křížení</span><span class="en">crossover</span></span>
       <span class="arr">→</span>
-      <span class="stepc"><span class="n">5</span> mutace</span>
+      <span class="stepc"><span class="n">5</span> <span class="cs">mutace</span><span class="en">mutation</span></span>
       <span class="arr">↺</span>
-      <span class="repeat">a znovu, dokud nesedí celá věta</span>
+      <span class="repeat"><span class="cs">a znovu, dokud nesedí celá věta</span><span class="en">and again, until the whole sentence matches</span></span>
     </div>
   </div>
 
   <div class="panel">
     <div class="block">
-      <div class="label">1 · cílová věta (uprav podle libosti)</div>
+      <div class="label"><span class="cs">1 · cílová věta (uprav podle libosti)</span><span class="en">1 · target sentence (edit freely)</span></div>
       <input type="text" id="target" value="UMELA INTELIGENCE JE BUDOUCNOST">
       <div class="opts" style="margin-top:14px">
         <div class="opt">
-          <span class="label" style="margin:0">velikost populace</span>
+          <span class="label" style="margin:0"><span class="cs">velikost populace</span><span class="en">population size</span></span>
           <input type="range" id="pop" min="50" max="600" value="200" step="50">
           <span class="rv" id="popVal">200</span>
         </div>
         <div class="opt">
-          <span class="label" style="margin:0">míra mutace</span>
+          <span class="label" style="margin:0"><span class="cs">míra mutace</span><span class="en">mutation rate</span></span>
           <input type="range" id="mut" min="1" max="10" value="3" step="1">
           <span class="rv" id="mutVal">3 %</span>
         </div>
@@ -146,53 +203,64 @@
     </div>
 
     <div class="block">
-      <div class="label">2 · nejlepší jedinec v populaci</div>
-      <div class="best" id="best"><span class="miss">stiskni „Spustit evoluci"…</span></div>
+      <div class="label"><span class="cs">2 · nejlepší jedinec v populaci</span><span class="en">2 · best individual in the population</span></div>
+      <div class="best" id="best"><span class="miss"><span class="cs">stiskni „Spustit evoluci"…</span><span class="en">press "Run evolution"…</span></span></div>
       <div class="barwrap"><div class="bar" id="bar"></div></div>
       <div class="stat" style="margin-top:12px">
-        <span>generace: <b id="gen">0</b></span>
-        <span>shoda: <b id="fit">0 %</b></span>
-        <span>vyhodnoceno vět: <b id="evals">0</b></span>
+        <span><span class="cs">generace:</span><span class="en">generation:</span> <b id="gen">0</b></span>
+        <span><span class="cs">shoda:</span><span class="en">match:</span> <b id="fit">0 %</b></span>
+        <span><span class="cs">vyhodnoceno vět:</span><span class="en">sentences evaluated:</span> <b id="evals">0</b></span>
       </div>
       <div class="controls" style="margin-top:14px">
-        <button class="go" id="btnRun">Spustit evoluci</button>
+        <button class="go" id="btnRun"><span class="cs">Spustit evoluci</span><span class="en">Run evolution</span></button>
         <button class="stop" id="btnStop" disabled>■ STOP</button>
       </div>
     </div>
 
     <div class="block">
-      <div class="label">3 · ukázka populace (pár náhodných jedinců)</div>
+      <div class="label"><span class="cs">3 · ukázka populace (pár náhodných jedinců)</span><span class="en">3 · population sample (a few random individuals)</span></div>
       <div class="pop" id="pop-view"><span style="color:#cbd5e1">—</span></div>
     </div>
   </div>
 
   <section class="theory">
-    <div class="head">Jak evoluce hledá řešení</div>
+    <div class="head"><span class="cs">Jak evoluce hledá řešení</span><span class="en">How evolution searches for a solution</span></div>
     <p class="lead">
-      Genetický algoritmus napodobuje přírodní výběr. Místo aby zkoušel kombinace popořadě
+      <span class="cs">Genetický algoritmus napodobuje přírodní výběr. Místo aby zkoušel kombinace popořadě
       (jako hrubá síla v příkladu 1), pracuje s celou <b>populací</b> řešení a v každé generaci
-      nechá „rodit" lepší z lepších. Náhoda tu má směr — <b>k cíli</b>.
+      nechá „rodit" lepší z lepších. Náhoda tu má směr — <b>k cíli</b>.</span>
+      <span class="en">A genetic algorithm mimics natural selection. Instead of trying combinations in order
+      (like brute force in example 1), it works with a whole <b>population</b> of solutions and in each generation
+      lets the better ones "give birth" to even better ones. Here randomness has a direction — <b>toward the target</b>.</span>
     </p>
     <div class="tcards">
       <div class="tcard" style="--c:#f59e0b">
-        <h3><span class="dot"></span>Fitness (zdatnost)</h3>
-        <p>Každé větě dáme známku — kolik písmen má správně. To je jediné, co algoritmus o cíli ví.
-           Lepší známka = větší šance na potomky.</p>
+        <h3><span class="dot"></span><span class="cs">Fitness (zdatnost)</span><span class="en">Fitness</span></h3>
+        <p><span class="cs">Každé větě dáme známku — kolik písmen má správně. To je jediné, co algoritmus o cíli ví.
+           Lepší známka = větší šance na potomky.</span>
+           <span class="en">We grade each sentence — how many letters it has right. That's the only thing the algorithm
+           knows about the target. A better grade = a higher chance of offspring.</span></p>
       </div>
       <div class="tcard" style="--c:#2563eb">
-        <h3><span class="dot"></span>Výběr a křížení</h3>
-        <p>Vybereme dva zdatné „rodiče" a jejich věty <b>zkřížíme</b> — část písmen od jednoho,
-           část od druhého. Vznikne potomek, který kombinuje to dobré z obou.</p>
+        <h3><span class="dot"></span><span class="cs">Výběr a křížení</span><span class="en">Selection and crossover</span></h3>
+        <p><span class="cs">Vybereme dva zdatné „rodiče" a jejich věty <b>zkřížíme</b> — část písmen od jednoho,
+           část od druhého. Vznikne potomek, který kombinuje to dobré z obou.</span>
+           <span class="en">We pick two fit "parents" and <b>cross over</b> their sentences — some letters from one,
+           some from the other. The child combines the good bits of both.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
-        <h3><span class="dot"></span>Mutace</h3>
-        <p>Občas se náhodně změní písmeno. Drží to rozmanitost a pomáhá objevit, co v populaci
-           ještě není. Moc mutace = chaos, málo = uváznutí.</p>
+        <h3><span class="dot"></span><span class="cs">Mutace</span><span class="en">Mutation</span></h3>
+        <p><span class="cs">Občas se náhodně změní písmeno. Drží to rozmanitost a pomáhá objevit, co v populaci
+           ještě není. Moc mutace = chaos, málo = uváznutí.</span>
+           <span class="en">Now and then a letter changes at random. This keeps diversity and helps discover what isn't
+           yet in the population. Too much mutation = chaos, too little = getting stuck.</span></p>
       </div>
       <div class="tcard" style="--c:#a855f7">
-        <h3><span class="dot"></span>K čemu to je</h3>
-        <p>Hodí se tam, kde neumíme spočítat řešení přímo: návrh tvarů, herní strategie, ladění
-           parametrů. Vždy, když umíme jen <b>ohodnotit</b>, jak dobré řešení je.</p>
+        <h3><span class="dot"></span><span class="cs">K čemu to je</span><span class="en">What it's good for</span></h3>
+        <p><span class="cs">Hodí se tam, kde neumíme spočítat řešení přímo: návrh tvarů, herní strategie, ladění
+           parametrů. Vždy, když umíme jen <b>ohodnotit</b>, jak dobré řešení je.</span>
+           <span class="en">It's useful where we can't compute the solution directly: shape design, game strategies, parameter
+           tuning. Whenever all we can do is <b>score</b> how good a solution is.</span></p>
       </div>
     </div>
   </section>
@@ -201,6 +269,11 @@
   const $ = id => document.getElementById(id);
   let CHARSET = [];
   let target = '', pop = [], gen = 0, evals = 0, timer = null, popSize = 200, mutRate = 0.03;
+
+  // ── dvojjazyčné výchozí hodnoty ──────────────────────────────
+  let curLang = window.__lang || 'cs';
+  const DEFAULT_TARGET = { cs: 'UMELA INTELIGENCE JE BUDOUCNOST', en: 'ARTIFICIAL INTELLIGENCE IS THE FUTURE' };
+  const LOCALE = { cs: 'cs-CZ', en: 'en-US' };
 
   function buildCharset(t) {
     const set = new Set(t.split(''));
@@ -222,7 +295,7 @@
   }
 
   function initPop(){
-    target = ($('target').value || 'AHOJ').toUpperCase();
+    target = ($('target').value || DEFAULT_TARGET[curLang]).toUpperCase();
     CHARSET = buildCharset(target);
     pop = []; for(let i=0;i<popSize;i++) pop.push(randStr(target.length));
     gen = 0; evals = 0;
@@ -256,7 +329,7 @@
     const pct = Math.round(best.f/target.length*100);
     $('fit').textContent = pct+' %';
     $('bar').style.width = pct+'%';
-    $('evals').textContent = evals.toLocaleString('cs-CZ');
+    $('evals').textContent = evals.toLocaleString(LOCALE[curLang]);
     // ukázka populace
     const sample = [scored[Math.floor(scored.length*0.25)], scored[Math.floor(scored.length*0.5)], scored[scored.length-1]];
     $('pop-view').innerHTML = sample.map(c=>colorize(c.s,'')).join('<br>');
@@ -282,6 +355,40 @@
   $('btnStop').addEventListener('click', stop);
   $('pop').addEventListener('input', e=>{ popSize=+e.target.value; $('popVal').textContent=popSize; });
   $('mut').addEventListener('input', e=>{ mutRate=+e.target.value/100; $('mutVal').textContent=e.target.value+' %'; });
+
+  // přepnutí jazyka: vyměň výchozí cílovou větu, pokud ji uživatel needitoval
+  window.onLangChange = function(l){
+    const prev = (l === 'en') ? 'cs' : 'en';
+    if ($('target').value.trim() === DEFAULT_TARGET[prev]) $('target').value = DEFAULT_TARGET[l];
+    curLang = l;
+  };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #7 — Genetický algoritmus",
+      en: "Example #7 — Genetic algorithm"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>

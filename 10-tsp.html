@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #10 — Problém obchodního cestujícího</title>
 <style>
   * { box-sizing: border-box; }
@@ -64,91 +71,182 @@
   .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
   .tcard code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px;
                 background: #f3f4f6; padding: 1px 5px; border-radius: 4px; color: #374151; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">10</span>Problém obchodního cestujícího</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">10</span><span class="cs">Problém obchodního cestujícího</span><span class="en">The travelling salesman problem</span></h1>
   <p class="intro">
-    Najdi <b>nejkratší trasu</b>, která projede všemi městy a vrátí se zpět. Vypadá jednoduše,
+    <span class="cs">Najdi <b>nejkratší trasu</b>, která projede všemi městy a vrátí se zpět. Vypadá jednoduše,
     ale počet možných tras roste <b>astronomicky</b> — přesně tady se potkávají dva principy z této
     série: <b>kombinatorická exploze</b> (příklad 1) a <b>evoluční optimalizace</b> (příklad 7).
-    Níže je můj starší projekt, který TSP řeší <b>genetickým algoritmem</b> přímo v prohlížeči.
+    Níže je můj starší projekt, který TSP řeší <b>genetickým algoritmem</b> přímo v prohlížeči.</span>
+    <span class="en">Find the <b>shortest route</b> that visits every city and returns home. It looks simple,
+    but the number of possible routes grows <b>astronomically</b> — this is exactly where two principles of
+    this series meet: <b>combinatorial explosion</b> (example 1) and <b>evolutionary optimization</b> (example 7).
+    Below is my older project that solves the TSP with a <b>genetic algorithm</b> right in the browser.</span>
   </p>
 
   <div class="panel">
 
     <div class="links">
-      <a class="btn primary" href="https://saiko.cz/tsp/" target="_blank" rel="noopener">▶ Otevřít aplikaci ↗</a>
-      <a class="btn ghost" href="https://github.com/dsaiko/tsp" target="_blank" rel="noopener">⌥ Zdrojový kód na GitHubu ↗</a>
+      <a class="btn primary" href="https://saiko.cz/tsp/" target="_blank" rel="noopener"><span class="cs">▶ Otevřít aplikaci ↗</span><span class="en">▶ Open the app ↗</span></a>
+      <a class="btn ghost" href="https://github.com/dsaiko/tsp" target="_blank" rel="noopener"><span class="cs">⌥ Zdrojový kód na GitHubu ↗</span><span class="en">⌥ Source code on GitHub ↗</span></a>
     </div>
 
     <div class="frame-wrap">
       <iframe src="https://saiko.cz/tsp/" title="TSP Genetic Algorithm Visualizer" loading="lazy"></iframe>
     </div>
     <div class="frame-note">
-      Pokud se náhled výše nenačte (některé prohlížeče blokují vkládání cizích stránek),
-      otevři aplikaci přímo na <a href="https://saiko.cz/tsp/" target="_blank" rel="noopener">saiko.cz/tsp</a>.
+      <span class="cs">Pokud se náhled výše nenačte (některé prohlížeče blokují vkládání cizích stránek),
+      otevři aplikaci přímo na <a href="https://saiko.cz/tsp/" target="_blank" rel="noopener">saiko.cz/tsp</a>.</span>
+      <span class="en">If the preview above doesn't load (some browsers block embedding third-party pages),
+      open the app directly at <a href="https://saiko.cz/tsp/" target="_blank" rel="noopener">saiko.cz/tsp</a>.</span>
     </div>
 
     <div class="block">
-      <h2>O projektu</h2>
+      <h2><span class="cs">O projektu</span><span class="en">About the project</span></h2>
       <p>
-        Interaktivní vizualizér řešící <b>problém obchodního cestujícího</b> (TSP) pomocí
+        <span class="cs">Interaktivní vizualizér řešící <b>problém obchodního cestujícího</b> (TSP) pomocí
         <b>genetického algoritmu</b>. Celý výpočet běží <b>v prohlížeči</b> (bez serveru) a průběh
         optimalizace se kreslí v reálném čase na plátno. Aplikace se sama zastaví, jakmile se řešení
-        přestane zlepšovat.
+        přestane zlepšovat.</span>
+        <span class="en">An interactive visualizer that solves the <b>travelling salesman problem</b> (TSP) with a
+        <b>genetic algorithm</b>. The whole computation runs <b>in the browser</b> (no server) and the
+        optimization is drawn on a canvas in real time. The app stops by itself once the solution stops
+        improving.</span>
       </p>
-      <p>Nabízí čtyři varianty genetického algoritmu:</p>
+      <p><span class="cs">Nabízí čtyři varianty genetického algoritmu:</span><span class="en">It offers four variants of the genetic algorithm:</span></p>
       <ul>
-        <li><b>Prostá mutace</b> — náhodné prohazování měst, přežívá zdatnější polovina</li>
-        <li><b>Mutace + 2-opt</b> — k tomu lokální vylepšení, které odstraňuje křížení hran</li>
-        <li><b>Greedy crossover</b> — kříží dva rodiče výběrem levnější navazující hrany</li>
-        <li><b>Greedy crossover + 2-opt</b> — nejsilnější kombinace</li>
+        <li><span class="cs"><b>Prostá mutace</b> — náhodné prohazování měst, přežívá zdatnější polovina</span><span class="en"><b>Plain mutation</b> — random city swaps; the fitter half survives</span></li>
+        <li><span class="cs"><b>Mutace + 2-opt</b> — k tomu lokální vylepšení, které odstraňuje křížení hran</span><span class="en"><b>Mutation + 2-opt</b> — plus a local improvement that removes edge crossings</span></li>
+        <li><span class="cs"><b>Greedy crossover</b> — kříží dva rodiče výběrem levnější navazující hrany</span><span class="en"><b>Greedy crossover</b> — combines two parents by picking the cheaper connecting edge</span></li>
+        <li><span class="cs"><b>Greedy crossover + 2-opt</b> — nejsilnější kombinace</span><span class="en"><b>Greedy crossover + 2-opt</b> — the strongest combination</span></li>
       </ul>
       <p>
-        Cena trasy se počítá přes <b>RMS</b> (penalizuje dlouhé úseky víc než několik krátkých).
+        <span class="cs">Cena trasy se počítá přes <b>RMS</b> (penalizuje dlouhé úseky víc než několik krátkých).
         K dispozici je <b>12 map</b>: reálná česká města (20–192 měst, souřadnice S-JTSK)
-        i geometrické testy (kruh, spirála, čtverec, trojúhelník, linka).
+        i geometrické testy (kruh, spirála, čtverec, trojúhelník, linka).</span>
+        <span class="en">Route cost is computed via <b>RMS</b> (which penalizes long legs more than several short ones).
+        There are <b>12 maps</b> available: real Czech cities (20–192 cities, S-JTSK coordinates)
+        and geometric tests (circle, spiral, square, triangle, line).</span>
       </p>
       <p>
-        Postaveno v <b>TypeScriptu</b> (Vite), kreslení přes <b>HTML5 Canvas</b> (HiDPI), výpočet běží
+        <span class="cs">Postaveno v <b>TypeScriptu</b> (Vite), kreslení přes <b>HTML5 Canvas</b> (HiDPI), výpočet běží
         na pozadí ve <b>Web Workerech</b>, bez runtime závislostí. Je to modernizovaný přepis původní
-        <b>Java desktop aplikace z roku 2006</b>.
+        <b>Java desktop aplikace z roku 2006</b>.</span>
+        <span class="en">Built in <b>TypeScript</b> (Vite), drawn with <b>HTML5 Canvas</b> (HiDPI), the computation runs
+        in the background in <b>Web Workers</b>, with no runtime dependencies. It's a modernized rewrite of the
+        original <b>Java desktop app from 2006</b>.</span>
       </p>
     </div>
 
   </div>
 
   <section class="theory">
-    <div class="head">Proč je TSP tak zajímavý</div>
+    <div class="head"><span class="cs">Proč je TSP tak zajímavý</span><span class="en">Why the TSP is so interesting</span></div>
     <p class="lead">
-      TSP je jedna z nejznámějších <b>optimalizačních úloh</b> a krásně shrnuje celou tuhle sérii:
-      prostor řešení je obrovský, hrubá síla nestačí, a tak nasazujeme <b>heuristiky a evoluci</b>.
+      <span class="cs">TSP je jedna z nejznámějších <b>optimalizačních úloh</b> a krásně shrnuje celou tuhle sérii:
+      prostor řešení je obrovský, hrubá síla nestačí, a tak nasazujeme <b>heuristiky a evoluci</b>.</span>
+      <span class="en">The TSP is one of the best-known <b>optimization problems</b> and neatly sums up this whole series:
+      the solution space is enormous, brute force isn't enough, so we bring in <b>heuristics and evolution</b>.</span>
     </p>
     <div class="tcards">
       <div class="tcard" style="--c:#111827">
-        <h3><span class="dot"></span>Kombinatorická exploze</h3>
-        <p>Počet různých tras je <code>(n−1)!/2</code>. Pro 20 měst je to už ~10<sup>16</sup>,
-           pro 192 měst nepředstavitelné číslo. Projít všechny (jako v příkladu 1) nejde.</p>
+        <h3><span class="dot"></span><span class="cs">Kombinatorická exploze</span><span class="en">Combinatorial explosion</span></h3>
+        <p><span class="cs">Počet různých tras je <code>(n−1)!/2</code>. Pro 20 měst je to už ~10<sup>16</sup>,
+           pro 192 měst nepředstavitelné číslo. Projít všechny (jako v příkladu 1) nejde.</span>
+           <span class="en">The number of distinct routes is <code>(n−1)!/2</code>. For 20 cities that's already ~10<sup>16</sup>;
+           for 192 cities, an unimaginable number. Going through them all (as in example 1) is impossible.</span></p>
       </div>
       <div class="tcard" style="--c:#0ea5e9">
-        <h3><span class="dot"></span>Heuristika 2-opt</h3>
-        <p>Chytrý trik: kdykoliv se trasa sama <b>kříží</b>, prohození dvou hran ji zkrátí.
-           Opakováním vznikne velmi dobrá (i když ne nutně optimální) trasa.</p>
+        <h3><span class="dot"></span><span class="cs">Heuristika 2-opt</span><span class="en">The 2-opt heuristic</span></h3>
+        <p><span class="cs">Chytrý trik: kdykoliv se trasa sama <b>kříží</b>, prohození dvou hran ji zkrátí.
+           Opakováním vznikne velmi dobrá (i když ne nutně optimální) trasa.</span>
+           <span class="en">A clever trick: whenever a route <b>crosses</b> itself, swapping two edges shortens it.
+           Repeating this yields a very good (though not necessarily optimal) route.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
-        <h3><span class="dot"></span>Genetický algoritmus</h3>
-        <p>Populace tras se <b>kříží a mutuje</b> k lepšímu — přesně princip z příkladu 7, jen místo
-           věty hledáme nejkratší okruh. 2-opt funguje jako lokální „doladění" potomků.</p>
+        <h3><span class="dot"></span><span class="cs">Genetický algoritmus</span><span class="en">Genetic algorithm</span></h3>
+        <p><span class="cs">Populace tras se <b>kříží a mutuje</b> k lepšímu — přesně princip z příkladu 7, jen místo
+           věty hledáme nejkratší okruh. 2-opt funguje jako lokální „doladění" potomků.</span>
+           <span class="en">A population of routes <b>crosses over and mutates</b> toward better ones — exactly the principle
+           from example 7, only instead of a sentence we seek the shortest loop. 2-opt acts as a local "fine-tuning"
+           of the offspring.</span></p>
       </div>
       <div class="tcard" style="--c:#6366f1">
-        <h3><span class="dot"></span>Proč na tom záleží</h3>
-        <p>TSP není jen hlavolam — stejná úloha je za <b>plánováním rozvozů</b>, trasováním vrtů na
-           deskách, logistikou i sekvenováním. Dobrá heuristika tu šetří reálné peníze.</p>
+        <h3><span class="dot"></span><span class="cs">Proč na tom záleží</span><span class="en">Why it matters</span></h3>
+        <p><span class="cs">TSP není jen hlavolam — stejná úloha je za <b>plánováním rozvozů</b>, trasováním vrtů na
+           deskách, logistikou i sekvenováním. Dobrá heuristika tu šetří reálné peníze.</span>
+           <span class="en">The TSP isn't just a puzzle — the same problem lies behind <b>delivery planning</b>, drilling
+           routes on circuit boards, logistics and sequencing. A good heuristic here saves real money.</span></p>
       </div>
     </div>
   </section>
 
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, uložení volby. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #10 — Problém obchodního cestujícího",
+      en: "Example #10 — The travelling salesman problem"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
+</script>
 </body>
 </html>

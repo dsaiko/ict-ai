@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #4 — Učení z textu (Markovův řetězec)</title>
 <style>
   * { box-sizing: border-box; }
@@ -87,37 +94,79 @@
   .tcard .minus { color: #dc2626; font-weight: 700; }
   .tcard code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px;
                 background: #f3f4f6; padding: 1px 5px; border-radius: 4px; color: #374151; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">04</span>Učení z textu — Markovův řetězec</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">04</span><span class="cs">Učení z textu — Markovův řetězec</span><span class="en">Learning from text — a Markov chain</span></h1>
   <p class="intro">
-    V příkladu 2 jsme pravidla psali <b>ručně</b>. Tady se model <b>učí sám z textu</b>:
+    <span class="cs">V příkladu 2 jsme pravidla psali <b>ručně</b>. Tady se model <b>učí sám z textu</b>:
     spočítá, co po čem nejčastěji následuje, a podle těch pravděpodobností generuje nový text.
     Je to princip „malého jazykového modelu" — a <b>posuvníkem kontextu</b> uvidíš,
-    jak víc paměti = víc smyslu.
+    jak víc paměti = víc smyslu.</span>
+    <span class="en">In example 2 we wrote the rules <b>by hand</b>. Here the model <b>learns by itself from text</b>:
+    it counts what most often follows what, and generates new text according to those probabilities.
+    It's the principle of a "small language model" — and with the <b>context slider</b> you'll see
+    how more memory = more sense.</span>
   </p>
 
   <div class="panel">
 
     <div class="block">
-      <div class="label">1 · trénovací text (uprav podle libosti)</div>
+      <div class="label"><span class="cs">1 · trénovací text (uprav podle libosti)</span><span class="en">1 · training text (edit freely)</span></div>
       <textarea id="corpus"></textarea>
     </div>
 
     <div class="block">
-      <div class="label">2 · nastavení modelu</div>
+      <div class="label"><span class="cs">2 · nastavení modelu</span><span class="en">2 · model settings</span></div>
       <div class="opts">
         <div class="opt">
-          <span class="label" style="margin:0">jednotka</span>
+          <span class="label" style="margin:0"><span class="cs">jednotka</span><span class="en">unit</span></span>
           <div class="seg" id="mode">
-            <button data-mode="char" class="on">po znacích</button>
-            <button data-mode="word">po slovech</button>
+            <button data-mode="char" class="on"><span class="cs">po znacích</span><span class="en">by characters</span></button>
+            <button data-mode="word"><span class="cs">po slovech</span><span class="en">by words</span></button>
           </div>
         </div>
         <div class="opt">
-          <span class="label" style="margin:0">kontext (řád <span id="orderName">n</span>)</span>
+          <span class="label" style="margin:0"><span class="cs">kontext (řád <span id="orderName">n</span>)</span><span class="en">context (order <span id="orderNameEn">n</span>)</span></span>
           <input type="range" id="order" min="1" max="5" value="3" step="1">
           <span class="rangeval" id="orderVal">3</span>
         </div>
@@ -126,10 +175,10 @@
     </div>
 
     <div class="block">
-      <div class="label">3 · vygenerovaný text</div>
-      <div class="output" id="output"><span class="placeholder">stiskni „Generuj"…</span></div>
+      <div class="label"><span class="cs">3 · vygenerovaný text</span><span class="en">3 · generated text</span></div>
+      <div class="output" id="output"><span class="placeholder"><span class="cs">stiskni „Generuj"…</span><span class="en">press "Generate"…</span></span></div>
       <div class="actions" style="margin-top:14px">
-        <button class="go" id="btnGen">Generuj</button>
+        <button class="go" id="btnGen"><span class="cs">Generuj</span><span class="en">Generate</span></button>
         <span class="stat" id="stat"></span>
       </div>
     </div>
@@ -138,61 +187,82 @@
 
   <!-- ── Teorie ── -->
   <section class="theory">
-    <div class="head">Jak to funguje a kde jsou hranice</div>
+    <div class="head"><span class="cs">Jak to funguje a kde jsou hranice</span><span class="en">How it works and where the limits are</span></div>
     <p class="lead">
-      Markovův řetězec je <b>nejjednodušší jazykový model</b>. Nerozumí významu — jen si z textu
+      <span class="cs">Markovův řetězec je <b>nejjednodušší jazykový model</b>. Nerozumí významu — jen si z textu
       <b>spočítá statistiku</b>: „po této kombinaci nejčastěji následuje tohle". Pak generuje tak,
       že podle těch četností <b>náhodně losuje</b> další znak nebo slovo. Čím delší trénovací text,
-      tím bohatší a věrohodnější výsledek.
+      tím bohatší a věrohodnější výsledek.</span>
+      <span class="en">A Markov chain is the <b>simplest language model</b>. It doesn't understand meaning — it just
+      <b>computes statistics</b> from the text: "this is what most often follows this combination". Then it generates by
+      <b>randomly drawing</b> the next character or word according to those frequencies. The longer the training text,
+      the richer and more believable the result.</span>
     </p>
 
     <div class="tcards">
 
       <div class="tcard" style="--c:#06b6d4">
-        <h3><span class="dot"></span>Jak se model „učí"</h3>
-        <p>Projde text a u každého kousku si zapíše, co po něm následovalo. Z toho vznikne tabulka
+        <h3><span class="dot"></span><span class="cs">Jak se model „učí"</span><span class="en">How the model "learns"</span></h3>
+        <p><span class="cs">Projde text a u každého kousku si zapíše, co po něm následovalo. Z toho vznikne tabulka
            pravděpodobností — třeba že po <code>"ko"</code> bývá nejčastěji <code>"č"</code>,
-           <code>"u"</code> nebo <code>"s"</code>.</p>
-        <p>Žádná pravidla se nepíšou ručně (na rozdíl od příkladu 2) — <b>vyčtou se z dat</b>.</p>
+           <code>"u"</code> nebo <code>"s"</code>.</span>
+           <span class="en">It goes through the text and for each piece records what followed it. That builds a table of
+           probabilities — for example, that <code>"th"</code> is most often followed by <code>"e"</code>,
+           <code>"a"</code> or <code>"i"</code>.</span></p>
+        <p><span class="cs">Žádná pravidla se nepíšou ručně (na rozdíl od příkladu 2) — <b>vyčtou se z dat</b>.</span>
+           <span class="en">No rules are written by hand (unlike example 2) — <b>they're read from the data</b>.</span></p>
       </div>
 
       <div class="tcard" style="--c:#8b5cf6">
-        <h3><span class="dot"></span>Řád n = kolik si pamatuje</h3>
-        <p>Řád určuje, kolik předchozích jednotek model bere v potaz. To je celé kouzlo posuvníku:</p>
+        <h3><span class="dot"></span><span class="cs">Řád n = kolik si pamatuje</span><span class="en">Order n = how much it remembers</span></h3>
+        <p><span class="cs">Řád určuje, kolik předchozích jednotek model bere v potaz. To je celé kouzlo posuvníku:</span>
+           <span class="en">The order sets how many previous units the model takes into account. That's the whole magic of the slider:</span></p>
         <div class="pm">
-          <div><span class="minus">–</span> <b>nízký řád</b> (1–2): málo kontextu → blábol, ale „kreativní"</div>
-          <div><span class="plus">+</span> <b>vyšší řád</b> (3–5): víc kontextu → skoro čeština</div>
-          <div><span class="minus">–</span> <b>moc vysoký</b>: jen opisuje věty z předlohy</div>
+          <div><span class="minus">–</span> <span class="cs"><b>nízký řád</b> (1–2): málo kontextu → blábol, ale „kreativní"</span><span class="en"><b>low order</b> (1–2): little context → gibberish, but "creative"</span></div>
+          <div><span class="plus">+</span> <span class="cs"><b>vyšší řád</b> (3–5): víc kontextu → skoro čeština</span><span class="en"><b>higher order</b> (3–5): more context → almost-real language</span></div>
+          <div><span class="minus">–</span> <span class="cs"><b>moc vysoký</b>: jen opisuje věty z předlohy</span><span class="en"><b>too high</b>: it just copies sentences from the source</span></div>
         </div>
       </div>
 
       <div class="tcard" style="--c:#0ea5e9">
-        <h3><span class="dot"></span>Po znacích vs. po slovech</h3>
-        <p><b>Znaky:</b> učí se i pravopis a tvar slov — umí vymyslet nová slova, která vypadají
-           česky, ale nemusí existovat.</p>
-        <p><b>Slova:</b> skládá jen existující slova, věty plynou líp, ale potřebuje delší text,
-           jinak jen opakuje předlohu.</p>
+        <h3><span class="dot"></span><span class="cs">Po znacích vs. po slovech</span><span class="en">By characters vs. by words</span></h3>
+        <p><span class="cs"><b>Znaky:</b> učí se i pravopis a tvar slov — umí vymyslet nová slova, která vypadají
+           česky, ale nemusí existovat.</span>
+           <span class="en"><b>Characters:</b> it also learns spelling and word shapes — it can invent new words that look
+           real but may not exist.</span></p>
+        <p><span class="cs"><b>Slova:</b> skládá jen existující slova, věty plynou líp, ale potřebuje delší text,
+           jinak jen opakuje předlohu.</span>
+           <span class="en"><b>Words:</b> it assembles only existing words, sentences flow better, but it needs a longer
+           text or it just repeats the source.</span></p>
       </div>
 
       <div class="tcard" style="--c:#ec4899">
-        <h3><span class="dot"></span>Vztah k dnešním LLM</h3>
-        <p>Princip je <b>stejný</b>: předpovědět další kousek textu z předchozího kontextu.
+        <h3><span class="dot"></span><span class="cs">Vztah k dnešním LLM</span><span class="en">Relation to today's LLMs</span></h3>
+        <p><span class="cs">Princip je <b>stejný</b>: předpovědět další kousek textu z předchozího kontextu.
            Velké modely (ChatGPT) to ale dělají <b>neuronovou sítí</b>, s kontextem tisíců slov
-           a naučené z miliard vět.</p>
-        <p>Proto „rozumí" mnohem víc — ale jádro myšlenky vidíš právě tady.</p>
+           a naučené z miliard vět.</span>
+           <span class="en">The principle is the <b>same</b>: predict the next piece of text from the previous context.
+           But large models (ChatGPT) do it with a <b>neural network</b>, with a context of thousands of words
+           and trained on billions of sentences.</span></p>
+        <p><span class="cs">Proto „rozumí" mnohem víc — ale jádro myšlenky vidíš právě tady.</span>
+           <span class="en">That's why they "understand" much more — but you can see the core idea right here.</span></p>
       </div>
 
     </div>
     <p class="lead" style="margin-top:16px">
-      <b>Pointa:</b> i tahle pár řádků dlouhá „inteligence" dokáže napodobit jazyk překvapivě dobře —
+      <span class="cs"><b>Pointa:</b> i tahle pár řádků dlouhá „inteligence" dokáže napodobit jazyk překvapivě dobře —
       a přitom vůbec nechápe, o čem text je. Je to čistá statistika nad daty. Velké jazykové modely
-      jsou v principu totéž, jen <b>nesrovnatelně větší</b>.
+      jsou v principu totéž, jen <b>nesrovnatelně větší</b>.</span>
+      <span class="en"><b>The point:</b> even this few-lines-long "intelligence" can mimic language surprisingly well —
+      while not understanding at all what the text is about. It's pure statistics over data. Large language models
+      are in principle the same, just <b>incomparably bigger</b>.</span>
     </p>
   </section>
 
 <script>
-  // ── Výchozí trénovací text ───────────────────────────────────
-  const DEFAULT_TEXT =
+  // ── Výchozí trénovací text (dvojjazyčně) ─────────────────────
+  const DEFAULT_TEXT = {
+    cs:
 `Ráno se nad krajinou rozprostřela hustá mlha a tráva byla studená rosou.
 Slunce pomalu vystoupilo nad les a první paprsky se opřely do klidné hladiny rybníka.
 Vítr něžně pohyboval větvemi starých dubů a ptáci začali zpívat své ranní písně.
@@ -216,10 +286,57 @@ Z komínů nízkých chalup stoupal modravý kouř a vesnice se ukládala k tich
 Žáby v rákosí spustily svůj chraplavý sbor a netopýři kroužili kolem lucerny.
 V noci bylo slyšet jen šumění lesa, praskání ohně a vzdálené houkání moudré sovy.
 Hvězdy se rozsvěcely jedna po druhé, až celá obloha zářila jako rozsypané drahokamy.
-Krajina spala a jen tichá řeka neúnavně plynula dál vstříc šedému svítání.`;
+Krajina spala a jen tichá řeka neúnavně plynula dál vstříc šedému svítání.`,
+    en:
+`In the morning a thick fog settled over the countryside and the grass was cold with dew.
+The sun slowly rose above the forest and the first rays leaned into the calm surface of the pond.
+The wind gently moved the branches of the old oaks and the birds began to sing their morning songs.
+Along the narrow path walked an old man, and in his hand he held a wooden stick smoothed by his palm.
+A cat lay quietly on a warm stone and lazily watched the butterflies fluttering over the meadow.
+The water in the brook murmured between the smooth pebbles and carried fallen leaves into the distance.
+The children ran across the meadow, laughed loudly and picked bright flowers into large bouquets.
+White clouds chased across the sky and their shadow slid over the field like a quiet ghost.
+In the orchard behind the cottage the apples were ripening and a sweet scent drifted through the garden.
+The bees busily flew from flower to flower and carried sticky golden honey into their hives.
+
+At noon the air grew hot and the cicadas struck up their tireless summer concert.
+Under the spreading linden tree sat a grandmother and with calm hands she wove a wicker basket.
+The dog lay in the shade of the fence, breathed slowly and with one eye watched every movement in the yard.
+From the kitchen drifted the scent of freshly baked bread and the buzzing of flies at the window.
+A young girl drew cool water from the well and quietly hummed an old little song.
+In the field beyond the village the farmers mowed the ripe grain and the ears fell into neat rows.
+
+Toward evening the sky turned red and above the dark horizon rose a silver moon.
+From the chimneys of the low cottages a bluish smoke rose and the village settled into a quiet sleep.
+The frogs in the reeds struck up their hoarse choir and the bats circled around the lantern.
+At night you could hear only the rustle of the forest, the crackling of the fire and the hooting of a wise owl.
+The stars lit up one after another, until the whole sky shone like scattered gems.
+The land slept, and only the quiet river flowed tirelessly on toward the grey dawn.`
+  };
+
+  // ── Dvojjazyčné dynamické texty ──────────────────────────────
+  let curLang = window.__lang || 'cs';
+  const I18N = {
+    cs: {
+      note: (mode, order) => mode === 'char'
+        ? `Model se dívá na <b>${order} předchozích znaků</b> a hádá další znak. Malý řád = blábol, vyšší řád = skoro česká slova (ale opisuje víc z předlohy).`
+        : `Model se dívá na <b>${order} předchozích slov</b> a hádá další slovo. Vyšší řád dává plynulejší věty, ale potřebuje delší trénovací text.`,
+      tooShort: 'Trénovací text je příliš krátký.',
+      stat: (states, count, mode) => `naučeno ${states} stavů · ${count} ${mode === 'char' ? 'znaků' : 'slov'} v textu`,
+      locale: 'cs-CZ',
+    },
+    en: {
+      note: (mode, order) => mode === 'char'
+        ? `The model looks at <b>${order} previous characters</b> and guesses the next character. Low order = gibberish, higher order = almost-real words (but copies more of the source).`
+        : `The model looks at <b>${order} previous words</b> and guesses the next word. A higher order gives smoother sentences but needs a longer training text.`,
+      tooShort: 'The training text is too short.',
+      stat: (states, count, mode) => `learned ${states} states · ${count} ${mode === 'char' ? 'characters' : 'words'} in the text`,
+      locale: 'en-US',
+    },
+  };
 
   const corpusEl = document.getElementById('corpus');
-  corpusEl.value = DEFAULT_TEXT;
+  corpusEl.value = DEFAULT_TEXT[curLang];
 
   // ── Stav ─────────────────────────────────────────────────────
   let mode = 'char';
@@ -227,17 +344,10 @@ Krajina spala a jen tichá řeka neúnavně plynula dál vstříc šedému svít
 
   const orderEl = document.getElementById('order');
   const orderValEl = document.getElementById('orderVal');
-  const orderNameEl = document.getElementById('orderName');
   const noteEl = document.getElementById('modelNote');
 
   function updateNote() {
-    if (mode === 'char') {
-      noteEl.innerHTML = `Model se dívá na <b>${order} předchozích znaků</b> a hádá další znak. ` +
-        `Malý řád = blábol, vyšší řád = skoro česká slova (ale opisuje víc z předlohy).`;
-    } else {
-      noteEl.innerHTML = `Model se dívá na <b>${order} předchozích slov</b> a hádá další slovo. ` +
-        `Vyšší řád dává plynulejší věty, ale potřebuje delší trénovací text.`;
-    }
+    noteEl.innerHTML = I18N[curLang].note(mode, order);
   }
   orderEl.addEventListener('input', () => {
     order = Number(orderEl.value);
@@ -259,11 +369,16 @@ Krajina spala a jen tichá řeka neúnavně plynula dál vstříc šedému svít
   });
 
   // ── Sestavení Markovova modelu ───────────────────────────────
+  // Oddělovač klíče: znak, který se v textu nevyskytuje. Bez něj by se
+  // v režimu „po slovech" slova v klíči spojila bez mezery a kontext by
+  // pak nešel rozdělit zpět na slova (proto generování po slovech selhávalo
+  // pro řád ≥ 2). V režimu „po znacích" je výstup beze změny.
+  const SEP = '';
   // mapa: prefix (n jednotek) → seznam možných následníků (s opakováním = četností)
   function buildModel(units, n) {
     const model = new Map();
     for (let i = 0; i + n < units.length; i++) {
-      const key = units.slice(i, i + n).join('');
+      const key = units.slice(i, i + n).join(SEP);
       const next = units[i + n];
       if (!model.has(key)) model.set(key, []);
       model.get(key).push(next);
@@ -283,20 +398,25 @@ Krajina spala a jen tichá řeka neúnavně plynula dál vstříc šedému svít
     const text = corpusEl.value;
     const units = tokenize(text);
     if (units.length <= order) {
-      document.getElementById('output').textContent = 'Trénovací text je příliš krátký.';
+      document.getElementById('output').textContent = I18N[curLang].tooShort;
       return;
     }
     const model = buildModel(units, order);
 
-    // začni od náhodného existujícího prefixu
+    // začni od náhodného existujícího prefixu (raději od začátku věty —
+    // klíč, jehož první jednotka začíná velkým písmenem)
     const keys = [...model.keys()];
     let startKey = pick(keys);
-    let ctx = startKey.split('');
+    for (let tries = 0; tries < 30; tries++) {
+      const k = pick(keys);
+      if (/^\p{Lu}/u.test(k.split(SEP)[0])) { startKey = k; break; }
+    }
+    let ctx = startKey.split(SEP);
     const out = ctx.slice();
 
     const TARGET = mode === 'char' ? 320 : 60;     // délka výstupu
     for (let i = 0; i < TARGET; i++) {
-      const key = ctx.join('');
+      const key = ctx.join(SEP);
       const options = model.get(key);
       if (!options) break;
       const nxt = pick(options);
@@ -310,13 +430,49 @@ Krajina spala a jen tichá řeka neúnavně plynula dál vstříc šedému svít
     result = result.charAt(0).toUpperCase() + result.slice(1);
 
     document.getElementById('output').textContent = result;
-    document.getElementById('stat').textContent =
-      `naučeno ${model.size.toLocaleString('cs-CZ')} stavů · ` +
-      `${units.length.toLocaleString('cs-CZ')} ${mode === 'char' ? 'znaků' : 'slov'} v textu`;
+    document.getElementById('stat').textContent = I18N[curLang].stat(
+      model.size.toLocaleString(I18N[curLang].locale),
+      units.length.toLocaleString(I18N[curLang].locale),
+      mode);
   }
 
   document.getElementById('btnGen').addEventListener('click', generate);
   updateNote();
+
+  // přepnutí jazyka: vyměň výchozí text (pokud neupravený) a překresli poznámku
+  window.onLangChange = function(l){
+    const prev = (l === 'en') ? 'cs' : 'en';
+    if (corpusEl.value.trim() === DEFAULT_TEXT[prev].trim()) corpusEl.value = DEFAULT_TEXT[l];
+    curLang = l;
+    updateNote();
+  };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #4 — Učení z textu (Markovův řetězec)",
+      en: "Example #4 — Learning from text (a Markov chain)"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>

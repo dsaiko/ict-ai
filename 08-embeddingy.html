@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #8 — Tokenizace a embeddingy</title>
 <style>
   * { box-sizing: border-box; }
@@ -80,26 +87,67 @@
   .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
   .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
   .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">08</span>Tokenizace a embeddingy</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">08</span><span class="cs">Tokenizace a embeddingy</span><span class="en">Tokenization and embeddings</span></h1>
   <p class="intro">
-    Jazykový model nečte písmena ani slova jako my. Text si nejdřív rozseká na <b>tokeny</b>
+    <span class="cs">Jazykový model nečte písmena ani slova jako my. Text si nejdřív rozseká na <b>tokeny</b>
     a každému přiřadí <b>vektor čísel</b> (embedding), který zachycuje význam. Podobná slova mají
-    podobné vektory — a leží v prostoru <b>blízko sebe</b>.
+    podobné vektory — a leží v prostoru <b>blízko sebe</b>.</span>
+    <span class="en">A language model doesn't read letters or words the way we do. It first chops the text into <b>tokens</b>
+    and assigns each a <b>vector of numbers</b> (an embedding) that captures meaning. Similar words have
+    similar vectors — and lie <b>close together</b> in the space.</span>
   </p>
 
   <div class="panel">
 
     <div class="block">
-      <div class="label">1 · tokenizace — jak se text rozseká na kousky</div>
+      <div class="label"><span class="cs">1 · tokenizace — jak se text rozseká na kousky</span><span class="en">1 · tokenization — how text is chopped into pieces</span></div>
       <input type="text" id="text" value="Umělá inteligence rozumí přirozenému jazyku.">
       <div class="tokens" id="tokens"></div>
       <div class="tokstat" id="tokstat"></div>
       <div class="blocknote">
-        <b>Co znamenají ta čísla?</b> Pod každým tokenem je jeho <b>ID</b> (např. <b>#22040</b>) —
+        <span class="cs"><b>Co znamenají ta čísla?</b> Pod každým tokenem je jeho <b>ID</b> (např. <b>#22040</b>) —
         pořadové číslo daného kousku ve <b>slovníku</b> modelu. Model totiž nepracuje s písmeny ani
         slovy, ale právě s těmito čísly: <b>text → tokeny → ID</b>, a teprve s ID dál počítá.
         Stejný kousek má vždy stejné ID.
@@ -107,34 +155,55 @@
         Barvy jen opticky oddělují sousední tokeny. Všimni si, že <b>delší slova se rozpadnou na
         menší kousky</b> (tzv. subword tokeny) — díky tomu model zvládne i slovo, které nikdy neviděl,
         poskládáním z částí. V praxi je <b>1 token ≈ 4 znaky</b> (zhruba ¾ slova).
-        <em>&nbsp;ID je tu jen ilustrativní, dopočítané z textu tokenu — skutečné modely mají pevný slovník desítek tisíc tokenů.</em>
+        <em>&nbsp;ID je tu jen ilustrativní, dopočítané z textu tokenu — skutečné modely mají pevný slovník desítek tisíc tokenů.</em></span>
+        <span class="en"><b>What do those numbers mean?</b> Under each token is its <b>ID</b> (e.g. <b>#22040</b>) —
+        the index of that piece in the model's <b>vocabulary</b>. The model doesn't work with letters or
+        words, but with these numbers: <b>text → tokens → IDs</b>, and only then does it compute with the IDs.
+        The same piece always has the same ID.
+        <br><br>
+        The colors just visually separate neighboring tokens. Notice that <b>longer words break into
+        smaller pieces</b> (so-called subword tokens) — this lets the model handle even a word it has never seen
+        by assembling it from parts. In practice <b>1 token ≈ 4 characters</b> (roughly ¾ of a word).
+        <em>&nbsp;The ID here is only illustrative, derived from the token's text — real models have a fixed vocabulary of tens of thousands of tokens.</em></span>
       </div>
     </div>
 
     <div class="block">
-      <div class="label">2 · embeddingy — mapa významů (klikni na slovo)</div>
+      <div class="label"><span class="cs">2 · embeddingy — mapa významů (klikni na slovo)</span><span class="en">2 · embeddings — a map of meaning (click a word)</span></div>
       <div class="map" id="map"><svg id="lines"></svg></div>
-      <div class="sublabel">Analogie — počítání s významy (klikni a sleduj šipky):</div>
+      <div class="sublabel"><span class="cs">Analogie — počítání s významy (klikni a sleduj šipky):</span><span class="en">Analogies — computing with meaning (click and watch the arrows):</span></div>
       <div class="controls" id="analogies">
-        <button class="go small" data-a="král" data-b="muž" data-c="žena">král − muž + žena</button>
-        <button class="go small" data-a="princ" data-b="muž" data-c="žena">princ − muž + žena</button>
-        <button class="go small" data-a="královna" data-b="žena" data-c="muž">královna − žena + muž</button>
-        <button class="go small" data-a="dva" data-b="jedna" data-c="tři">dva − jedna + tři</button>
-        <button class="util small" id="btnReset">Zrušit výběr</button>
+        <button class="go small cs" data-a="král" data-b="muž" data-c="žena">král − muž + žena</button>
+        <button class="go small cs" data-a="princ" data-b="muž" data-c="žena">princ − muž + žena</button>
+        <button class="go small cs" data-a="královna" data-b="žena" data-c="muž">královna − žena + muž</button>
+        <button class="go small cs" data-a="dva" data-b="jedna" data-c="tři">dva − jedna + tři</button>
+        <button class="go small en" data-a="king" data-b="man" data-c="woman">king − man + woman</button>
+        <button class="go small en" data-a="prince" data-b="man" data-c="woman">prince − man + woman</button>
+        <button class="go small en" data-a="queen" data-b="woman" data-c="man">queen − woman + man</button>
+        <button class="go small en" data-a="two" data-b="one" data-c="three">two − one + three</button>
+        <button class="util small" id="btnReset"><span class="cs">Zrušit výběr</span><span class="en">Clear selection</span></button>
       </div>
-      <div class="maphint" id="maphint">Klikni na libovolné slovo a uvidíš jeho <b>nejbližší sousedy</b> (významově nejpodobnější).</div>
+      <div class="maphint" id="maphint"></div>
       <div class="blocknote">
-        Každý token (slovo) dostane navíc <b>embedding</b> — seznam čísel (vektor), který zachycuje jeho
+        <span class="cs">Každý token (slovo) dostane navíc <b>embedding</b> — seznam čísel (vektor), který zachycuje jeho
         význam. Skutečné modely jich mají <b>stovky až tisíce</b> na jedno slovo; tady je pro názornost
         promítáme do <b>2&nbsp;rozměrů</b>, abychom je viděli jako body na ploše.
         <br><br>
         Slova, která se v textech objevují v <b>podobných souvislostech</b>, skončí <b>blízko sebe</b> —
         proto vznikají shluky (zvířata, barvy, doprava…). <b>Vzdálenost</b> mezi body měří podobnost
         významu a <b>směr</b> nese vztah: posun „muž → žena" je stejný jako „král → královna",
-        takže <b>král − muž + žena</b> dopadne u <b>královny</b>. Vyzkoušej tlačítka výše.
+        takže <b>král − muž + žena</b> dopadne u <b>královny</b>. Vyzkoušej tlačítka výše.</span>
+        <span class="en">Each token (word) also gets an <b>embedding</b> — a list of numbers (a vector) that captures its
+        meaning. Real models have <b>hundreds to thousands</b> of them per word; here, for clarity, we
+        project them into <b>2 dimensions</b> so we can see them as points on a plane.
+        <br><br>
+        Words that appear in <b>similar contexts</b> end up <b>close together</b> —
+        that's why clusters form (animals, colors, transport…). The <b>distance</b> between points measures
+        similarity of meaning and the <b>direction</b> carries a relationship: the shift "man → woman" is the same as
+        "king → queen", so <b>king − man + woman</b> lands at <b>queen</b>. Try the buttons above.</span>
       </div>
       <div class="blocknote">
-        <b>Jak ta analogie funguje?</b> Embeddingy dovolují se slovy <b>počítat jako s čísly</b>.
+        <span class="cs"><b>Jak ta analogie funguje?</b> Embeddingy dovolují se slovy <b>počítat jako s čísly</b>.
         Klíčové je, že některé <b>směry</b> v prostoru mají stálý význam. Směr „muž&nbsp;→&nbsp;žena"
         (změna pohlaví) je skoro <b>stejný</b>, ať vyjdeš od kohokoli — od muže, od krále i od prince.
         <br><br>
@@ -146,45 +215,92 @@
         Na mapě: <b style="color:#2563eb">modrá šipka</b> je rozdíl A&nbsp;−&nbsp;B (ten „směr významu"),
         <b style="color:#f59e0b">oranžová</b> je úplně stejný posun přiložený k C — a kam dopadne, tam
         leží <b>výsledek</b> 🎯. Skutečné modely tohle zvládají v <b>mnoha rozměrech</b> najednou
-        (pohlaví, množné číslo, čas, země↔hlavní město…).
+        (pohlaví, množné číslo, čas, země↔hlavní město…).</span>
+        <span class="en"><b>How does the analogy work?</b> Embeddings let you <b>compute with words like numbers</b>.
+        The key is that some <b>directions</b> in the space have a consistent meaning. The direction "man&nbsp;→&nbsp;woman"
+        (a change of gender) is almost <b>the same</b> wherever you start — from man, from king, or from prince.
+        <br><br>
+        So if you take <b>king</b>, <b>subtract "man"</b> (leaving "a genderless monarch") and
+        <b>add "woman"</b>, you move exactly to the female counterpart → <b>queen</b>. The same holds
+        for <b>prince → princess</b>. And it works elsewhere too: with numbers "one more" is also a fixed shift,
+        which is why <b>two − one + three = four</b>.
+        <br><br>
+        On the map: the <b style="color:#2563eb">blue arrow</b> is the difference A&nbsp;−&nbsp;B (the "direction of meaning"),
+        the <b style="color:#f59e0b">orange</b> one is the exact same shift applied to C — and where it lands is
+        the <b>result</b> 🎯. Real models do this across <b>many dimensions</b> at once
+        (gender, plural, tense, country↔capital…).</span>
       </div>
     </div>
 
   </div>
 
   <section class="theory">
-    <div class="head">Co je „význam" pro počítač</div>
+    <div class="head"><span class="cs">Co je „význam" pro počítač</span><span class="en">What "meaning" is for a computer</span></div>
     <p class="lead">
-      Slovo samo o sobě je pro stroj jen řetězec znaků. Embedding ho převede na <b>bod v prostoru</b>
+      <span class="cs">Slovo samo o sobě je pro stroj jen řetězec znaků. Embedding ho převede na <b>bod v prostoru</b>
       (ve skutečnosti o stovkách rozměrů, tady promítnutý do 2D). Model se ho naučí tak, že slova
-      z podobných souvislostí <b>umístí blízko sebe</b> — a vzdálenosti i směry pak nesou význam.
+      z podobných souvislostí <b>umístí blízko sebe</b> — a vzdálenosti i směry pak nesou význam.</span>
+      <span class="en">A word by itself is just a string of characters to a machine. An embedding turns it into a <b>point in space</b>
+      (actually with hundreds of dimensions, here projected into 2D). The model learns it so that words
+      from similar contexts are <b>placed close together</b> — and distances and directions then carry meaning.</span>
     </p>
     <div class="tcards">
       <div class="tcard" style="--c:#0ea5e9">
-        <h3><span class="dot"></span>Tokeny, ne slova</h3>
-        <p>Model pracuje s tokeny — kousky textu (slovo, část slova, znaménko). Díky tomu zvládne
-           i slova, která nikdy neviděl, složením z částí.</p>
+        <h3><span class="dot"></span><span class="cs">Tokeny, ne slova</span><span class="en">Tokens, not words</span></h3>
+        <p><span class="cs">Model pracuje s tokeny — kousky textu (slovo, část slova, znaménko). Díky tomu zvládne
+           i slova, která nikdy neviděl, složením z částí.</span>
+           <span class="en">The model works with tokens — pieces of text (a word, part of a word, a punctuation mark). This lets
+           it handle even words it has never seen by composing them from parts.</span></p>
       </div>
       <div class="tcard" style="--c:#22c55e">
-        <h3><span class="dot"></span>Blízkost = podobnost</h3>
-        <p>Pes a kočka leží blízko, auto a vlak taky. Vzdálenost mezi vektory měří, jak <b>významově
-           podobná</b> slova jsou.</p>
+        <h3><span class="dot"></span><span class="cs">Blízkost = podobnost</span><span class="en">Closeness = similarity</span></h3>
+        <p><span class="cs">Pes a kočka leží blízko, auto a vlak taky. Vzdálenost mezi vektory měří, jak <b>významově
+           podobná</b> slova jsou.</span>
+           <span class="en">Dog and cat lie close together, so do car and train. The distance between vectors measures how
+           <b>similar in meaning</b> words are.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
-        <h3><span class="dot"></span>Směry mají smysl</h3>
-        <p>Nejde jen o blízkost — i <b>směry</b> něco znamenají. Posun „muž → žena" je stejný jako
-           „král → královna". Proto vyjde <b>král − muž + žena ≈ královna</b>.</p>
+        <h3><span class="dot"></span><span class="cs">Směry mají smysl</span><span class="en">Directions have meaning</span></h3>
+        <p><span class="cs">Nejde jen o blízkost — i <b>směry</b> něco znamenají. Posun „muž → žena" je stejný jako
+           „král → královna". Proto vyjde <b>král − muž + žena ≈ královna</b>.</span>
+           <span class="en">It's not just about closeness — <b>directions</b> mean something too. The shift "man → woman" is the
+           same as "king → queen". That's why <b>king − man + woman ≈ queen</b>.</span></p>
       </div>
       <div class="tcard" style="--c:#a855f7">
-        <h3><span class="dot"></span>Základ dnešních LLM</h3>
-        <p>Každé slovo na vstupu modelu je takový vektor. Celé „porozumění" jazyku stojí na tom,
-           že podobné věci mají podobná čísla.</p>
+        <h3><span class="dot"></span><span class="cs">Základ dnešních LLM</span><span class="en">The foundation of today's LLMs</span></h3>
+        <p><span class="cs">Každé slovo na vstupu modelu je takový vektor. Celé „porozumění" jazyku stojí na tom,
+           že podobné věci mají podobná čísla.</span>
+           <span class="en">Every word on a model's input is such a vector. All "understanding" of language rests on
+           similar things having similar numbers.</span></p>
       </div>
     </div>
   </section>
 
 <script>
   const $ = id => document.getElementById(id);
+
+  // ── dvojjazyčné texty ────────────────────────────────────────
+  let curLang = window.__lang || 'cs';
+  const DEFAULT_SENTENCE = {
+    cs: 'Umělá inteligence rozumí přirozenému jazyku.',
+    en: 'Artificial intelligence understands natural language.'
+  };
+  const I18N = {
+    cs: {
+      tokstat: (chars, toks, ratio) =>
+        `znaků: <b>${chars}</b> &nbsp;·&nbsp; tokenů: <b>${toks}</b> &nbsp;·&nbsp; ≈ <b>${ratio}</b> znaku na token`,
+      nearest: (w, list) => `Nejbližší k <b>${w}</b>: ${list}`,
+      analogy: (a, b, c, best) => `<b>${a} − ${b} + ${c}</b> vyšlo nejblíž k slovu <b>${best}</b> 🎯 — stejný posun jako „${b} → ${a}".`,
+      clickHint: 'Klikni na libovolné slovo a uvidíš jeho <b>nejbližší sousedy</b> (významově nejpodobnější).',
+    },
+    en: {
+      tokstat: (chars, toks, ratio) =>
+        `characters: <b>${chars}</b> &nbsp;·&nbsp; tokens: <b>${toks}</b> &nbsp;·&nbsp; ≈ <b>${ratio}</b> characters per token`,
+      nearest: (w, list) => `Nearest to <b>${w}</b>: ${list}`,
+      analogy: (a, b, c, best) => `<b>${a} − ${b} + ${c}</b> landed closest to the word <b>${best}</b> 🎯 — the same shift as "${b} → ${a}".`,
+      clickHint: 'Click any word to see its <b>nearest neighbors</b> (the most similar in meaning).',
+    },
+  };
 
   // ── 1) Tokenizace (zjednodušená, jako BPE) ───────────────────
   const TOK_COLORS = ['#dbeafe','#dcfce7','#fef9c3','#fce7f3','#ede9fe','#ffedd5','#cffafe'];
@@ -205,14 +321,15 @@
     $('tokens').innerHTML = toks.map((t,i)=>
       `<span class="tok" style="background:${TOK_COLORS[i%TOK_COLORS.length]}">${t===' '?'␣':t}` +
       `<span class="id">#${hashId(t)}</span></span>`).join('');
-    $('tokstat').innerHTML =
-      `znaků: <b>${text.length}</b> &nbsp;·&nbsp; tokenů: <b>${toks.length}</b> ` +
-      `&nbsp;·&nbsp; ≈ <b>${(text.replace(/\s/g,'').length/Math.max(toks.length,1)).toFixed(1)}</b> znaku na token`;
+    $('tokstat').innerHTML = I18N[curLang].tokstat(
+      text.length, toks.length,
+      (text.replace(/\s/g,'').length/Math.max(toks.length,1)).toFixed(1));
   }
   $('text').addEventListener('input', renderTokens);
 
   // ── 2) Embeddingy: ručně rozmístěná 2D mapa ──────────────────
-  // souřadnice voleny tak, aby král−muž+žena ≈ královna (rovnoběžník)
+  // souřadnice voleny tak, aby král−muž+žena ≈ královna (rovnoběžník);
+  // anglická sada má stejné souřadnice, jen přeložená slova.
   const GROUPS = {
     zvire:   { bg:'#dcfce7', fg:'#166534' },
     osoba:   { bg:'#ede9fe', fg:'#5b21b6' },
@@ -221,43 +338,60 @@
     doprava: { bg:'#fce7f3', fg:'#9d174d' },
     cislo:   { bg:'#f3f4f6', fg:'#374151' },
   };
-  const WORDS = [
-    // zvířata (vlevo dole)
-    {w:'pes',x:120,y:360,g:'zvire'},{w:'kočka',x:185,y:405,g:'zvire'},{w:'kůň',x:95,y:420,g:'zvire'},
-    {w:'ryba',x:205,y:350,g:'zvire'},{w:'pták',x:155,y:445,g:'zvire'},{w:'myš',x:110,y:330,g:'zvire'},
-    // barvy (vlevo nahoře)
-    {w:'červená',x:115,y:80,g:'barva'},{w:'modrá',x:185,y:120,g:'barva'},
-    {w:'zelená',x:120,y:155,g:'barva'},{w:'žlutá',x:200,y:80,g:'barva'},
-    // čísla — na řadě, rovnoměrně (proto dva − jedna + tři = čtyři)
-    {w:'jedna',x:300,y:100,g:'cislo'},{w:'dva',x:355,y:100,g:'cislo'},
-    {w:'tři',x:410,y:100,g:'cislo'},{w:'čtyři',x:465,y:100,g:'cislo'},
-    // jídlo (uprostřed dole)
-    {w:'chléb',x:330,y:400,g:'jidlo'},{w:'voda',x:395,y:435,g:'jidlo'},
-    {w:'mléko',x:360,y:360,g:'jidlo'},{w:'jablko',x:425,y:395,g:'jidlo'},
-    // doprava (vpravo dole)
-    {w:'auto',x:560,y:405,g:'doprava'},{w:'vlak',x:625,y:360,g:'doprava'},
-    {w:'kolo',x:600,y:435,g:'doprava'},{w:'letadlo',x:540,y:360,g:'doprava'},
-    // lidé — mřížka 2×3: sloupce = postavení (běžný / král / princ),
-    // řádky = pohlaví (muž dole, žena nahoře). Pevný „pohlavní" posuv (0,−70)
-    // platí pro všechny sloupce, proto fungují analogie napříč.
-    {w:'muž',x:445,y:245,g:'osoba'},{w:'žena',x:445,y:175,g:'osoba'},
-    {w:'král',x:545,y:245,g:'osoba'},{w:'královna',x:545,y:175,g:'osoba'},
-    {w:'princ',x:645,y:245,g:'osoba'},{w:'princezna',x:645,y:175,g:'osoba'},
-  ];
-  const byName = {}; WORDS.forEach((d,i)=>{ d.i=i; byName[d.w]=d; });
+  const WORD_SETS = {
+    cs: [
+      {w:'pes',x:120,y:360,g:'zvire'},{w:'kočka',x:185,y:405,g:'zvire'},{w:'kůň',x:95,y:420,g:'zvire'},
+      {w:'ryba',x:205,y:350,g:'zvire'},{w:'pták',x:155,y:445,g:'zvire'},{w:'myš',x:110,y:330,g:'zvire'},
+      {w:'červená',x:115,y:80,g:'barva'},{w:'modrá',x:185,y:120,g:'barva'},
+      {w:'zelená',x:120,y:155,g:'barva'},{w:'žlutá',x:200,y:80,g:'barva'},
+      {w:'jedna',x:300,y:100,g:'cislo'},{w:'dva',x:355,y:100,g:'cislo'},
+      {w:'tři',x:410,y:100,g:'cislo'},{w:'čtyři',x:465,y:100,g:'cislo'},
+      {w:'chléb',x:330,y:400,g:'jidlo'},{w:'voda',x:395,y:435,g:'jidlo'},
+      {w:'mléko',x:360,y:360,g:'jidlo'},{w:'jablko',x:425,y:395,g:'jidlo'},
+      {w:'auto',x:560,y:405,g:'doprava'},{w:'vlak',x:625,y:360,g:'doprava'},
+      {w:'kolo',x:600,y:435,g:'doprava'},{w:'letadlo',x:540,y:360,g:'doprava'},
+      {w:'muž',x:445,y:245,g:'osoba'},{w:'žena',x:445,y:175,g:'osoba'},
+      {w:'král',x:545,y:245,g:'osoba'},{w:'královna',x:545,y:175,g:'osoba'},
+      {w:'princ',x:645,y:245,g:'osoba'},{w:'princezna',x:645,y:175,g:'osoba'},
+    ],
+    en: [
+      {w:'dog',x:120,y:360,g:'zvire'},{w:'cat',x:185,y:405,g:'zvire'},{w:'horse',x:95,y:420,g:'zvire'},
+      {w:'fish',x:205,y:350,g:'zvire'},{w:'bird',x:155,y:445,g:'zvire'},{w:'mouse',x:110,y:330,g:'zvire'},
+      {w:'red',x:115,y:80,g:'barva'},{w:'blue',x:185,y:120,g:'barva'},
+      {w:'green',x:120,y:155,g:'barva'},{w:'yellow',x:200,y:80,g:'barva'},
+      {w:'one',x:300,y:100,g:'cislo'},{w:'two',x:355,y:100,g:'cislo'},
+      {w:'three',x:410,y:100,g:'cislo'},{w:'four',x:465,y:100,g:'cislo'},
+      {w:'bread',x:330,y:400,g:'jidlo'},{w:'water',x:395,y:435,g:'jidlo'},
+      {w:'milk',x:360,y:360,g:'jidlo'},{w:'apple',x:425,y:395,g:'jidlo'},
+      {w:'car',x:560,y:405,g:'doprava'},{w:'train',x:625,y:360,g:'doprava'},
+      {w:'bike',x:600,y:435,g:'doprava'},{w:'plane',x:540,y:360,g:'doprava'},
+      {w:'man',x:445,y:245,g:'osoba'},{w:'woman',x:445,y:175,g:'osoba'},
+      {w:'king',x:545,y:245,g:'osoba'},{w:'queen',x:545,y:175,g:'osoba'},
+      {w:'prince',x:645,y:245,g:'osoba'},{w:'princess',x:645,y:175,g:'osoba'},
+    ],
+  };
 
+  let WORDS = [], byName = {}, chips = [];
   const mapEl = $('map'), svg = $('lines');
-  const chips = WORDS.map(d => {
-    const el = document.createElement('div');
-    el.className = 'word';
-    el.textContent = d.w;
-    el.style.left = d.x+'px'; el.style.top = d.y+'px';
-    el.style.background = GROUPS[d.g].bg; el.style.color = GROUPS[d.g].fg;
-    el.style.borderColor = GROUPS[d.g].fg + '55';
-    el.addEventListener('click', () => selectWord(d.i));
-    mapEl.appendChild(el);
-    return el;
-  });
+
+  function buildMap(){
+    chips.forEach(c => c.remove());
+    WORDS = WORD_SETS[curLang];
+    byName = {};
+    WORDS.forEach((d,i)=>{ d.i=i; byName[d.w]=d; });
+    chips = WORDS.map(d => {
+      const el = document.createElement('div');
+      el.className = 'word';
+      el.textContent = d.w;
+      el.style.left = d.x+'px'; el.style.top = d.y+'px';
+      el.style.background = GROUPS[d.g].bg; el.style.color = GROUPS[d.g].fg;
+      el.style.borderColor = GROUPS[d.g].fg + '55';
+      el.addEventListener('click', () => selectWord(d.i));
+      mapEl.appendChild(el);
+      return el;
+    });
+    svg.innerHTML = '';
+  }
 
   function clearViz(){
     chips.forEach(c=>c.classList.remove('dim','active','near','result'));
@@ -281,13 +415,14 @@
     chips.forEach((c,k)=>{ if(k!==i && !near.includes(WORDS[k])) c.classList.add('dim'); });
     chips[i].classList.add('active');
     near.forEach(o=>{ chips[o.i].classList.add('near'); line(d,o,'#22c55e',2.5); });
-    $('maphint').innerHTML = `Nejbližší k <b>${d.w}</b>: ` + near.map(o=>o.w).join(', ');
+    $('maphint').innerHTML = I18N[curLang].nearest(d.w, near.map(o=>o.w).join(', '));
   }
 
   // obecná analogie: A − B + C → nejbližší slovo
   function runAnalogy(aN, bN, cN){
     clearViz();
     const a = byName[aN], b = byName[bN], c = byName[cN];
+    if (!a || !b || !c) return;
     const tx = a.x - b.x + c.x, ty = a.y - b.y + c.y;
     const inputs = [aN, bN, cN];
     let best = null, bd = 1e9;
@@ -302,16 +437,55 @@
     line(b, a, '#2563eb', 2.5);            // modrá: rozdíl A − B
     line(c, {x:tx,y:ty}, '#f59e0b', 2.5);  // oranžová: stejný posun od C
     line(a, {x:tx,y:ty}, '#94a3b8', 1.5);  // šedá: spojnice k cíli
-    $('maphint').innerHTML = `<b>${aN} − ${bN} + ${cN}</b> vyšlo nejblíž k slovu <b>${best.w}</b> 🎯 ` +
-      `— stejný posun jako „${bN} → ${aN}".`;
+    $('maphint').innerHTML = I18N[curLang].analogy(aN, bN, cN, best.w);
   }
 
   document.querySelectorAll('#analogies [data-a]').forEach(btn =>
     btn.addEventListener('click', () => runAnalogy(btn.dataset.a, btn.dataset.b, btn.dataset.c)));
   $('btnReset').addEventListener('click', () => { clearViz();
-    $('maphint').innerHTML = 'Klikni na libovolné slovo a uvidíš jeho <b>nejbližší sousedy</b>.'; });
+    $('maphint').innerHTML = I18N[curLang].clickHint; });
 
+  // přepnutí jazyka: přestav mapu, vyměň výchozí větu (pokud neupravená), překresli
+  window.onLangChange = function(l){
+    const prev = (l === 'en') ? 'cs' : 'en';
+    curLang = l;
+    buildMap();
+    $('maphint').innerHTML = I18N[l].clickHint;
+    if ($('text').value.trim() === DEFAULT_SENTENCE[prev]) $('text').value = DEFAULT_SENTENCE[l];
+    renderTokens();
+  };
+
+  // úvodní vykreslení
+  buildMap();
+  $('maphint').innerHTML = I18N[curLang].clickHint;
   renderTokens();
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #8 — Tokenizace a embeddingy",
+      en: "Example #8 — Tokenization and embeddings"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>

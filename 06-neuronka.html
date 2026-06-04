@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #6 — Neuronová síť kreslí hranici</title>
 <style>
   * { box-sizing: border-box; }
@@ -90,92 +97,145 @@
   .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
   .tcard p { margin: 0 0 10px; font-size: 13px; color: #4b5563; line-height: 1.5; }
   .tcard p:last-child { margin-bottom: 0; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">06</span>Neuronová síť kreslí hranici</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">06</span><span class="cs">Neuronová síť kreslí hranici</span><span class="en">A neural network draws the boundary</span></h1>
   <p class="intro">
-    Stejná úloha jako u perceptronu, ale teď neuronů spojíme víc do <b>vrstev</b>. Síť pak umí
+    <span class="cs">Stejná úloha jako u perceptronu, ale teď neuronů spojíme víc do <b>vrstev</b>. Síť pak umí
     nakreslit i <b>zakřivenou</b> hranici — kruh, spirálu, kříž. Sleduj, jak se barevná
-    rozhodovací plocha <b>tvaruje</b> během trénování.
+    rozhodovací plocha <b>tvaruje</b> během trénování.</span>
+    <span class="en">The same task as the perceptron, but now we connect more neurons into <b>layers</b>. The network
+    can then draw a <b>curved</b> boundary too — a circle, a spiral, a cross. Watch the colored decision surface
+    <b>take shape</b> during training.</span>
   </p>
 
   <div class="diagram">
-    <div class="label">architektura sítě — 2 → 12 → 12 → 1 · barva a tloušťka spoje = váha (modrá +, červená −)</div>
+    <div class="label"><span class="cs">architektura sítě — 2 → 12 → 12 → 1 · barva a tloušťka spoje = váha (modrá +, červená −)</span><span class="en">network architecture — 2 → 12 → 12 → 1 · connection color and thickness = weight (blue +, red −)</span></div>
     <svg id="net" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg"></svg>
   </div>
 
   <canvas id="cv" width="640" height="440"></canvas>
 
   <div class="controls">
-    <button class="data on" data-set="circle">Kruh</button>
-    <button class="data" data-set="xor">Kříž (XOR)</button>
-    <button class="data" data-set="spiral">Spirála</button>
-    <button class="data" data-set="blobs">Dvě skupiny</button>
+    <button class="data on" data-set="circle"><span class="cs">Kruh</span><span class="en">Circle</span></button>
+    <button class="data" data-set="xor"><span class="cs">Kříž (XOR)</span><span class="en">Cross (XOR)</span></button>
+    <button class="data" data-set="spiral"><span class="cs">Spirála</span><span class="en">Spiral</span></button>
+    <button class="data" data-set="blobs"><span class="cs">Dvě skupiny</span><span class="en">Two blobs</span></button>
   </div>
   <div class="controls">
-    <button class="cls on a" id="clsA">● přidávám modré</button>
-    <button class="cls b"    id="clsB">● přidávám červené</button>
+    <button class="cls on a" id="clsA"><span class="cs">● přidávám modré</span><span class="en">● adding blue</span></button>
+    <button class="cls b"    id="clsB"><span class="cs">● přidávám červené</span><span class="en">● adding red</span></button>
   </div>
   <div class="controls">
-    <button class="go"   id="btnTrain">Trénuj</button>
+    <button class="go"   id="btnTrain"><span class="cs">Trénuj</span><span class="en">Train</span></button>
     <button class="stop" id="btnStop" disabled>■ STOP</button>
-    <button class="util" id="btnReset">Reset sítě</button>
-    <button class="util" id="btnClear">Vyčisti plochu</button>
+    <button class="util" id="btnReset"><span class="cs">Reset sítě</span><span class="en">Reset network</span></button>
+    <button class="util" id="btnClear"><span class="cs">Vyčisti plochu</span><span class="en">Clear canvas</span></button>
   </div>
 
   <div class="stat">
-    <span>epocha: <b id="epoch">0</b></span>
-    <span>chyba: <b id="loss">–</b></span>
-    <span>přesnost: <b id="acc">–</b></span>
+    <span><span class="cs">epocha:</span><span class="en">epoch:</span> <b id="epoch">0</b></span>
+    <span><span class="cs">chyba:</span><span class="en">loss:</span> <b id="loss">–</b></span>
+    <span><span class="cs">přesnost:</span><span class="en">accuracy:</span> <b id="acc">–</b></span>
   </div>
-  <div class="hint">Klikáním do plochy přidáváš body zvolené barvy (pravé tlačítko myši = červená). Kruh a kříž se síť naučí rychle, spirála je nejtěžší — chce víc trpělivosti.</div>
+  <div class="hint"><span class="cs">Klikáním do plochy přidáváš body zvolené barvy (pravé tlačítko myši = červená). Kruh a kříž se síť naučí rychle, spirála je nejtěžší — chce víc trpělivosti.</span><span class="en">Click on the canvas to add points of the chosen color (right mouse button = red). The network learns circle and cross quickly; the spiral is the hardest — it needs more patience.</span></div>
 
   <div class="matrices">
-    <div class="label">matice vah — modrá = kladná, červená = záporná, sytost = velikost</div>
+    <div class="label"><span class="cs">matice vah — modrá = kladná, červená = záporná, sytost = velikost</span><span class="en">weight matrices — blue = positive, red = negative, saturation = magnitude</span></div>
     <div class="mrow">
-      <div class="mtile"><canvas id="matW0"></canvas><div class="cap">vstup → 1. skrytá<br>(12 × 2)</div></div>
-      <div class="mtile"><canvas id="matW1"></canvas><div class="cap">1. → 2. skrytá<br>(12 × 12)</div></div>
-      <div class="mtile"><canvas id="matW2"></canvas><div class="cap">2. skrytá → výstup<br>(1 × 12)</div></div>
+      <div class="mtile"><canvas id="matW0"></canvas><div class="cap"><span class="cs">vstup → 1. skrytá<br>(12 × 2)</span><span class="en">input → 1st hidden<br>(12 × 2)</span></div></div>
+      <div class="mtile"><canvas id="matW1"></canvas><div class="cap"><span class="cs">1. → 2. skrytá<br>(12 × 12)</span><span class="en">1st → 2nd hidden<br>(12 × 12)</span></div></div>
+      <div class="mtile"><canvas id="matW2"></canvas><div class="cap"><span class="cs">2. skrytá → výstup<br>(1 × 12)</span><span class="en">2nd hidden → output<br>(1 × 12)</span></div></div>
     </div>
 
     <div class="numwrap">
-      <div class="label">číselně — skutečné hodnoty vah (zaokrouhleno na 2 desetinná místa)</div>
-      <div class="numtile"><div class="ncap">vstup → 1. skrytá (12 × 2)</div><div class="numgrid" id="numW0"></div></div>
-      <div class="numtile"><div class="ncap">1. → 2. skrytá (12 × 12)</div><div class="numgrid" id="numW1"></div></div>
-      <div class="numtile"><div class="ncap">2. skrytá → výstup (1 × 12)</div><div class="numgrid" id="numW2"></div></div>
+      <div class="label"><span class="cs">číselně — skutečné hodnoty vah (zaokrouhleno na 2 desetinná místa)</span><span class="en">numerically — the actual weight values (rounded to 2 decimal places)</span></div>
+      <div class="numtile"><div class="ncap"><span class="cs">vstup → 1. skrytá (12 × 2)</span><span class="en">input → 1st hidden (12 × 2)</span></div><div class="numgrid" id="numW0"></div></div>
+      <div class="numtile"><div class="ncap"><span class="cs">1. → 2. skrytá (12 × 12)</span><span class="en">1st → 2nd hidden (12 × 12)</span></div><div class="numgrid" id="numW1"></div></div>
+      <div class="numtile"><div class="ncap"><span class="cs">2. skrytá → výstup (1 × 12)</span><span class="en">2nd hidden → output (1 × 12)</span></div><div class="numgrid" id="numW2"></div></div>
     </div>
   </div>
 
   <section class="theory">
-    <div class="head">Proč zvládne to, co perceptron ne</div>
+    <div class="head"><span class="cs">Proč zvládne to, co perceptron ne</span><span class="en">Why it can do what the perceptron can't</span></div>
     <p class="lead">
-      Perceptron uměl jen rovnou čáru. Síť skládá <b>mnoho neuronů ve vrstvách</b> — každý
+      <span class="cs">Perceptron uměl jen rovnou čáru. Síť skládá <b>mnoho neuronů ve vrstvách</b> — každý
       nakreslí jednoduchou čáru a další vrstvy je <b>kombinují</b> do složitějších tvarů.
       Tak vznikne zakřivená hranice. Učí se <b>zpětným šířením chyby</b> (backpropagation):
-      spočítá se chyba na výstupu a postupně se rozpočítá na všechny váhy, které se trochu posunou.
+      spočítá se chyba na výstupu a postupně se rozpočítá na všechny váhy, které se trochu posunou.</span>
+      <span class="en">The perceptron could only do a straight line. The network stacks <b>many neurons in layers</b> — each
+      draws a simple line and the next layers <b>combine</b> them into more complex shapes.
+      That's how a curved boundary arises. It learns by <b>backpropagation</b>:
+      the error at the output is computed and gradually distributed across all the weights, which shift a little.</span>
     </p>
     <div class="tcards">
       <div class="tcard" style="--c:#2563eb">
-        <h3><span class="dot"></span>Vrstvy = skládání tvarů</h3>
-        <p>Skrytá vrstva = sada „čar". Další vrstva je sečte a ohne do křivek. Víc vrstev
-           a neuronů → složitější hranice.</p>
+        <h3><span class="dot"></span><span class="cs">Vrstvy = skládání tvarů</span><span class="en">Layers = stacking shapes</span></h3>
+        <p><span class="cs">Skrytá vrstva = sada „čar". Další vrstva je sečte a ohne do křivek. Víc vrstev
+           a neuronů → složitější hranice.</span>
+           <span class="en">A hidden layer = a set of "lines". The next layer sums and bends them into curves. More layers
+           and neurons → more complex boundaries.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
-        <h3><span class="dot"></span>Backpropagation</h3>
-        <p>Síť hádá, porovná s pravdou, spočítá <b>chybu</b> a tu „pošle zpět" sítí. Každá váha
-           se posune směrem, který chybu zmenší. Opakuje se to tisíckrát.</p>
+        <h3><span class="dot"></span><span class="cs">Backpropagation</span><span class="en">Backpropagation</span></h3>
+        <p><span class="cs">Síť hádá, porovná s pravdou, spočítá <b>chybu</b> a tu „pošle zpět" sítí. Každá váha
+           se posune směrem, který chybu zmenší. Opakuje se to tisíckrát.</span>
+           <span class="en">The network guesses, compares with the truth, computes the <b>error</b> and "sends it back" through
+           the network. Each weight shifts in the direction that reduces the error. This repeats thousands of times.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
-        <h3><span class="dot"></span>Nelineární aktivace</h3>
-        <p>Mezi vrstvami je „ohýbací" funkce (tanh). Bez ní by i hluboká síť uměla jen přímku —
-           právě ona dovolí zakřivení.</p>
+        <h3><span class="dot"></span><span class="cs">Nelineární aktivace</span><span class="en">Nonlinear activation</span></h3>
+        <p><span class="cs">Mezi vrstvami je „ohýbací" funkce (tanh). Bez ní by i hluboká síť uměla jen přímku —
+           právě ona dovolí zakřivení.</span>
+           <span class="en">Between layers there's a "bending" function (tanh). Without it even a deep network could only do a
+           straight line — it's what allows curvature.</span></p>
       </div>
       <div class="tcard" style="--c:#a855f7">
-        <h3><span class="dot"></span>Od hraček k LLM</h3>
-        <p>Tahle síť má pár desítek vah. Velké modely jich mají <b>miliardy</b> a místo dvou
-           čísel na vstupu zpracovávají text či obraz — princip učení je ale stejný.</p>
+        <h3><span class="dot"></span><span class="cs">Od hraček k LLM</span><span class="en">From toys to LLMs</span></h3>
+        <p><span class="cs">Tahle síť má pár desítek vah. Velké modely jich mají <b>miliardy</b> a místo dvou
+           čísel na vstupu zpracovávají text či obraz — princip učení je ale stejný.</span>
+           <span class="en">This network has a few dozen weights. Large models have <b>billions</b>, and instead of two numbers
+           on the input they process text or images — but the learning principle is the same.</span></p>
       </div>
     </div>
   </section>
@@ -184,6 +244,13 @@
   const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
   const $ = id => document.getElementById(id);
+
+  // ── dvojjazyčné popisky schématu ────────────────────────────
+  let curLang = window.__lang || 'cs';
+  const I18N = {
+    cs: { layers: ['vstup', 'skrytá (12)', 'skrytá (12)', 'výstup'] },
+    en: { layers: ['input', 'hidden (12)', 'hidden (12)', 'output'] },
+  };
 
   // ── data v prostoru [-1,1] x [-1,1] ─────────────────────────
   let points = [];                 // {x,y,label(0/1)}
@@ -375,6 +442,7 @@
   // ── schéma sítě — strukturu postavíme jednou, váhy barvíme živě ──
   const NS = 'http://www.w3.org/2000/svg';
   let netLines = [];
+  let netLabelEls = [];           // popisky vrstev (pro přepínání jazyka)
   function buildNetDiagram(){
     const svg = document.getElementById('net'); svg.innerHTML = '';
     const Xs = [90, 250, 410, 555], top = 36, bot = 264;
@@ -400,10 +468,10 @@
         { cx:p.x, cy:p.y.toFixed(1), r, fill:fills[l], stroke:colors[l], 'stroke-width':2 }))); });
     // popisky
     const txt = (x,y,t,fill,size) => { const e = el('text',
-      { x, y, 'text-anchor':'middle', 'font-size':size, fill, 'font-weight':700 }); e.textContent = t; svg.appendChild(e); };
+      { x, y, 'text-anchor':'middle', 'font-size':size, fill, 'font-weight':700 }); e.textContent = t; svg.appendChild(e); return e; };
     txt(pos[0][0].x, pos[0][0].y+5, 'x', '#2563eb', 12);
     txt(pos[0][1].x, pos[0][1].y+5, 'y', '#2563eb', 12);
-    ['vstup','skrytá (12)','skrytá (12)','výstup'].forEach((t,l)=> txt(Xs[l], 288, t, '#9ca3af', 11));
+    netLabelEls = I18N[curLang].layers.map((t,l)=> txt(Xs[l], 288, t, '#9ca3af', 11));
   }
   function updateNetWeights(){
     if (!Wt.length) return;
@@ -468,9 +536,43 @@
     });
   }
 
+  // přepnutí jazyka: přepiš popisky vrstev ve schématu
+  window.onLangChange = function(l){
+    curLang = l;
+    const layers = I18N[l].layers;
+    netLabelEls.forEach((e, i) => { if (e) e.textContent = layers[i]; });
+  };
+
   buildNetDiagram();
   buildNumberGrids();
   loadSet('circle');
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #6 — Neuronová síť kreslí hranici",
+      en: "Example #6 — A neural network draws the boundary"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>

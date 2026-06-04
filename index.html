@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Základy umělé inteligence — rozcestník</title>
 <style>
   * { box-sizing: border-box; }
@@ -112,23 +119,65 @@
   }
 
   footer { margin-top: 48px; font-size: 13px; color: #9ca3af; text-align: center; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
   <header>
-    <div class="kicker">Demonstrace · ICT / AI</div>
-    <h1>Základy umělé inteligence</h1>
+    <div class="kicker"><span class="cs">Demonstrace · ICT / AI</span><span class="en">Demonstrations · ICT / AI</span></div>
+    <h1><span class="cs">Základy umělé inteligence</span><span class="en">Foundations of artificial intelligence</span></h1>
     <p>
-      Interaktivní ukázky, které krok po kroku odhalují principy za AI — od holé kombinatoriky
-      a hranic hrubé síly až po to, jak z čisté náhody postupně vzniká jazyk.
+      <span class="cs">Interaktivní ukázky, které krok po kroku odhalují principy za AI — od holé kombinatoriky
+      a hranic hrubé síly až po to, jak z čisté náhody postupně vzniká jazyk.</span>
+      <span class="en">Interactive demos that reveal the principles behind AI step by step — from bare
+      combinatorics and the limits of brute force to how language gradually emerges from pure randomness.</span>
     </p>
   </header>
 
   <section class="journey">
     <div class="jhead">
-      <h2>Jak série postupuje</h2>
-      <p>Příklady na sebe navazují — každý vyřeší hranici toho předchozího. Dohromady tvoří
-         cestu od holého počítání až k principům dnešních jazykových modelů.</p>
+      <h2><span class="cs">Jak série postupuje</span><span class="en">How the series unfolds</span></h2>
+      <p><span class="cs">Příklady na sebe navazují — každý vyřeší hranici toho předchozího. Dohromady tvoří
+         cestu od holého počítání až k principům dnešních jazykových modelů.</span>
+         <span class="en">The examples build on each other — each one solves the limitation of the last.
+         Together they trace a path from bare counting to the principles behind today's language models.</span></p>
     </div>
 
     <div class="timeline">
@@ -137,9 +186,11 @@
         <div class="node">🎲</div>
         <div class="body">
           <div class="pills"><a href="01-binary-counter.html">01</a><a href="02-jazyk.html">02</a></div>
-          <h3>Prostor možností a jeho zkrocení</h3>
-          <p>Nejdřív uvidíme, že <b>projít všechny kombinace</b> nejde — a jak ten obří prostor
-             krotíme <b>pravidly a statistikou</b>, až z náhody začne vznikat jazyk.</p>
+          <h3><span class="cs">Prostor možností a jeho zkrocení</span><span class="en">The space of possibilities, and taming it</span></h3>
+          <p><span class="cs">Nejdřív uvidíme, že <b>projít všechny kombinace</b> nejde — a jak ten obří prostor
+             krotíme <b>pravidly a statistikou</b>, až z náhody začne vznikat jazyk.</span>
+             <span class="en">First we see that <b>going through every combination</b> is impossible — and how we
+             tame that vast space with <b>rules and statistics</b>, until language begins to emerge from randomness.</span></p>
         </div>
       </div>
 
@@ -147,9 +198,11 @@
         <div class="node">🧭</div>
         <div class="body">
           <div class="pills"><a href="03-hledani.html">03</a></div>
-          <h3>Chytré hledání</h3>
-          <p>Místo hrubé síly <b>prohledáváme cíleně</b> (BFS, A*). Heuristika dramaticky zmenší,
-             kolik možností musíme vůbec prozkoumat.</p>
+          <h3><span class="cs">Chytré hledání</span><span class="en">Smart search</span></h3>
+          <p><span class="cs">Místo hrubé síly <b>prohledáváme cíleně</b> (BFS, A*). Heuristika dramaticky zmenší,
+             kolik možností musíme vůbec prozkoumat.</span>
+             <span class="en">Instead of brute force we <b>search deliberately</b> (BFS, A*). A heuristic dramatically
+             shrinks how many possibilities we have to explore at all.</span></p>
         </div>
       </div>
 
@@ -157,9 +210,11 @@
         <div class="node">📚</div>
         <div class="body">
           <div class="pills"><a href="04-markov.html">04</a></div>
-          <h3>Učení z dat</h3>
-          <p>Pravidla už nepíšeme ručně — model si je <b>vyčte z textu</b> (Markovův řetězec).
-             První skutečný „malý jazykový model".</p>
+          <h3><span class="cs">Učení z dat</span><span class="en">Learning from data</span></h3>
+          <p><span class="cs">Pravidla už nepíšeme ručně — model si je <b>vyčte z textu</b> (Markovův řetězec).
+             První skutečný „malý jazykový model".</span>
+             <span class="en">We no longer write the rules by hand — the model <b>reads them from text</b> (a Markov chain).
+             The first real "small language model".</span></p>
         </div>
       </div>
 
@@ -167,9 +222,11 @@
         <div class="node">🧠</div>
         <div class="body">
           <div class="pills"><a href="05-perceptron.html">05</a><a href="06-neuronka.html">06</a></div>
-          <h3>Učení klasifikace: od přímky ke křivce</h3>
-          <p>Perceptron najde <b>dělicí přímku</b> z příkladů; neuronová síť pak zvládne i
-             <b>zakřivené</b> hranice. Tady se rodí strojové učení.</p>
+          <h3><span class="cs">Učení klasifikace: od přímky ke křivce</span><span class="en">Learning to classify: from a line to a curve</span></h3>
+          <p><span class="cs">Perceptron najde <b>dělicí přímku</b> z příkladů; neuronová síť pak zvládne i
+             <b>zakřivené</b> hranice. Tady se rodí strojové učení.</span>
+             <span class="en">A perceptron finds a <b>separating line</b> from examples; a neural network then handles
+             <b>curved</b> boundaries too. This is where machine learning is born.</span></p>
         </div>
       </div>
 
@@ -177,9 +234,11 @@
         <div class="node">🧬</div>
         <div class="body">
           <div class="pills"><a href="07-genetika.html">07</a></div>
-          <h3>Evoluční optimalizace</h3>
-          <p>Když řešení neumíme spočítat přímo, necháme ho <b>vyvinout</b> — výběrem, křížením
-             a mutací. Náhoda s jasným směrem k cíli.</p>
+          <h3><span class="cs">Evoluční optimalizace</span><span class="en">Evolutionary optimization</span></h3>
+          <p><span class="cs">Když řešení neumíme spočítat přímo, necháme ho <b>vyvinout</b> — výběrem, křížením
+             a mutací. Náhoda s jasným směrem k cíli.</span>
+             <span class="en">When we can't compute the solution directly, we let it <b>evolve</b> — through selection,
+             crossover and mutation. Randomness with a clear direction toward the goal.</span></p>
         </div>
       </div>
 
@@ -187,9 +246,11 @@
         <div class="node">✨</div>
         <div class="body">
           <div class="pills"><a href="08-embeddingy.html">08</a><a href="09-attention.html">09</a></div>
-          <h3>Cesta k dnešním LLM</h3>
-          <p>Jak modely reprezentují <b>význam</b> (embeddingy) a jak ve větě řeší <b>kontext</b>
-             (attention). Stavební kameny architektury za ChatGPT.</p>
+          <h3><span class="cs">Cesta k dnešním LLM</span><span class="en">The road to today's LLMs</span></h3>
+          <p><span class="cs">Jak modely reprezentují <b>význam</b> (embeddingy) a jak ve větě řeší <b>kontext</b>
+             (attention). Stavební kameny architektury za ChatGPT.</span>
+             <span class="en">How models represent <b>meaning</b> (embeddings) and resolve <b>context</b> within a sentence
+             (attention). The building blocks of the architecture behind ChatGPT.</span></p>
         </div>
       </div>
 
@@ -197,9 +258,11 @@
         <div class="node">🚚</div>
         <div class="body">
           <div class="pills"><a href="10-tsp.html">10</a></div>
-          <h3>Bonus — optimalizace v praxi</h3>
-          <p>Problém obchodního cestujícího: obří prostor tras zkrocený <b>evolucí</b>. Spojuje
-             kombinatoriku z příkladu 1 s genetikou z příkladu 7 na reálné úloze.</p>
+          <h3><span class="cs">Bonus — optimalizace v praxi</span><span class="en">Bonus — optimization in practice</span></h3>
+          <p><span class="cs">Problém obchodního cestujícího: obří prostor tras zkrocený <b>evolucí</b>. Spojuje
+             kombinatoriku z příkladu 1 s genetikou z příkladu 7 na reálné úloze.</span>
+             <span class="en">The travelling salesman problem: a vast space of routes tamed by <b>evolution</b>. It joins
+             the combinatorics of example 1 with the genetics of example 7 on a real-world task.</span></p>
         </div>
       </div>
 
@@ -210,138 +273,190 @@
 
     <a class="card c1" href="01-binary-counter.html">
       <span class="accent"></span>
-      <div class="num">Příklad 01</div>
+      <div class="num"><span class="cs">Příklad 01</span><span class="en">Example 01</span></div>
       <div class="icon">⬛</div>
-      <h2>Binární počítadlo 8×8</h2>
+      <h2><span class="cs">Binární počítadlo 8×8</span><span class="en">Binary counter 8×8</span></h2>
       <p>
-        Mřížka 64 polí jako 64bitové číslo. Nastav bity klikem a nech ho přičítat.
-        Graf zbývajícího času ukáže, proč „projít všechny kombinace" hrubou silou nikdy nedoběhne.
+        <span class="cs">Mřížka 64 polí jako 64bitové číslo. Nastav bity klikem a nech ho přičítat.
+        Graf zbývajícího času ukáže, proč „projít všechny kombinace" hrubou silou nikdy nedoběhne.</span>
+        <span class="en">A grid of 64 cells as a 64-bit number. Set bits by clicking and let it count up.
+        The remaining-time graph shows why "trying every combination" by brute force never finishes.</span>
       </p>
-      <div class="tags"><span>bity &amp; kombinatorika</span><span>BigInt</span><span>hrubá síla</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">bity &amp; kombinatorika</span><span class="en">bits &amp; combinatorics</span><span>BigInt</span><span class="cs">hrubá síla</span><span class="en">brute force</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c2" href="02-jazyk.html">
       <span class="accent"></span>
-      <div class="num">Příklad 02</div>
+      <div class="num"><span class="cs">Příklad 02</span><span class="en">Example 02</span></div>
       <div class="icon">🔤</div>
-      <h2>Od náhody k jazyku</h2>
+      <h2><span class="cs">Od náhody k jazyku</span><span class="en">From randomness to language</span></h2>
       <p>
-        Čtyři kroky A–D: od náhodných písmen přes statistiku a slovník až po smysluplné věty.
-        Mini-historie jazykových modelů — jak se přidáváním pravidel z šumu stává jazyk.
+        <span class="cs">Čtyři kroky A–D: od náhodných písmen přes statistiku a slovník až po smysluplné věty.
+        Mini-historie jazykových modelů — jak se přidáváním pravidel z šumu stává jazyk.</span>
+        <span class="en">Four steps A–D: from random letters through statistics and a dictionary to meaningful sentences.
+        A mini-history of language models — how adding rules turns noise into language.</span>
       </p>
-      <div class="tags"><span>náhoda → statistika</span><span>slovník</span><span>gramatika</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">náhoda → statistika</span><span class="en">randomness → statistics</span><span class="cs">slovník</span><span class="en">dictionary</span><span class="cs">gramatika</span><span class="en">grammar</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c3" href="03-hledani.html">
       <span class="accent"></span>
-      <div class="num">Příklad 03</div>
+      <div class="num"><span class="cs">Příklad 03</span><span class="en">Example 03</span></div>
       <div class="icon">🧭</div>
-      <h2>Hledání cesty</h2>
+      <h2><span class="cs">Hledání cesty</span><span class="en">Pathfinding</span></h2>
       <p>
-        Bludiště na mřížce a souboj postupů: náhodné tápání, hladový, BFS a A*.
+        <span class="cs">Bludiště na mřížce a souboj postupů: náhodné tápání, hladový, BFS a A*.
         Vidíš na vlastní oči, kolik políček každý prozkoumá — a proč se hrubá síla nahrazuje
-        chytrým prohledáváním.
+        chytrým prohledáváním.</span>
+        <span class="en">A grid maze and a contest of methods: random wandering, greedy, BFS and A*.
+        You see for yourself how many cells each one explores — and why brute force gives way
+        to smart search.</span>
       </p>
-      <div class="tags"><span>prohledávání</span><span>BFS &amp; A*</span><span>heuristika</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">prohledávání</span><span class="en">search</span><span>BFS &amp; A*</span><span class="cs">heuristika</span><span class="en">heuristic</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c4" href="04-markov.html">
       <span class="accent"></span>
-      <div class="num">Příklad 04</div>
+      <div class="num"><span class="cs">Příklad 04</span><span class="en">Example 04</span></div>
       <div class="icon">🔮</div>
-      <h2>Učení z textu</h2>
+      <h2><span class="cs">Učení z textu</span><span class="en">Learning from text</span></h2>
       <p>
-        Markovův řetězec se sám naučí z vloženého textu, co po čem následuje, a generuje nový.
+        <span class="cs">Markovův řetězec se sám naučí z vloženého textu, co po čem následuje, a generuje nový.
         Posuvníkem kontextu uvidíš, jak z blábolu vzniká skoro čeština — princip „malého
-        jazykového modelu".
+        jazykového modelu".</span>
+        <span class="en">A Markov chain learns from your text what follows what, then generates new text.
+        With the context slider you watch gibberish turn into almost-real language — the principle of a
+        "small language model".</span>
       </p>
-      <div class="tags"><span>učení z dat</span><span>pravděpodobnost</span><span>n-gramy</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">učení z dat</span><span class="en">learning from data</span><span class="cs">pravděpodobnost</span><span class="en">probability</span><span class="cs">n-gramy</span><span class="en">n-grams</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c5" href="05-perceptron.html">
       <span class="accent"></span>
-      <div class="num">Příklad 05</div>
+      <div class="num"><span class="cs">Příklad 05</span><span class="en">Example 05</span></div>
       <div class="icon">📈</div>
-      <h2>Učení z příkladů</h2>
+      <h2><span class="cs">Učení z příkladů</span><span class="en">Learning from examples</span></h2>
       <p>
-        Naklikej dvě barvy bodů a perceptron sám najde přímku, která je oddělí. Ukazuje rozdíl
-        mezi „naprogramovat pravidlo" a „nechat ho najít z dat" — i kde má lineární model hranice.
+        <span class="cs">Naklikej dvě barvy bodů a perceptron sám najde přímku, která je oddělí. Ukazuje rozdíl
+        mezi „naprogramovat pravidlo" a „nechat ho najít z dat" — i kde má lineární model hranice.</span>
+        <span class="en">Click two colors of points and the perceptron finds the line that separates them. It shows the
+        difference between "programming a rule" and "letting it be found from data" — and where a linear model hits its limit.</span>
       </p>
-      <div class="tags"><span>perceptron</span><span>klasifikace</span><span>strojové učení</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span>perceptron</span><span class="cs">klasifikace</span><span class="en">classification</span><span class="cs">strojové učení</span><span class="en">machine learning</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c6" href="06-neuronka.html">
       <span class="accent"></span>
-      <div class="num">Příklad 06</div>
+      <div class="num"><span class="cs">Příklad 06</span><span class="en">Example 06</span></div>
       <div class="icon">🧠</div>
-      <h2>Neuronová síť</h2>
+      <h2><span class="cs">Neuronová síť</span><span class="en">Neural network</span></h2>
       <p>
-        Pokračování pětky: síť neuronů zvládne i zakřivenou hranici — kruh, kříž, spirálu.
-        Sleduj, jak se rozhodovací plocha tvaruje během tréninku (backpropagation).
+        <span class="cs">Pokračování pětky: síť neuronů zvládne i zakřivenou hranici — kruh, kříž, spirálu.
+        Sleduj, jak se rozhodovací plocha tvaruje během tréninku (backpropagation).</span>
+        <span class="en">A sequel to #5: a network of neurons handles curved boundaries too — circle, cross, spiral.
+        Watch the decision surface take shape during training (backpropagation).</span>
       </p>
-      <div class="tags"><span>neuronová síť</span><span>backprop</span><span>nelineární</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">neuronová síť</span><span class="en">neural network</span><span>backprop</span><span class="cs">nelineární</span><span class="en">nonlinear</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c7" href="07-genetika.html">
       <span class="accent"></span>
-      <div class="num">Příklad 07</div>
+      <div class="num"><span class="cs">Příklad 07</span><span class="en">Example 07</span></div>
       <div class="icon">🧬</div>
-      <h2>Genetický algoritmus</h2>
+      <h2><span class="cs">Genetický algoritmus</span><span class="en">Genetic algorithm</span></h2>
       <p>
-        Populace náhodných vět se křížením a mutací generaci po generaci „vyvíjí" k cíli.
-        Propojení náhody z příkladů 1 a 2 s evolucí směrem ke smyslu.
+        <span class="cs">Populace náhodných vět se křížením a mutací generaci po generaci „vyvíjí" k cíli.
+        Propojení náhody z příkladů 1 a 2 s evolucí směrem ke smyslu.</span>
+        <span class="en">A population of random sentences "evolves" toward a target generation by generation through
+        crossover and mutation. It links the randomness of examples 1 and 2 with evolution toward meaning.</span>
       </p>
-      <div class="tags"><span>evoluce</span><span>mutace</span><span>optimalizace</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">evoluce</span><span class="en">evolution</span><span class="cs">mutace</span><span class="en">mutation</span><span class="cs">optimalizace</span><span class="en">optimization</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c8" href="08-embeddingy.html">
       <span class="accent"></span>
-      <div class="num">Příklad 08</div>
+      <div class="num"><span class="cs">Příklad 08</span><span class="en">Example 08</span></div>
       <div class="icon">🗺️</div>
-      <h2>Tokenizace a embeddingy</h2>
+      <h2><span class="cs">Tokenizace a embeddingy</span><span class="en">Tokenization and embeddings</span></h2>
       <p>
-        Jak LLM „vidí" text: rozsekání na tokeny a 2D mapa významů, kde podobná slova leží blízko.
-        Včetně slavné analogie král − muž + žena = královna.
+        <span class="cs">Jak LLM „vidí" text: rozsekání na tokeny a 2D mapa významů, kde podobná slova leží blízko.
+        Včetně slavné analogie král − muž + žena = královna.</span>
+        <span class="en">How an LLM "sees" text: splitting into tokens and a 2D map of meaning where similar words lie close.
+        Including the famous analogy king − man + woman = queen.</span>
       </p>
-      <div class="tags"><span>tokeny</span><span>embeddingy</span><span>význam</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">tokeny</span><span class="en">tokens</span><span class="cs">embeddingy</span><span class="en">embeddings</span><span class="cs">význam</span><span class="en">meaning</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c9" href="09-attention.html">
       <span class="accent"></span>
-      <div class="num">Příklad 09</div>
+      <div class="num"><span class="cs">Příklad 09</span><span class="en">Example 09</span></div>
       <div class="icon">👁️</div>
       <h2>Attention</h2>
       <p>
-        Na co se model ve větě „dívá". Klikni na slovo a uvidíš, kolik pozornosti věnuje ostatním —
-        zjednodušená vizualizace mechanismu za dnešními transformery.
+        <span class="cs">Na co se model ve větě „dívá". Klikni na slovo a uvidíš, kolik pozornosti věnuje ostatním —
+        zjednodušená vizualizace mechanismu za dnešními transformery.</span>
+        <span class="en">What a model "looks at" in a sentence. Click a word and see how much attention it pays to the others —
+        a simplified visualization of the mechanism behind today's transformers.</span>
       </p>
-      <div class="tags"><span>pozornost</span><span>transformer</span><span>kontext</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">pozornost</span><span class="en">attention</span><span>transformer</span><span class="cs">kontext</span><span class="en">context</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
     <a class="card c10" href="10-tsp.html">
       <span class="accent"></span>
-      <div class="num">Příklad 10 · bonus</div>
+      <div class="num"><span class="cs">Příklad 10 · bonus</span><span class="en">Example 10 · bonus</span></div>
       <div class="icon">🚚</div>
-      <h2>Obchodní cestující (TSP)</h2>
+      <h2><span class="cs">Obchodní cestující (TSP)</span><span class="en">Travelling salesman (TSP)</span></h2>
       <p>
-        Najdi nejkratší trasu přes všechna města. Můj starší projekt řeší TSP genetickým
-        algoritmem přímo v prohlížeči — spojuje kombinatorickou explozi (01) s evolucí (07).
+        <span class="cs">Najdi nejkratší trasu přes všechna města. Můj starší projekt řeší TSP genetickým
+        algoritmem přímo v prohlížeči — spojuje kombinatorickou explozi (01) s evolucí (07).</span>
+        <span class="en">Find the shortest route through all the cities. My older project solves the TSP with a genetic
+        algorithm right in the browser — joining combinatorial explosion (01) with evolution (07).</span>
       </p>
-      <div class="tags"><span>optimalizace</span><span>genetický algoritmus</span><span>2-opt</span></div>
-      <span class="go">Otevřít ukázku <span class="arrow">→</span></span>
+      <div class="tags"><span class="cs">optimalizace</span><span class="en">optimization</span><span class="cs">genetický algoritmus</span><span class="en">genetic algorithm</span><span>2-opt</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
   </main>
 
-  <footer>SSST 2026 · ICT / AI &nbsp;·&nbsp; otevři kteroukoli ukázku přímo v prohlížeči</footer>
+  <footer>
+    <span class="cs">SSST 2026 · ICT / AI &nbsp;·&nbsp; otevři kteroukoli ukázku přímo v prohlížeči</span>
+    <span class="en">SSST 2026 · ICT / AI &nbsp;·&nbsp; open any demo straight in your browser</span>
+  </footer>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, uložení volby. */
+  (function(){
+    var TITLES = {
+      cs: "Základy umělé inteligence — rozcestník",
+      en: "Foundations of artificial intelligence — overview"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
+</script>
 </body>
 </html>

@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #2 — Od náhody k jazyku</title>
 <style>
   * { box-sizing: border-box; }
@@ -99,29 +106,73 @@
     font-family: "SF Mono", Menlo, Consolas, monospace;
     font-size: 12px; color: #6b7280;
   }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0; min-width: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">02</span>Od náhody k jazyku</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">02</span><span class="cs">Od náhody k jazyku</span><span class="en">From randomness to language</span></h1>
   <p class="intro">
-    Stejně jako u čísla z prvního příkladu i tady máme jen sadu symbolů — anglickou abecedu a mezeru.
+    <span class="cs">Stejně jako u čísla z prvního příkladu i tady máme jen sadu symbolů — anglickou abecedu a mezeru.
     Ukážeme, jak se z čisté náhody postupně přidáváním <b>znalostí a pravidel</b> stává něco, co vypadá
-    (a nakonec i znamená) jako jazyk. To je v kostce cesta od „opice na klávesnici" až k jazykovým modelům.
+    (a nakonec i znamená) jako jazyk. To je v kostce cesta od „opice na klávesnici" až k jazykovým modelům.</span>
+    <span class="en">Just like the number in the first example, here too we have only a set of symbols — the English alphabet
+    and a space. We'll show how, from pure randomness, adding <b>knowledge and rules</b> step by step turns into something
+    that looks like (and eventually means) language. In a nutshell, it's the path from the "monkey at a keyboard" to language models.</span>
   </p>
 
   <div class="alphabet">
-    <div class="label">naše „abeceda" — 26 písmen + mezera (27 symbolů)</div>
+    <div class="label"><span class="cs">naše „abeceda" — 26 písmen + mezera (27 symbolů)</span><span class="en">our "alphabet" — 26 letters + a space (27 symbols)</span></div>
     <div class="boxes" id="alphabet"></div>
   </div>
 
   <!-- ── Příklad A ── -->
   <div class="card">
-    <h2><span class="tag">A</span> Kombinatorika — hrubá síla</h2>
+    <h2><span class="tag">A</span> <span class="cs">Kombinatorika — hrubá síla</span><span class="en">Combinatorics — brute force</span></h2>
     <p class="desc">
-      Iterujeme všechny kombinace jako čítač z prvního příkladu, jen v <b>soustavě o základu 27</b>.
+      <span class="cs">Iterujeme všechny kombinace jako čítač z prvního příkladu, jen v <b>soustavě o základu 27</b>.
       Začínáme od samých „A" a přičítáme +1. Vidíš, že se hýbe jen pár písmen vpravo a smysluplnou větu
-      bys takhle nikdy nesložil — možností je 27<sup>N</sup>.
+      bys takhle nikdy nesložil — možností je 27<sup>N</sup>.</span>
+      <span class="en">We iterate through every combination like the counter in the first example, just in <b>base 27</b>.
+      We start from all "A"s and add +1. You can see only a few letters on the right move, and you'd never compose
+      a meaningful sentence this way — there are 27<sup>N</sup> possibilities.</span>
     </p>
     <div class="output boxes" id="outA"></div>
     <div class="row">
@@ -132,45 +183,53 @@
 
   <!-- ── Příklad B ── -->
   <div class="card">
-    <h2><span class="tag">B</span> Statistika písmen — „neznámý jazyk"</h2>
+    <h2><span class="tag">B</span> <span class="cs">Statistika písmen — „neznámý jazyk"</span><span class="en">Letter statistics — an "unknown language"</span></h2>
     <p class="desc">
-      Přidáme jednoduchou <b>statistiku a pravidla</b>: střídáme samohlásky a souhlásky (slabiky),
+      <span class="cs">Přidáme jednoduchou <b>statistiku a pravidla</b>: střídáme samohlásky a souhlásky (slabiky),
       zakážeme nesmysly jako „QQ", omezíme délku slov a vět. Výsledek už není šum — vypadá to jako
-      slova nějakého <b>neznámého jazyka</b>.
+      slova nějakého <b>neznámého jazyka</b>.</span>
+      <span class="en">We add simple <b>statistics and rules</b>: we alternate vowels and consonants (syllables),
+      forbid nonsense like "QQ", and limit word and sentence length. The result is no longer noise — it looks like
+      words of some <b>unknown language</b>.</span>
     </p>
     <div class="output boxes" id="outB"></div>
     <div class="row">
       <button id="btnB">RUN</button>
-      <span class="meta">střídání slabik · slova 2–7 písmen · žádné zdvojené souhlásky</span>
+      <span class="meta"><span class="cs">střídání slabik · slova 2–7 písmen · žádné zdvojené souhlásky</span><span class="en">alternating syllables · words of 2–7 letters · no doubled consonants</span></span>
     </div>
   </div>
 
   <!-- ── Příklad C ── -->
   <div class="card">
-    <h2><span class="tag">C</span> Slovník — skutečná slova bez smyslu</h2>
+    <h2><span class="tag">C</span> <span class="cs">Slovník — skutečná slova bez smyslu</span><span class="en">A dictionary — real words, no meaning</span></h2>
     <p class="desc">
-      Místo písmen losujeme z <b>opravdového slovníku</b> českých slov. Každé slovo existuje,
-      ale poskládaná věta <b>nedává smysl</b> — chybí gramatika a vztahy mezi slovy.
+      <span class="cs">Místo písmen losujeme z <b>opravdového slovníku</b> českých slov. Každé slovo existuje,
+      ale poskládaná věta <b>nedává smysl</b> — chybí gramatika a vztahy mezi slovy.</span>
+      <span class="en">Instead of letters, we draw from a <b>real dictionary</b> of English words. Every word exists,
+      but the assembled sentence <b>makes no sense</b> — grammar and the relationships between words are missing.</span>
     </p>
     <div class="output text" id="outC"></div>
     <div class="row">
       <button id="btnC">RUN</button>
-      <span class="meta">náhodný výběr ze slovníku · bez gramatiky</span>
+      <span class="meta"><span class="cs">náhodný výběr ze slovníku · bez gramatiky</span><span class="en">random pick from a dictionary · no grammar</span></span>
     </div>
   </div>
 
   <!-- ── Příklad D ── -->
   <div class="card">
-    <h2><span class="tag">D</span> Gramatika — smysluplné věty</h2>
+    <h2><span class="tag">D</span> <span class="cs">Gramatika — smysluplné věty</span><span class="en">Grammar — meaningful sentences</span></h2>
     <p class="desc">
-      Nakonec přidáme <b>gramatická pravidla</b> (větné vzory, shoda, pádové tvary). Teprve teď
+      <span class="cs">Nakonec přidáme <b>gramatická pravidla</b> (větné vzory, shoda, pádové tvary). Teprve teď
       vznikají věty, které <b>dávají smysl</b>. Tudy vede cesta k jazykovým modelům — ty se ovšem
-      pravidla i statistiku neučí ručně, ale z obrovského množství textu.
+      pravidla i statistiku neučí ručně, ale z obrovského množství textu.</span>
+      <span class="en">Finally we add <b>grammatical rules</b> (sentence patterns, word order, word forms). Only now do
+      sentences that <b>make sense</b> appear. This is the road to language models — except they don't learn rules
+      and statistics by hand, but from a huge amount of text.</span>
     </p>
     <div class="output text" id="outD"></div>
     <div class="row">
       <button id="btnD">RUN</button>
-      <span class="meta">větné vzory + pádová shoda</span>
+      <span class="meta"><span class="cs">větné vzory + pádová shoda</span><span class="en">sentence patterns + word order</span></span>
     </div>
   </div>
 
@@ -178,6 +237,40 @@
   // ── Abeceda ──────────────────────────────────────────────────
   const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const SYMBOLS = (LETTERS + ' ');            // 27 symbolů (poslední = mezera)
+
+  // ── Dvojjazyčná data a texty ─────────────────────────────────
+  let curLang = window.__lang || 'cs';
+  const I18N = {
+    cs: { step: 'krok ', poss: ' · možností: 27^18 ≈ ', press: 'stiskni RUN…', locale: 'cs-CZ' },
+    en: { step: 'step ', poss: ' · possibilities: 27^18 ≈ ', press: 'press RUN…', locale: 'en-US' },
+  };
+  // slovník (C) a gramatické stavební kameny (D) zvlášť pro každý jazyk
+  const WORDS = {
+    cs: {
+      C: ['kočka','pes','dům','strom','voda','slunce','kniha','auto','město','ryba',
+          'běžet','spát','jíst','vidět','mít','dělat','zpívat','skákat','myslet','letět',
+          'velký','malý','zelený','rychlý','starý','nový','krásný','tmavý','tichý',
+          'rychle','včera','dnes','tam','venku','nahoře','potom',
+          'na','pod','v','za','před','kolem','mezi'],
+      SUBJ: ['malý pes','černá kočka','starý muž','mladá dívka','veselý chlapec','velký pták'],
+      INTRANS: ['běží','spí','odpočívá','skáče','zpívá','sedí'],
+      PLACE: ['na zahradě','v lese','na louce','u řeky','na střeše','doma'],
+      TRANS: ['má','vidí','chytá','hledá'],
+      OBJ: ['kost','rybu','míč','myš','stín'],
+    },
+    en: {
+      C: ['cat','dog','house','tree','water','sun','book','car','city','fish',
+          'run','sleep','eat','see','have','make','sing','jump','think','fly',
+          'big','small','green','fast','old','new','beautiful','dark','quiet',
+          'quickly','yesterday','today','there','outside','above','then',
+          'on','under','in','behind','before','around','between'],
+      SUBJ: ['the small dog','the black cat','the old man','the young girl','the cheerful boy','the big bird'],
+      INTRANS: ['runs','sleeps','rests','jumps','sings','sits'],
+      PLACE: ['in the garden','in the forest','in the meadow','by the river','on the roof','at home'],
+      TRANS: ['has','sees','catches','looks for'],
+      OBJ: ['a bone','a fish','a ball','a mouse','a shadow'],
+    },
+  };
 
   function makeBox(ch) {
     const b = document.createElement('div');
@@ -224,8 +317,8 @@
   function aRender() {
     renderBoxes(document.getElementById('outA'), aToString(aVal));
     document.getElementById('metaA').textContent =
-      'krok ' + aStep.toLocaleString('cs-CZ') +
-      ' · možností: 27^18 ≈ ' + Number(A_TOTAL).toExponential(1).replace('e+', ' × 10^');
+      I18N[curLang].step + aStep.toLocaleString(I18N[curLang].locale) +
+      I18N[curLang].poss + Number(A_TOTAL).toExponential(1).replace('e+', ' × 10^');
   }
   document.getElementById('btnA').addEventListener('click', function() {
     if (aTimer) { clearInterval(aTimer); aTimer = null; toggleButton(this, false); return; }
@@ -279,17 +372,10 @@
   // ════════════════════════════════════════════════════════════
   //  PŘÍKLAD C — skutečná slova, ale bez gramatiky
   // ════════════════════════════════════════════════════════════
-  const C_WORDS = [
-    'kočka','pes','dům','strom','voda','slunce','kniha','auto','město','ryba',
-    'běžet','spát','jíst','vidět','mít','dělat','zpívat','skákat','myslet','letět',
-    'velký','malý','zelený','rychlý','starý','nový','krásný','tmavý','tichý',
-    'rychle','včera','dnes','tam','venku','nahoře','potom',
-    'na','pod','v','za','před','kolem','mezi'
-  ];
   function cSentence() {
     const n = 4 + randInt(4);                  // 4–7 slov
     const out = [];
-    for (let i = 0; i < n; i++) out.push(pick(C_WORDS));
+    for (let i = 0; i < n; i++) out.push(pick(WORDS[curLang].C));
     let s = out.join(' ');
     return s.charAt(0).toUpperCase() + s.slice(1) + '.';
   }
@@ -305,21 +391,15 @@
   // ════════════════════════════════════════════════════════════
   //  PŘÍKLAD D — smysluplné věty z gramatických vzorů
   // ════════════════════════════════════════════════════════════
-  // předem sestavené (gramaticky správné) stavební kameny:
-  const D_SUBJ = ['malý pes','černá kočka','starý muž','mladá dívka','veselý chlapec','velký pták'];
-  const D_INTRANS = ['běží','spí','odpočívá','skáče','zpívá','sedí'];
-  const D_PLACE = ['na zahradě','v lese','na louce','u řeky','na střeše','doma'];
-  const D_TRANS = ['má','vidí','chytá','hledá'];
-  const D_OBJ = ['kost','rybu','míč','myš','stín'];
-
   function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
   function dSentence() {
+    const w = WORDS[curLang];
     if (Math.random() < 0.55) {
       // vzor 1: PODMĚT + nepřechodné sloveso + místo
-      return cap(`${pick(D_SUBJ)} ${pick(D_INTRANS)} ${pick(D_PLACE)}.`);
+      return cap(`${pick(w.SUBJ)} ${pick(w.INTRANS)} ${pick(w.PLACE)}.`);
     }
-    // vzor 2: PODMĚT + přechodné sloveso + předmět (4. pád)
-    return cap(`${pick(D_SUBJ)} ${pick(D_TRANS)} ${pick(D_OBJ)}.`);
+    // vzor 2: PODMĚT + přechodné sloveso + předmět
+    return cap(`${pick(w.SUBJ)} ${pick(w.TRANS)} ${pick(w.OBJ)}.`);
   }
   let dTimer = null;
   document.getElementById('btnD').addEventListener('click', function() {
@@ -331,9 +411,46 @@
   });
 
   // úvodní placeholdery
-  document.getElementById('outB').innerHTML = '<span class="placeholder">stiskni RUN…</span>';
-  document.getElementById('outC').innerHTML = '<span class="placeholder">stiskni RUN…</span>';
-  document.getElementById('outD').innerHTML = '<span class="placeholder">stiskni RUN…</span>';
+  function placeholderHTML(){ return '<span class="placeholder">' + I18N[curLang].press + '</span>'; }
+  ['outB','outC','outD'].forEach(id => document.getElementById(id).innerHTML = placeholderHTML());
+
+  // přepnutí jazyka: překresli metaA a případné placeholdery
+  // (generátory B/C/D si nový jazyk vezmou samy při dalším ticku)
+  window.onLangChange = function(l){
+    curLang = l;
+    aRender();
+    ['outB','outC','outD'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el.querySelector('.placeholder')) el.innerHTML = placeholderHTML();
+    });
+  };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #2 — Od náhody k jazyku",
+      en: "Example #2 — From randomness to language"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>

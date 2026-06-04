@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #3 — Hledání cesty místo hrubé síly</title>
 <style>
   * { box-sizing: border-box; }
@@ -93,110 +100,176 @@
   .tcard .pm div { display: flex; gap: 7px; }
   .tcard .plus  { color: #16a34a; font-weight: 700; }
   .tcard .minus { color: #dc2626; font-weight: 700; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">03</span>Hledání cesty místo hrubé síly</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">03</span><span class="cs">Hledání cesty místo hrubé síly</span><span class="en">Pathfinding instead of brute force</span></h1>
   <p class="intro">
-    V prvním příkladu jsme viděli, že <b>projít všechny možnosti</b> nejde. Tady ukazujeme,
+    <span class="cs">V prvním příkladu jsme viděli, že <b>projít všechny možnosti</b> nejde. Tady ukazujeme,
     jak se v obřím prostoru hledá <b>chytře</b>. Stejná mřížka, stejný cíl — ale podívej se,
-    kolik políček musí každý postup prozkoumat. <b>Klikni a táhni</b> myší pro kreslení zdí.
+    kolik políček musí každý postup prozkoumat. <b>Klikni a táhni</b> myší pro kreslení zdí.</span>
+    <span class="en">In the first example we saw that <b>going through every possibility</b> is impossible. Here we show
+    how to search a huge space <b>cleverly</b>. Same grid, same goal — but look how many cells each method has to
+    explore. <b>Click and drag</b> the mouse to draw walls.</span>
   </p>
 
   <div class="grid" id="grid"></div>
 
   <div class="controls">
-    <button class="algo" data-algo="random">Náhodné tápání</button>
-    <button class="algo" data-algo="greedy">Hladový (jdi k cíli)</button>
-    <button class="algo" data-algo="bfs">BFS (do šířky)</button>
-    <button class="algo" data-algo="astar">A* (chytrý)</button>
+    <button class="algo" data-algo="random"><span class="cs">Náhodné tápání</span><span class="en">Random walk</span></button>
+    <button class="algo" data-algo="greedy"><span class="cs">Hladový (jdi k cíli)</span><span class="en">Greedy (head for the goal)</span></button>
+    <button class="algo" data-algo="bfs"><span class="cs">BFS (do šířky)</span><span class="en">BFS (breadth-first)</span></button>
+    <button class="algo" data-algo="astar"><span class="cs">A* (chytrý)</span><span class="en">A* (smart)</span></button>
     <button class="stop" id="btnStop" disabled>■ STOP</button>
   </div>
   <div class="controls">
-    <button class="util" id="btnMaze">Náhodné překážky</button>
-    <button class="util" id="btnClearWalls">Smazat zdi</button>
-    <button class="util" id="btnReset">Smazat hledání</button>
+    <button class="util" id="btnMaze"><span class="cs">Náhodné překážky</span><span class="en">Random obstacles</span></button>
+    <button class="util" id="btnClearWalls"><span class="cs">Smazat zdi</span><span class="en">Clear walls</span></button>
+    <button class="util" id="btnReset"><span class="cs">Smazat hledání</span><span class="en">Clear search</span></button>
   </div>
 
   <div class="legend">
     <span><i style="background:#2563eb"></i> start</span>
-    <span><i style="background:#f59e0b"></i> cíl</span>
-    <span><i style="background:#374151"></i> zeď</span>
-    <span><i style="background:#bfdbfe"></i> prozkoumáno</span>
-    <span><i style="background:#22c55e"></i> nalezená cesta</span>
+    <span><i style="background:#f59e0b"></i> <span class="cs">cíl</span><span class="en">goal</span></span>
+    <span><i style="background:#374151"></i> <span class="cs">zeď</span><span class="en">wall</span></span>
+    <span><i style="background:#bfdbfe"></i> <span class="cs">prozkoumáno</span><span class="en">explored</span></span>
+    <span><i style="background:#22c55e"></i> <span class="cs">nalezená cesta</span><span class="en">found path</span></span>
   </div>
-  <div class="hint">Tip: spusť postupně všechny čtyři a srovnej čísla v tabulce dole.</div>
+  <div class="hint"><span class="cs">Tip: spusť postupně všechny čtyři a srovnej čísla v tabulce dole.</span><span class="en">Tip: run all four in turn and compare the numbers in the table below.</span></div>
 
   <table id="results">
-    <thead><tr><th>Postup</th><th>Prozkoumáno polí</th><th>Délka cesty</th></tr></thead>
+    <thead><tr>
+      <th><span class="cs">Postup</span><span class="en">Method</span></th>
+      <th><span class="cs">Prozkoumáno polí</span><span class="en">Cells explored</span></th>
+      <th><span class="cs">Délka cesty</span><span class="en">Path length</span></th>
+    </tr></thead>
     <tbody></tbody>
   </table>
 
   <!-- ── Teorie ── -->
   <section class="theory">
-    <div class="head">Jak to funguje a co je lepší</div>
+    <div class="head"><span class="cs">Jak to funguje a co je lepší</span><span class="en">How it works and what's better</span></div>
     <p class="lead">
-      U prohledávání nás zajímají tři věci: <b>úplnost</b> (najde cestu, pokud existuje?),
+      <span class="cs">U prohledávání nás zajímají tři věci: <b>úplnost</b> (najde cestu, pokud existuje?),
       <b>optimalita</b> (je cesta nejkratší?) a <b>cena</b> (kolik polí musel prozkoumat).
-      V tom se postupy liší — porovnej je s čísly v tabulce výše.
+      V tom se postupy liší — porovnej je s čísly v tabulce výše.</span>
+      <span class="en">In search we care about three things: <b>completeness</b> (does it find a path if one exists?),
+      <b>optimality</b> (is the path the shortest?) and <b>cost</b> (how many cells it had to explore).
+      The methods differ in these — compare them with the numbers in the table above.</span>
     </p>
 
     <div class="tcards">
 
       <div class="tcard" style="--c:#9ca3af">
-        <h3><span class="dot"></span>Náhodné tápání</h3>
-        <p>Z aktuálního políčka skočí na <b>náhodného souseda</b>. Nemá paměť ani cíl —
-           jen bloudí. Obdoba „hrubé síly" z prvního příkladu.</p>
+        <h3><span class="dot"></span><span class="cs">Náhodné tápání</span><span class="en">Random walk</span></h3>
+        <p><span class="cs">Z aktuálního políčka skočí na <b>náhodného souseda</b>. Nemá paměť ani cíl —
+           jen bloudí. Obdoba „hrubé síly" z prvního příkladu.</span>
+           <span class="en">From the current cell it jumps to a <b>random neighbor</b>. It has no memory and no goal —
+           it just wanders. Like the "brute force" of the first example.</span></p>
         <div class="pm">
-          <div><span class="plus">+</span> triviálně jednoduché, žádná paměť</div>
-          <div><span class="minus">–</span> neúplné: cíl najde leda náhodou, motá se dokola</div>
-          <div><span class="minus">–</span> cesta je extrémně dlouhá — stejná pole prochází znovu a znovu</div>
+          <div><span class="plus">+</span> <span class="cs">triviálně jednoduché, žádná paměť</span><span class="en">trivially simple, no memory</span></div>
+          <div><span class="minus">–</span> <span class="cs">neúplné: cíl najde leda náhodou, motá se dokola</span><span class="en">incomplete: finds the goal only by luck, goes in circles</span></div>
+          <div><span class="minus">–</span> <span class="cs">cesta je extrémně dlouhá — stejná pole prochází znovu a znovu</span><span class="en">the path is extremely long — it revisits the same cells over and over</span></div>
         </div>
       </div>
 
       <div class="tcard" style="--c:#a855f7">
-        <h3><span class="dot"></span>Hladový (greedy)</h3>
-        <p>Vždy jde tam, co se <b>zdá nejblíž cíli</b> (vzdušná vzdálenost). Řídí se jen
-           odhadem, kolik zbývá — vůbec ho nezajímá, kolik už ušel.</p>
+        <h3><span class="dot"></span><span class="cs">Hladový (greedy)</span><span class="en">Greedy</span></h3>
+        <p><span class="cs">Vždy jde tam, co se <b>zdá nejblíž cíli</b> (vzdušná vzdálenost). Řídí se jen
+           odhadem, kolik zbývá — vůbec ho nezajímá, kolik už ušel.</span>
+           <span class="en">It always goes where it <b>seems closest to the goal</b> (straight-line distance). It's guided
+           only by the estimate of what remains — it doesn't care how far it has already come.</span></p>
         <div class="pm">
-          <div><span class="plus">+</span> velmi rychlý, prozkoumá málo polí</div>
-          <div><span class="plus">+</span> míří rovnou k cíli</div>
-          <div><span class="minus">–</span> <b>není optimální</b>: zeď ho zmate a vrátí delší cestu</div>
+          <div><span class="plus">+</span> <span class="cs">velmi rychlý, prozkoumá málo polí</span><span class="en">very fast, explores few cells</span></div>
+          <div><span class="plus">+</span> <span class="cs">míří rovnou k cíli</span><span class="en">heads straight for the goal</span></div>
+          <div><span class="minus">–</span> <span class="cs"><b>není optimální</b>: zeď ho zmate a vrátí delší cestu</span><span class="en"><b>not optimal</b>: a wall confuses it and it returns a longer path</span></div>
         </div>
       </div>
 
       <div class="tcard" style="--c:#0ea5e9">
-        <h3><span class="dot"></span>BFS (do šířky)</h3>
-        <p>Prohledává <b>systematicky po vrstvách</b> — nejdřív všechny sousedy, pak jejich
-           sousedy… Postupuje rovnoměrně do všech stran.</p>
+        <h3><span class="dot"></span><span class="cs">BFS (do šířky)</span><span class="en">BFS (breadth-first)</span></h3>
+        <p><span class="cs">Prohledává <b>systematicky po vrstvách</b> — nejdřív všechny sousedy, pak jejich
+           sousedy… Postupuje rovnoměrně do všech stran.</span>
+           <span class="en">It searches <b>systematically in layers</b> — first all neighbors, then their neighbors…
+           It spreads evenly in all directions.</span></p>
         <div class="pm">
-          <div><span class="plus">+</span> úplný — cestu vždy najde</div>
-          <div><span class="plus">+</span> optimální — najde nejkratší cestu</div>
-          <div><span class="minus">–</span> „slepý": neví, kde je cíl, prozkoumá obří plochu</div>
+          <div><span class="plus">+</span> <span class="cs">úplný — cestu vždy najde</span><span class="en">complete — always finds a path</span></div>
+          <div><span class="plus">+</span> <span class="cs">optimální — najde nejkratší cestu</span><span class="en">optimal — finds the shortest path</span></div>
+          <div><span class="minus">–</span> <span class="cs">„slepý": neví, kde je cíl, prozkoumá obří plochu</span><span class="en">"blind": doesn't know where the goal is, explores a huge area</span></div>
         </div>
       </div>
 
       <div class="tcard" style="--c:#22c55e">
-        <h3><span class="dot"></span>A* (A-star)</h3>
-        <p>Spojí to nejlepší z obou: sečte <b>ušlou vzdálenost</b> a <b>odhad zbývající</b>
-           (heuristiku). Míří k cíli, ale nezapomíná hlídat délku cesty.</p>
+        <h3><span class="dot"></span><span class="cs">A* (A-star)</span><span class="en">A* (A-star)</span></h3>
+        <p><span class="cs">Spojí to nejlepší z obou: sečte <b>ušlou vzdálenost</b> a <b>odhad zbývající</b>
+           (heuristiku). Míří k cíli, ale nezapomíná hlídat délku cesty.</span>
+           <span class="en">It combines the best of both: it adds the <b>distance travelled</b> and the <b>estimate of what
+           remains</b> (the heuristic). It heads for the goal but keeps an eye on path length.</span></p>
         <div class="pm">
-          <div><span class="plus">+</span> úplný i optimální jako BFS</div>
-          <div><span class="plus">+</span> prozkoumá <b>mnohem méně</b> polí než BFS</div>
-          <div><span class="minus">–</span> potřebuje dobrou heuristiku; v praxi nejpoužívanější</div>
+          <div><span class="plus">+</span> <span class="cs">úplný i optimální jako BFS</span><span class="en">complete and optimal like BFS</span></div>
+          <div><span class="plus">+</span> <span class="cs">prozkoumá <b>mnohem méně</b> polí než BFS</span><span class="en">explores <b>far fewer</b> cells than BFS</span></div>
+          <div><span class="minus">–</span> <span class="cs">potřebuje dobrou heuristiku; v praxi nejpoužívanější</span><span class="en">needs a good heuristic; the most used in practice</span></div>
         </div>
       </div>
 
     </div>
     <p class="lead" style="margin-top:16px">
-      <b>Pointa:</b> BFS i A* najdou stejně dlouhou (nejkratší) cestu, ale A* k tomu prozkoumá
+      <span class="cs"><b>Pointa:</b> BFS i A* najdou stejně dlouhou (nejkratší) cestu, ale A* k tomu prozkoumá
       řádově méně polí — chytrá heuristika tedy dramaticky zmenší prohledávaný prostor.
-      Hladový je nejúspornější, ale za cenu, že cesta nemusí být nejkratší.
+      Hladový je nejúspornější, ale za cenu, že cesta nemusí být nejkratší.</span>
+      <span class="en"><b>The point:</b> both BFS and A* find an equally long (shortest) path, but A* explores an order of
+      magnitude fewer cells — a smart heuristic dramatically shrinks the search space.
+      Greedy is the most economical, but at the cost that its path may not be the shortest.</span>
     </p>
   </section>
 
 <script>
+  // ── Dvojjazyčné texty pro tabulku výsledků ───────────────────
+  let curLang = window.__lang || 'cs';
+  const I18N = {
+    cs: { names: { random:'Náhodné tápání', greedy:'Hladový', bfs:'BFS', astar:'A*' }, notFound:'— nenalezeno', locale:'cs-CZ' },
+    en: { names: { random:'Random walk',    greedy:'Greedy',  bfs:'BFS', astar:'A*' }, notFound:'— not found',  locale:'en-US' },
+  };
+
   // ── Mřížka ───────────────────────────────────────────────────
   const COLS = 28, ROWS = 16;
   const N = COLS * ROWS;
@@ -309,10 +382,10 @@
   }
 
   const ALGOS = {
-    random: { name: 'Náhodné tápání', color: '#9ca3af', run: randomWalk },
-    greedy: { name: 'Hladový',        color: '#a855f7', run: () => bestFirst(false) },
-    bfs:    { name: 'BFS',            color: '#0ea5e9', run: bfs },
-    astar:  { name: 'A*',             color: '#22c55e', run: () => bestFirst(true) },
+    random: { color: '#9ca3af', run: randomWalk },
+    greedy: { color: '#a855f7', run: () => bestFirst(false) },
+    bfs:    { color: '#0ea5e9', run: bfs },
+    astar:  { color: '#22c55e', run: () => bestFirst(true) },
   };
 
   // ── Vykreslení / animace ─────────────────────────────────────
@@ -399,19 +472,25 @@
 
   // ── Tabulka výsledků ─────────────────────────────────────────
   const results = {};
+  let lastKey = null;
   function recordResult(key, visited, pathLen) {
     results[key] = { visited, pathLen };
+    lastKey = key;
+    renderResults();
+  }
+  function renderResults() {
+    const t = I18N[curLang];
     const tbody = document.querySelector('#results tbody');
     tbody.innerHTML = '';
     for (const k of ['random', 'greedy', 'bfs', 'astar']) {
       if (!results[k]) continue;
       const a = ALGOS[k], r = results[k];
       const tr = document.createElement('tr');
-      if (k === key) tr.className = 'active';
+      if (k === lastKey) tr.className = 'active';
       tr.innerHTML =
-        `<td><span class="dot" style="background:${a.color}"></span>${a.name}</td>` +
-        `<td class="num">${r.visited.toLocaleString('cs-CZ')}</td>` +
-        `<td class="num">${r.pathLen ? r.pathLen : '— nenalezeno'}</td>`;
+        `<td><span class="dot" style="background:${a.color}"></span>${t.names[k]}</td>` +
+        `<td class="num">${r.visited.toLocaleString(t.locale)}</td>` +
+        `<td class="num">${r.pathLen ? r.pathLen : t.notFound}</td>`;
       tbody.appendChild(tr);
     }
   }
@@ -433,6 +512,9 @@
     clearSearch();
   });
 
+  // přepnutí jazyka: překresli tabulku výsledků v novém jazyce
+  window.onLangChange = function(l){ curLang = l; renderResults(); };
+
   // ── Start ────────────────────────────────────────────────────
   // pár výchozích zdí, ať se algoritmy hned liší
   function defaultWalls() {
@@ -443,6 +525,33 @@
   }
   defaultWalls();
   paintFixed();
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #3 — Hledání cesty místo hrubé síly",
+      en: "Example #3 — Pathfinding instead of brute force"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>

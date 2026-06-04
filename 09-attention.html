@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #9 — Attention: na co se model dívá</title>
 <style>
   * { box-sizing: border-box; }
@@ -82,92 +89,157 @@
   .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
   .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
   .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">09</span>Attention — na co se model dívá</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">09</span><span class="cs">Attention — na co se model dívá</span><span class="en">Attention — what the model looks at</span></h1>
   <p class="intro">
-    Když model zpracovává slovo, „rozhlíží se" po ostatních slovech ve větě a každému dá
+    <span class="cs">Když model zpracovává slovo, „rozhlíží se" po ostatních slovech ve větě a každému dá
     <b>váhu pozornosti</b> — jak moc je pro něj důležité. Tahle myšlenka (<i>attention</i>) je
-    srdcem dnešních modelů. <b>Klikni na slovo</b> a uvidíš, kam se dívá.
+    srdcem dnešních modelů. <b>Klikni na slovo</b> a uvidíš, kam se dívá.</span>
+    <span class="en">When a model processes a word, it "looks around" at the other words in the sentence and gives each an
+    <b>attention weight</b> — how important it is to it. This idea (<i>attention</i>) is
+    at the heart of today's models. <b>Click a word</b> and see where it looks.</span>
   </p>
 
   <div class="explain">
-    <h2>Co tenhle příklad dělá</h2>
+    <h2><span class="cs">Co tenhle příklad dělá</span><span class="en">What this example does</span></h2>
     <p>
-      Napíšeš větu, ta se rozseká na slova. Když na některé <b>klikneš</b>, ukáže se, kolik
+      <span class="cs">Napíšeš větu, ta se rozseká na slova. Když na některé <b>klikneš</b>, ukáže se, kolik
       <b>pozornosti</b> věnuje každému dalšímu slovu — jako procento pod slovem a sytostí modré barvy.
       Dole je celá <b>mapa pozornosti</b> (všechna slova vůči všem). Přesně takhle „uvažuje" každá
-      vrstva dnešních modelů: každé slovo si <b>přepočítá svůj význam</b> podle toho, na co se ve větě dívá.
+      vrstva dnešních modelů: každé slovo si <b>přepočítá svůj význam</b> podle toho, na co se ve větě dívá.</span>
+      <span class="en">You type a sentence and it's split into words. When you <b>click</b> one, it shows how much
+      <b>attention</b> it pays to each other word — as a percentage under the word and the saturation of the blue.
+      Below is the full <b>attention map</b> (all words against all). This is exactly how every layer of today's
+      models "reasons": each word <b>recomputes its meaning</b> based on what it looks at in the sentence.</span>
     </p>
     <p>
-      Čím <b>sytější modrá</b> (a vyšší %), tím víc se dané slovo dívá na druhé. Pozornost se vždy
+      <span class="cs">Čím <b>sytější modrá</b> (a vyšší %), tím víc se dané slovo dívá na druhé. Pozornost se vždy
       rozdělí mezi ostatní slova tak, aby dohromady dala <b>100 %</b>. Často nejvíc padne na slovo
-      samotné a na jeho <b>blízké sousedy</b> — tak to vychází i ve skutečných modelech.
+      samotné a na jeho <b>blízké sousedy</b> — tak to vychází i ve skutečných modelech.</span>
+      <span class="en">The <b>deeper the blue</b> (and higher the %), the more that word looks at another. Attention is always
+      split among the other words so that it adds up to <b>100 %</b>. Often most of it falls on the word
+      itself and its <b>close neighbors</b> — that's how it works out in real models too.</span>
     </p>
     <div class="flow">
-      <span class="stepc"><span class="n">1</span> dotaz (co hledám?)</span>
+      <span class="stepc"><span class="n">1</span> <span class="cs">dotaz (co hledám?)</span><span class="en">query (what am I looking for?)</span></span>
       <span class="arr">→</span>
-      <span class="stepc"><span class="n">2</span> klíče ostatních slov</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">klíče ostatních slov</span><span class="en">keys of the other words</span></span>
       <span class="arr">→</span>
-      <span class="stepc"><span class="n">3</span> skóre shody</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">skóre shody</span><span class="en">match scores</span></span>
       <span class="arr">→</span>
-      <span class="stepc"><span class="n">4</span> softmax = váhy (100 %)</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">softmax = váhy (100 %)</span><span class="en">softmax = weights (100 %)</span></span>
       <span class="arr">→</span>
-      <span class="stepc"><span class="n">5</span> nový význam slova</span>
+      <span class="stepc"><span class="n">5</span> <span class="cs">nový význam slova</span><span class="en">the word's new meaning</span></span>
     </div>
   </div>
 
   <div class="panel">
     <div class="block">
-      <div class="label">věta (uprav podle libosti)</div>
+      <div class="label"><span class="cs">věta (uprav podle libosti)</span><span class="en">sentence (edit freely)</span></div>
       <input type="text" id="text" value="kočka spí na teplém okně protože venku prší">
       <div class="sent" id="sent"></div>
-      <div class="selhint" id="selhint">Klikni na slovo výše.</div>
+      <div class="selhint" id="selhint"><span class="cs">Klikni na slovo výše.</span><span class="en">Click a word above.</span></div>
     </div>
 
     <div class="block">
-      <div class="label">mapa pozornosti — řádek = „odkud", sloupec = „kam se dívá"</div>
+      <div class="label"><span class="cs">mapa pozornosti — řádek = „odkud", sloupec = „kam se dívá"</span><span class="en">attention map — row = "from", column = "looks at"</span></div>
       <div class="scroller"><div class="matrix" id="matrix"></div></div>
       <div class="blocknote">
-        <b>Jak číst mapu?</b> Každý <b>řádek</b> je jedno slovo („odkud se dívám"), <b>sloupce</b> jsou
+        <span class="cs"><b>Jak číst mapu?</b> Každý <b>řádek</b> je jedno slovo („odkud se dívám"), <b>sloupce</b> jsou
         slova, na která se dívá. Číslo v buňce je <b>% pozornosti</b> a každý řádek dává dohromady
         <b>100 %</b>. Klikni na slovo nahoře nebo na řádek a zvýrazní se. Sytá úhlopříčka znamená, že se
         slova hodně dívají sama na sebe.
-        <br><em>Pozn.: tady je to zjednodušená ilustrace mechanismu (podobnost slov + jejich blízkost ve větě), ne skutečně natrénovaný model — ten by se vztahy naučil z obrovského množství textu.</em>
+        <br><em>Pozn.: tady je to zjednodušená ilustrace mechanismu (podobnost slov + jejich blízkost ve větě), ne skutečně natrénovaný model — ten by se vztahy naučil z obrovského množství textu.</em></span>
+        <span class="en"><b>How to read the map?</b> Each <b>row</b> is one word ("where I look from"), the <b>columns</b> are
+        the words it looks at. The number in a cell is the <b>% of attention</b> and each row adds up to
+        <b>100 %</b>. Click a word at the top or a row to highlight it. A strong diagonal means words look at
+        themselves a lot.
+        <br><em>Note: this is a simplified illustration of the mechanism (word similarity + their closeness in the sentence), not a truly trained model — that would learn the relationships from a huge amount of text.</em></span>
       </div>
     </div>
   </div>
 
   <section class="theory">
-    <div class="head">Jak attention funguje</div>
+    <div class="head"><span class="cs">Jak attention funguje</span><span class="en">How attention works</span></div>
     <p class="lead">
-      Každé slovo vyšle „dotaz" (co hledám?) a každé nabízí „klíč" (co nabízím?). Model spočítá,
+      <span class="cs">Každé slovo vyšle „dotaz" (co hledám?) a každé nabízí „klíč" (co nabízím?). Model spočítá,
       jak <b>dotaz sedí ke klíči</b> — čím líp, tím větší pozornost. Váhy se přepočítají tak, aby
       dohromady daly 100 %, a slovo si pak <b>poskládá svůj nový význam</b> z těch, kterým věnovalo
-      nejvíc pozornosti. <em>(Zde je to zjednodušená ilustrace mechanismu, ne skutečně natrénovaný model.)</em>
+      nejvíc pozornosti. <em>(Zde je to zjednodušená ilustrace mechanismu, ne skutečně natrénovaný model.)</em></span>
+      <span class="en">Each word sends a "query" (what am I looking for?) and each offers a "key" (what do I offer?). The
+      model computes <b>how well a query matches a key</b> — the better, the more attention. The weights are
+      normalized to add up to 100 %, and the word then <b>assembles its new meaning</b> from those it paid the
+      most attention to. <em>(This is a simplified illustration of the mechanism, not a truly trained model.)</em></span>
     </p>
     <div class="tcards">
       <div class="tcard" style="--c:#2563eb">
-        <h3><span class="dot"></span>Dotaz, klíč, hodnota</h3>
-        <p>Q (co hledám), K (co nabízím), V (co předám). Pozornost = jak dotaz pasuje na klíče.
-           To rozhoduje, kolik z které „hodnoty" si slovo vezme.</p>
+        <h3><span class="dot"></span><span class="cs">Dotaz, klíč, hodnota</span><span class="en">Query, key, value</span></h3>
+        <p><span class="cs">Q (co hledám), K (co nabízím), V (co předám). Pozornost = jak dotaz pasuje na klíče.
+           To rozhoduje, kolik z které „hodnoty" si slovo vezme.</span>
+           <span class="en">Q (what I'm looking for), K (what I offer), V (what I pass on). Attention = how well the query
+           fits the keys. That decides how much of each "value" a word takes.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
-        <h3><span class="dot"></span>Váhy dávají 100 %</h3>
-        <p>Skóre se přes <b>softmax</b> převede na podíly, co dohromady tvoří jednotku. Slovo tak
-           rozdělí svou pozornost mezi ostatní.</p>
+        <h3><span class="dot"></span><span class="cs">Váhy dávají 100 %</span><span class="en">Weights add up to 100 %</span></h3>
+        <p><span class="cs">Skóre se přes <b>softmax</b> převede na podíly, co dohromady tvoří jednotku. Slovo tak
+           rozdělí svou pozornost mezi ostatní.</span>
+           <span class="en"><b>Softmax</b> turns the scores into proportions that together make one. So a word splits its
+           attention among the others.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
-        <h3><span class="dot"></span>Kontext řeší víceznačnost</h3>
-        <p>Slovo „okně" dává jiný smysl podle okolí. Díky pozornosti k sousedům model pochopí,
-           o jaké okno jde — jazyk je o <b>vztazích</b> mezi slovy.</p>
+        <h3><span class="dot"></span><span class="cs">Kontext řeší víceznačnost</span><span class="en">Context resolves ambiguity</span></h3>
+        <p><span class="cs">Slovo „okně" dává jiný smysl podle okolí. Díky pozornosti k sousedům model pochopí,
+           o jaké okno jde — jazyk je o <b>vztazích</b> mezi slovy.</span>
+           <span class="en">The word "bank" means something different depending on its surroundings. Thanks to attention to its
+           neighbors the model works out which bank is meant — language is about the <b>relationships</b> between words.</span></p>
       </div>
       <div class="tcard" style="--c:#a855f7">
-        <h3><span class="dot"></span>Proč je to průlom</h3>
-        <p>Attention umí spojit i slova daleko od sebe a počítat je naráz (paralelně). Na tom stojí
-           <b>transformery</b> — architektura za ChatGPT a spol.</p>
+        <h3><span class="dot"></span><span class="cs">Proč je to průlom</span><span class="en">Why it's a breakthrough</span></h3>
+        <p><span class="cs">Attention umí spojit i slova daleko od sebe a počítat je naráz (paralelně). Na tom stojí
+           <b>transformery</b> — architektura za ChatGPT a spol.</span>
+           <span class="en">Attention can link even far-apart words and process them all at once (in parallel). Transformers are
+           built on this — the <b>architecture</b> behind ChatGPT and the like.</span></p>
       </div>
     </div>
   </section>
@@ -177,6 +249,25 @@
   const D = 24;             // rozměr „embeddingu"
   let tokens = [], A = [];  // A[i][j] = pozornost slova i ke slovu j
   let selected = -1;
+
+  // ── dvojjazyčné texty a výchozí věta ─────────────────────────
+  let curLang = window.__lang || 'cs';
+  const DEFAULT_SENTENCE = {
+    cs: 'kočka spí na teplém okně protože venku prší',
+    en: 'the cat sleeps on the warm window because it rains outside'
+  };
+  const I18N = {
+    cs: {
+      attends: (w, list) => `Slovo <b>„${w}"</b> se nejvíc dívá na: ${list}.`,
+      item: (w, p) => `„${w}" (${p} %)`,
+      enter: 'Zadej větu.',
+    },
+    en: {
+      attends: (w, list) => `The word <b>"${w}"</b> attends most to: ${list}.`,
+      item: (w, p) => `"${w}" (${p} %)`,
+      enter: 'Enter a sentence.',
+    },
+  };
 
   // deterministický vektor pro znak
   function charVec(code){
@@ -242,8 +333,8 @@
     });
     // top cíle
     const order = A[i].map((w,j)=>({j,w})).filter(o=>o.j!==i).sort((a,b)=>b.w-a.w);
-    const top = order.slice(0,2).map(o=>`„${tokens[o.j]}" (${Math.round(o.w*100)} %)`);
-    $('selhint').innerHTML = `Slovo <b>„${tokens[i]}"</b> se nejvíc dívá na: ${top.join(', ')}.`;
+    const top = order.slice(0,2).map(o=>I18N[curLang].item(tokens[o.j], Math.round(o.w*100)));
+    $('selhint').innerHTML = I18N[curLang].attends(tokens[i], top.join(', '));
     markMatrixRow(i);
   }
 
@@ -275,7 +366,7 @@
 
   function rebuild(){
     tokens = tokenize($('text').value);
-    if (!tokens.length){ $('sent').innerHTML=''; $('matrix').innerHTML=''; $('selhint').textContent='Zadej větu.'; return; }
+    if (!tokens.length){ $('sent').innerHTML=''; $('matrix').innerHTML=''; $('selhint').textContent=I18N[curLang].enter; return; }
     buildAttention();
     renderSentence();
     renderMatrix();
@@ -284,6 +375,46 @@
 
   $('text').addEventListener('input', rebuild);
   rebuild();
+
+  // přepnutí jazyka: vyměň výchozí větu (pokud neupravená) a překresli hint
+  window.onLangChange = function(l){
+    const prev = (l === 'en') ? 'cs' : 'en';
+    curLang = l;
+    if ($('text').value.trim() === DEFAULT_SENTENCE[prev]) {
+      $('text').value = DEFAULT_SENTENCE[l]; rebuild();
+    } else if (tokens.length) {
+      select(selected < 0 ? 0 : selected);
+    } else {
+      rebuild();
+    }
+  };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #9 — Attention: na co se model dívá",
+      en: "Example #9 — Attention: what the model looks at"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>

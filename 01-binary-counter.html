@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #1 — Binární počítadlo 8×8</title>
 <style>
   :root {
@@ -180,12 +187,50 @@
     align-items: center;
     gap: 8px;
   }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0; min-width: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">01</span>Binární počítadlo 8×8</h1>
-  <p class="subtitle">Klikni do mřížky a nastav bity. 64 polí = 64bitové číslo.</p>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">01</span><span class="cs">Binární počítadlo 8×8</span><span class="en">Binary counter 8×8</span></h1>
+  <p class="subtitle"><span class="cs">Klikni do mřížky a nastav bity. 64 polí = 64bitové číslo.</span><span class="en">Click the grid to set bits. 64 cells = a 64-bit number.</span></p>
 
   <div class="grid" id="grid"></div>
 
@@ -195,25 +240,25 @@
   </div>
 
   <div class="speed">
-    rychlost:
+    <span class="cs">rychlost:</span><span class="en">speed:</span>
     <input type="range" id="speed" min="0" max="500" value="60" step="10">
     <span id="speedVal">60 ms</span>
   </div>
 
   <div class="readout">
     <div class="block">
-      <div class="label">binárně (64 bitů, po bajtech)</div>
+      <div class="label"><span class="cs">binárně (64 bitů, po bajtech)</span><span class="en">binary (64 bits, by bytes)</span></div>
       <div class="bin" id="binVal"></div>
     </div>
     <div class="block">
-      <div class="label">desítkově</div>
+      <div class="label"><span class="cs">desítkově</span><span class="en">decimal</span></div>
       <div class="dec" id="decVal">0</div>
       <div class="hex" id="hexVal">0x0000000000000000</div>
     </div>
   </div>
 
   <div class="eta">
-    <div class="label">postup — kolik kombinací už proběhlo</div>
+    <div class="label"><span class="cs">postup — kolik kombinací už proběhlo</span><span class="en">progress — how many combinations have elapsed</span></div>
     <div class="bar"><div class="fill" id="etaFill"></div></div>
     <div class="progress-text" id="etaProgress"></div>
     <div class="time" id="etaTime"></div>
@@ -225,6 +270,26 @@
   const SIZE = 8;
   const BITS = SIZE * SIZE;            // 64
   const MASK = (1n << BigInt(BITS)) - 1n;  // maska na 64 bitů
+
+  // ── Dvojjazyčné texty (dynamicky generované řetězce) ─────────
+  let curLang = window.__lang || 'cs';
+  const I18N = {
+    cs: {
+      locale: 'cs-CZ',
+      units: { lt1:'< 1 ms', ms:' ms', s:' s', min:' min', h:' h', days:' dní', years:' let' },
+      of: ' z ', remaining: 'zbývá ≈ ', measuring: 'měřím reálnou rychlost…',
+      univTimes: '× stáří vesmíru', univPct: ' % stáří vesmíru',
+      maxMeasured: p => 'max (≈ ' + p + '/s naměřeno)', maxFast: 'max (co nejrychleji)',
+    },
+    en: {
+      locale: 'en-US',
+      units: { lt1:'< 1 ms', ms:' ms', s:' s', min:' min', h:' h', days:' days', years:' years' },
+      of: ' of ', remaining: 'remaining ≈ ', measuring: 'measuring real speed…',
+      univTimes: '× the age of the universe', univPct: ' % of the age of the universe',
+      maxMeasured: p => 'max (≈ ' + p + '/s measured)', maxFast: 'max (as fast as possible)',
+    },
+  };
+  const T = () => I18N[curLang];
 
   // Mapování pole → bit:
   //   pole 0 (vlevo nahoře)  = nejvyšší bit (bit 63)
@@ -301,18 +366,19 @@
 
   function humanizeMs(ms) {
     // ms je číslo (float). Vrátí pěkný textový popis trvání.
-    if (ms < 1)     return '< 1 ms';
-    if (ms < 1000)  return ms.toFixed(0) + ' ms';
+    const u = T().units;
+    if (ms < 1)     return u.lt1;
+    if (ms < 1000)  return ms.toFixed(0) + u.ms;
 
     const sec = ms / 1000;
-    if (sec < 60)   return sec.toFixed(1) + ' s';
-    if (sec < 3600) return (sec / 60).toFixed(1) + ' min';
-    if (sec < 86400) return (sec / 3600).toFixed(1) + ' h';
-    if (sec < 31557600) return (sec / 86400).toFixed(1) + ' dní';
+    if (sec < 60)   return sec.toFixed(1) + u.s;
+    if (sec < 3600) return (sec / 60).toFixed(1) + u.min;
+    if (sec < 86400) return (sec / 3600).toFixed(1) + u.h;
+    if (sec < 31557600) return (sec / 86400).toFixed(1) + u.days;
 
     const years = sec / 31557600;
-    if (years < 1e6) return years.toLocaleString('cs-CZ', {maximumFractionDigits: 0}) + ' let';
-    return years.toExponential(2).replace('e+', ' × 10^') + ' let';
+    if (years < 1e6) return years.toLocaleString(T().locale, {maximumFractionDigits: 0}) + u.years;
+    return years.toExponential(2).replace('e+', ' × 10^') + u.years;
   }
 
   function updateEta(n) {
@@ -325,7 +391,7 @@
     const pctMilli = Number((n * 100000000n) / MASK) / 1000000;  // % na 6 des. míst
     fill.style.width = Math.max(pctMilli, 0.3) + '%';
     prog.innerHTML =
-      n.toLocaleString('cs-CZ') + ' z ' + TOTAL.toLocaleString('cs-CZ') +
+      n.toLocaleString(T().locale) + T().of + TOTAL.toLocaleString(T().locale) +
       ' &nbsp;(' + pctMilli.toFixed(6) + ' %)';
 
     // ms na jeden krok: buď z posuvníku, nebo (při 0) z reálného měření
@@ -335,7 +401,7 @@
     let msPerStep = delay;
     if (delay === 0) {
       if (measuredMsPerStep === null) {
-        timeEl.textContent = 'měřím reálnou rychlost…';
+        timeEl.textContent = T().measuring;
         cmpEl.textContent = '';
         return;
       }
@@ -343,15 +409,15 @@
     }
 
     const remMs = remaining * msPerStep;
-    timeEl.textContent = 'zbývá ≈ ' + humanizeMs(remMs);
+    timeEl.textContent = T().remaining + humanizeMs(remMs);
 
     // porovnání se stářím vesmíru
     const years = (remMs / 1000) / 31557600;
     if (years > UNIVERSE_YEARS / 100) {
       const ratio = years / UNIVERSE_YEARS;
       cmpEl.textContent = ratio >= 1
-        ? '≈ ' + ratio.toLocaleString('cs-CZ', {maximumFractionDigits: 1}) + '× stáří vesmíru'
-        : '≈ ' + (ratio * 100).toFixed(1) + ' % stáří vesmíru';
+        ? '≈ ' + ratio.toLocaleString(T().locale, {maximumFractionDigits: 1}) + T().univTimes
+        : '≈ ' + (ratio * 100).toFixed(1) + T().univPct;
     } else {
       cmpEl.textContent = '';
     }
@@ -415,15 +481,14 @@
     if (ms === 0) {
       // "co nejrychleji" — ukaž reálně změřenou rychlost, je-li k dispozici
       if (measuredMsPerStep) {
-        const perSec = Math.round(1000 / measuredMsPerStep).toLocaleString('cs-CZ');
-        document.getElementById('speedVal').textContent =
-          'max (≈ ' + perSec + '/s naměřeno)';
+        const perSec = Math.round(1000 / measuredMsPerStep).toLocaleString(T().locale);
+        document.getElementById('speedVal').textContent = T().maxMeasured(perSec);
       } else {
-        document.getElementById('speedVal').textContent = 'max (co nejrychleji)';
+        document.getElementById('speedVal').textContent = T().maxFast;
       }
       return;
     }
-    const perSec = Math.round(1000 / ms).toLocaleString('cs-CZ');
+    const perSec = Math.round(1000 / ms).toLocaleString(T().locale);
     document.getElementById('speedVal').textContent =
       ms + ' ms (' + perSec + '/s)';
   }
@@ -436,6 +501,36 @@
   updateSpeedLabel();
 
   updateReadout();
+
+  // přepnutí jazyka: překresli odhad času i popisek rychlosti
+  window.onLangChange = function(l){ curLang = l; updateSpeedLabel(); updateReadout(); };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #1 — Binární počítadlo 8×8",
+      en: "Example #1 — Binary counter 8×8"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>

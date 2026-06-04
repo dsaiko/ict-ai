@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
 <title>Příklad #5 — Učení z příkladů (perceptron)</title>
 <style>
   * { box-sizing: border-box; }
@@ -76,19 +83,60 @@
   .tcard .pm { font-size: 12.5px; line-height: 1.65; }
   .tcard .pm div { display: flex; gap: 7px; }
   .tcard .plus { color: #16a34a; font-weight: 700; } .tcard .minus { color: #dc2626; font-weight: 700; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
-  <a class="back" href="index.html"><span class="arrow">←</span> ZPĚT</a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">05</span>Učení z příkladů — perceptron</h1>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">05</span><span class="cs">Učení z příkladů — perceptron</span><span class="en">Learning from examples — perceptron</span></h1>
   <p class="intro">
-    Místo abychom pravidlo <b>naprogramovali</b>, necháme ho stroj <b>najít z dat</b>.
+    <span class="cs">Místo abychom pravidlo <b>naprogramovali</b>, necháme ho stroj <b>najít z dat</b>.
     Naklikej do plochy modré a červené body a stiskni „Trénuj" — perceptron sám hledá
-    <b>přímku</b>, která obě barvy oddělí. To je nejjednodušší model, který se „učí".
+    <b>přímku</b>, která obě barvy oddělí. To je nejjednodušší model, který se „učí".</span>
+    <span class="en">Instead of <b>programming</b> the rule, we let the machine <b>find it from data</b>.
+    Click blue and red points into the canvas and press "Train" — the perceptron itself looks for the
+    <b>line</b> that separates the two colors. It's the simplest model that "learns".</span>
   </p>
 
   <div class="diagram">
-    <div class="label">jak perceptron vypadá uvnitř (váhy se mění během učení)</div>
+    <div class="label"><span class="cs">jak perceptron vypadá uvnitř (váhy se mění během učení)</span><span class="en">how a perceptron looks inside (weights change as it learns)</span></div>
     <svg viewBox="0 0 620 220" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
@@ -128,77 +176,98 @@
       <!-- sumační uzel -->
       <circle cx="300" cy="110" r="28" fill="#fff" stroke="#111827" stroke-width="2.5"/>
       <text x="300" y="118" text-anchor="middle" font-size="24" font-weight="700" fill="#111827">Σ</text>
-      <text x="300" y="160" text-anchor="middle" font-size="10" fill="#9ca3af">vážený součet</text>
+      <text class="cs" x="300" y="160" text-anchor="middle" font-size="10" fill="#9ca3af">vážený součet</text>
+      <text class="en" x="300" y="160" text-anchor="middle" font-size="10" fill="#9ca3af">weighted sum</text>
 
       <!-- aktivace -->
       <rect x="372" y="86" width="102" height="48" rx="9" fill="#fff" stroke="#111827" stroke-width="2"/>
-      <text x="423" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">aktivace</text>
+      <text class="cs" x="423" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">aktivace</text>
+      <text class="en" x="423" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">activation</text>
       <text x="423" y="123" text-anchor="middle" font-size="11" fill="#6b7280">≥ 0 ?</text>
 
       <!-- výstup -->
       <circle cx="544" cy="110" r="26" fill="#fff" stroke="#16a34a" stroke-width="2.5"/>
-      <text x="544" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#16a34a">třída</text>
+      <text class="cs" x="544" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#16a34a">třída</text>
+      <text class="en" x="544" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#16a34a">class</text>
       <text x="544" y="121" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">±1</text>
     </svg>
-    <div class="formula">výstup = znaménko( <b><span id="fwb">w₀</span> + <span id="fwx">w₁</span>·x + <span id="fwy">w₂</span>·y</b> )</div>
+    <div class="formula"><span class="cs">výstup = znaménko( </span><span class="en">output = sign( </span><b><span id="fwb">w₀</span> + <span id="fwx">w₁</span>·x + <span id="fwy">w₂</span>·y</b> )</div>
   </div>
 
   <canvas id="cv" width="640" height="440"></canvas>
 
   <div class="controls">
-    <button class="cls on a" id="clsA" data-cls="1">● přidávám modré</button>
-    <button class="cls b" id="clsB" data-cls="-1">● přidávám červené</button>
+    <button class="cls on a" id="clsA" data-cls="1"><span class="cs">● přidávám modré</span><span class="en">● adding blue</span></button>
+    <button class="cls b" id="clsB" data-cls="-1"><span class="cs">● přidávám červené</span><span class="en">● adding red</span></button>
   </div>
   <div class="controls">
-    <button class="go"   id="btnTrain">Trénuj</button>
-    <button class="util" id="btnStep">Jeden krok</button>
+    <button class="go"   id="btnTrain"><span class="cs">Trénuj</span><span class="en">Train</span></button>
+    <button class="util" id="btnStep"><span class="cs">Jeden krok</span><span class="en">One step</span></button>
     <button class="stop" id="btnStop" disabled>■ STOP</button>
-    <button class="util" id="btnSample">Ukázková data</button>
-    <button class="util" id="btnClear">Vyčisti</button>
+    <button class="util" id="btnSample"><span class="cs">Ukázková data</span><span class="en">Sample data</span></button>
+    <button class="util" id="btnClear"><span class="cs">Vyčisti</span><span class="en">Clear</span></button>
   </div>
 
   <div class="stat">
-    <span>epocha: <b id="epoch">0</b></span>
-    <span>chybně: <b id="errors">–</b></span>
-    <span>přesnost: <b id="acc">–</b></span>
+    <span><span class="cs">epocha:</span><span class="en">epoch:</span> <b id="epoch">0</b></span>
+    <span><span class="cs">chybně:</span><span class="en">misclassified:</span> <b id="errors">–</b></span>
+    <span><span class="cs">přesnost:</span><span class="en">accuracy:</span> <b id="acc">–</b></span>
   </div>
-  <div class="hint">Tip: když body <b>nejdou</b> oddělit přímkou (např. do kříže), perceptron nikdy nedojde k nule chyb — to je jeho hranice. Vyřeší to až příklad 6.</div>
+  <div class="hint">
+    <span class="cs">Tip: když body <b>nejdou</b> oddělit přímkou (např. do kříže), perceptron nikdy nedojde k nule chyb — to je jeho hranice. Vyřeší to až příklad 6.</span>
+    <span class="en">Tip: when the points <b>can't</b> be separated by a line (e.g. arranged in a cross), the perceptron never reaches zero errors — that's its limit. Example 6 solves it.</span>
+  </div>
 
   <section class="theory">
-    <div class="head">Jak se to učí a kde je hranice</div>
+    <div class="head"><span class="cs">Jak se to učí a kde je hranice</span><span class="en">How it learns and where its limit is</span></div>
     <p class="lead">
-      Perceptron má tři čísla (váhy) popisující jednu přímku: <b>w₀ + w₁·x + w₂·y = 0</b>.
+      <span class="cs">Perceptron má tři čísla (váhy) popisující jednu přímku: <b>w₀ + w₁·x + w₂·y = 0</b>.
       Na začátku jsou náhodná, čára je „někde". Pak prochází body a u každého špatně zařazeného
       <b>maličko posune váhy</b> tím správným směrem. Po mnoha opakováních se čára usadí tam,
-      kde barvy odděluje.
+      kde barvy odděluje.</span>
+      <span class="en">A perceptron has three numbers (weights) describing one line: <b>w₀ + w₁·x + w₂·y = 0</b>.
+      At first they're random, so the line sits "somewhere". Then it goes through the points and, for each
+      misclassified one, <b>nudges the weights a little</b> in the right direction. After many passes the line
+      settles where it separates the colors.</span>
     </p>
     <div class="tcards">
       <div class="tcard" style="--c:#2563eb">
-        <h3><span class="dot"></span>Naprogramovat × naučit</h3>
-        <p>Nikde nepíšeme „když x &gt; 5, je to modré". Dáme jen <b>příklady</b> (body s barvou)
-           a model si pravidlo (čáru) <b>najde sám</b>.</p>
-        <p>To je celý princip strojového učení — místo pravidel dodáme data.</p>
+        <h3><span class="dot"></span><span class="cs">Naprogramovat × naučit</span><span class="en">Program vs. learn</span></h3>
+        <p><span class="cs">Nikde nepíšeme „když x &gt; 5, je to modré". Dáme jen <b>příklady</b> (body s barvou)
+           a model si pravidlo (čáru) <b>najde sám</b>.</span>
+           <span class="en">Nowhere do we write "if x &gt; 5, it's blue". We give only <b>examples</b> (colored points)
+           and the model <b>finds the rule</b> (the line) on its own.</span></p>
+        <p><span class="cs">To je celý princip strojového učení — místo pravidel dodáme data.</span>
+           <span class="en">That's the whole principle of machine learning — instead of rules we supply data.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
-        <h3><span class="dot"></span>Učení = posouvání vah</h3>
-        <p>Pro každý špatně zařazený bod se váhy posunou o malý krok (učící rychlost) tak,
-           aby ho příště zařadily lépe.</p>
+        <h3><span class="dot"></span><span class="cs">Učení = posouvání vah</span><span class="en">Learning = nudging weights</span></h3>
+        <p><span class="cs">Pro každý špatně zařazený bod se váhy posunou o malý krok (učící rychlost) tak,
+           aby ho příště zařadily lépe.</span>
+           <span class="en">For each misclassified point the weights shift by a small step (the learning rate) so
+           they classify it better next time.</span></p>
         <div class="pm">
-          <div><span class="plus">+</span> jednoduché, rychlé, vždy konverguje…</div>
-          <div><span class="minus">–</span> …ale jen když data <b>jdou</b> oddělit přímkou</div>
+          <div><span class="plus">+</span> <span class="cs">jednoduché, rychlé, vždy konverguje…</span><span class="en">simple, fast, always converges…</span></div>
+          <div><span class="minus">–</span> <span class="cs">…ale jen když data <b>jdou</b> oddělit přímkou</span><span class="en">…but only when the data <b>can</b> be separated by a line</span></div>
         </div>
       </div>
       <div class="tcard" style="--c:#ef4444">
-        <h3><span class="dot"></span>Lineární hranice</h3>
-        <p>Perceptron umí nakreslit jen <b>rovnou čáru</b> (rovinu). Na data uspořádaná do kruhu
-           nebo kříže (XOR) prostě nestačí.</p>
-        <p>Tahle slabina historicky málem AI pohřbila — vyřešily ji až vícevrstvé sítě.</p>
+        <h3><span class="dot"></span><span class="cs">Lineární hranice</span><span class="en">A linear boundary</span></h3>
+        <p><span class="cs">Perceptron umí nakreslit jen <b>rovnou čáru</b> (rovinu). Na data uspořádaná do kruhu
+           nebo kříže (XOR) prostě nestačí.</span>
+           <span class="en">A perceptron can only draw a <b>straight line</b> (a plane). For data arranged in a circle
+           or a cross (XOR) it simply isn't enough.</span></p>
+        <p><span class="cs">Tahle slabina historicky málem AI pohřbila — vyřešily ji až vícevrstvé sítě.</span>
+           <span class="en">This weakness nearly buried AI historically — it took multilayer networks to solve it.</span></p>
       </div>
       <div class="tcard" style="--c:#a855f7">
-        <h3><span class="dot"></span>Stavební kámen neuronek</h3>
-        <p>Jeden perceptron = jeden „neuron". Když jich spojíš mnoho do vrstev, vznikne
-           <b>neuronová síť</b>, která zvládne i složité, zakřivené hranice.</p>
-        <p>Přesně to ukazuje další příklad.</p>
+        <h3><span class="dot"></span><span class="cs">Stavební kámen neuronek</span><span class="en">The building block of neural nets</span></h3>
+        <p><span class="cs">Jeden perceptron = jeden „neuron". Když jich spojíš mnoho do vrstev, vznikne
+           <b>neuronová síť</b>, která zvládne i složité, zakřivené hranice.</span>
+           <span class="en">One perceptron = one "neuron". Connect many of them into layers and you get a
+           <b>neural network</b> that can handle complex, curved boundaries too.</span></p>
+        <p><span class="cs">Přesně to ukazuje další příklad.</span>
+           <span class="en">That's exactly what the next example shows.</span></p>
       </div>
     </div>
   </section>
@@ -346,6 +415,33 @@
   });
 
   draw();
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, uložení volby. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #5 — Učení z příkladů (perceptron)",
+      en: "Example #5 — Learning from examples (perceptron)"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
 </script>
 </body>
 </html>
