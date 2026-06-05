@@ -52,14 +52,15 @@
   .card.c4 .accent { background: linear-gradient(180deg,#06b6d4,#ec4899); }
   .card.c5 .accent { background: linear-gradient(180deg,#2563eb,#ef4444); }
   .card.c6 .accent { background: linear-gradient(180deg,#2563eb,#f59e0b); }
-  .card.c7 .accent { background: linear-gradient(180deg,#f59e0b,#16a34a); }
-  .card.c8 .accent { background: linear-gradient(180deg,#0ea5e9,#a855f7); }
-  .card.c9 .accent { background: linear-gradient(180deg,#111827,#2563eb); }
-  .card.c10 .accent { background: linear-gradient(180deg,#8b5cf6,#ec4899); }
-  .card.c11 .accent { background: linear-gradient(180deg,#0d9488,#a855f7); }
-  .card.c12 .accent { background: linear-gradient(180deg,#7c3aed,#06b6d4); }
-  .card.c13 .accent { background: linear-gradient(180deg,#dc2626,#f59e0b); }
-  .card.c14 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
+  .card.c7 .accent { background: linear-gradient(180deg,#0ea5e9,#22c55e); }
+  .card.c8 .accent { background: linear-gradient(180deg,#f59e0b,#16a34a); }
+  .card.c9 .accent { background: linear-gradient(180deg,#0ea5e9,#a855f7); }
+  .card.c10 .accent { background: linear-gradient(180deg,#111827,#2563eb); }
+  .card.c11 .accent { background: linear-gradient(180deg,#8b5cf6,#ec4899); }
+  .card.c12 .accent { background: linear-gradient(180deg,#0d9488,#a855f7); }
+  .card.c13 .accent { background: linear-gradient(180deg,#7c3aed,#06b6d4); }
+  .card.c14 .accent { background: linear-gradient(180deg,#dc2626,#f59e0b); }
+  .card.c15 .accent { background: linear-gradient(180deg,#14b8a6,#6366f1); }
 
   .card .num {
     font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -234,10 +235,22 @@
         </div>
       </div>
 
+      <div class="stage" style="--c:#0ea5e9">
+        <div class="node">🖼️</div>
+        <div class="body">
+          <div class="pills"><a href="07-vision.html">07</a></div>
+          <h3><span class="cs">Jak počítač vidí</span><span class="en">How a computer sees</span></h3>
+          <p><span class="cs">AI nezpracovává jen text. Obrázek je pro počítač <b>mřížka čísel</b> a <b>konvoluce</b>
+             z nich vytáhne rysy (hrany) — základ rozpoznávání obrazu. Konvoluční síť je neuronka (06) pro obrázky.</span>
+             <span class="en">AI doesn't only handle text. To a computer an image is a <b>grid of numbers</b>, and <b>convolution</b>
+             pulls features (edges) out of them — the basis of image recognition. A convolutional net is the neural net (06) for images.</span></p>
+        </div>
+      </div>
+
       <div class="stage" style="--c:#f59e0b">
         <div class="node">🧬</div>
         <div class="body">
-          <div class="pills"><a href="07-genetika.html">07</a></div>
+          <div class="pills"><a href="08-genetika.html">08</a></div>
           <h3><span class="cs">Evoluční optimalizace</span><span class="en">Evolutionary optimization</span></h3>
           <p><span class="cs">Když řešení neumíme spočítat přímo, necháme ho <b>vyvinout</b> — výběrem, křížením
              a mutací. Náhoda s jasným směrem k cíli.</span>
@@ -249,7 +262,7 @@
       <div class="stage" style="--c:#a855f7">
         <div class="node">✨</div>
         <div class="body">
-          <div class="pills"><a href="08-embeddingy.html">08</a><a href="09-attention.html">09</a></div>
+          <div class="pills"><a href="09-embeddingy.html">09</a><a href="10-attention.html">10</a></div>
           <h3><span class="cs">Cesta k dnešním LLM</span><span class="en">The road to today's LLMs</span></h3>
           <p><span class="cs">Jak modely reprezentují <b>význam</b> (embeddingy) a jak ve větě řeší <b>kontext</b>
              (attention). Stavební kameny architektury za ChatGPT.</span>
@@ -261,7 +274,7 @@
       <div class="stage" style="--c:#7c3aed">
         <div class="node">✍️</div>
         <div class="body">
-          <div class="pills"><a href="10-token.html">10</a></div>
+          <div class="pills"><a href="11-token.html">11</a></div>
           <h3><span class="cs">Jak LLM píše</span><span class="en">How an LLM writes</span></h3>
           <p><span class="cs">Spojení všeho dohromady: model píše <b>token po tokenu</b> — spočítá pravděpodobnost
              dalšího slova a jedno <b>losuje</b>. Teplota a top-k/top-p řídí odvahu; tak vzniká i <b>halucinace</b>.</span>
@@ -274,7 +287,7 @@
       <div class="stage" style="--c:#0d9488">
         <div class="node">📎</div>
         <div class="body">
-          <div class="pills"><a href="11-rag.html">11</a></div>
+          <div class="pills"><a href="12-rag.html">12</a></div>
           <h3><span class="cs">Dát modelu zdroje (RAG)</span><span class="en">Giving the model sources (RAG)</span></h3>
           <p><span class="cs">Model umí jen to, co se naučil — a halucinuje. <b>RAG</b> mu nejdřív <b>vyhledá</b> relevantní text
              (podobnost jako u embeddingů) a model odpoví <b>z něj</b>. Nejčastější reálné nasazení LLM.</span>
@@ -286,7 +299,7 @@
       <div class="stage" style="--c:#7c3aed">
         <div class="node">🤖</div>
         <div class="body">
-          <div class="pills"><a href="12-agents.html">12</a></div>
+          <div class="pills"><a href="13-agents.html">13</a></div>
           <h3><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h3>
           <p><span class="cs">Vyvrcholení: <b>model + paměť + nástroje + plánování = agent</b>. Model už nejen píše, ale ve
              smyčce <b>volá nástroje</b> (vyhledávání, kalkulačku, e-mail) a plánuje kroky. Téma roku 2026.</span>
@@ -298,7 +311,7 @@
       <div class="stage" style="--c:#dc2626">
         <div class="node">⚖️</div>
         <div class="body">
-          <div class="pills"><a href="13-bias.html">13</a></div>
+          <div class="pills"><a href="14-bias.html">14</a></div>
           <h3><span class="cs">Data a zaujatost</span><span class="en">Data and bias</span></h3>
           <p><span class="cs">Tečka za sérií: všechno, co jsme postavili, se učí <b>z dat</b>. Zaujatá data → zaujatý model
              (jako u perceptronu z příkladů 5–6) — a výsledek se tváří objektivně.</span>
@@ -310,12 +323,12 @@
       <div class="stage" style="--c:#6366f1">
         <div class="node">🚚</div>
         <div class="body">
-          <div class="pills"><a href="14-tsp.html">14</a></div>
+          <div class="pills"><a href="15-tsp.html">15</a></div>
           <h3><span class="cs">Bonus — optimalizace v praxi</span><span class="en">Bonus — optimization in practice</span></h3>
           <p><span class="cs">Problém obchodního cestujícího: obří prostor tras zkrocený <b>evolucí</b>. Spojuje
-             kombinatoriku z příkladu 1 s genetikou z příkladu 7 na reálné úloze.</span>
+             kombinatoriku z příkladu 1 s genetikou z příkladu 8 na reálné úloze.</span>
              <span class="en">The travelling salesman problem: a vast space of routes tamed by <b>evolution</b>. It joins
-             the combinatorics of example 1 with the genetics of example 7 on a real-world task.</span></p>
+             the combinatorics of example 1 with the genetics of example 8 on a real-world task.</span></p>
         </div>
       </div>
 
@@ -418,9 +431,24 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c7" href="07-genetika.html">
+    <a class="card c7" href="07-vision.html">
       <span class="accent"></span>
       <div class="num"><span class="cs">Příklad 07</span><span class="en">Example 07</span></div>
+      <div class="icon">🖼️</div>
+      <h2><span class="cs">Jak počítač vidí</span><span class="en">How a computer sees</span></h2>
+      <p>
+        <span class="cs">Pro počítač je obrázek jen mřížka čísel. Nakresli něco a sleduj, jak z pixelů malý filtr
+        (konvoluce) vytáhne hrany a další rysy — přesně tak „vidí" konvoluční neuronová síť.</span>
+        <span class="en">To a computer an image is just a grid of numbers. Draw something and watch a small filter
+        (convolution) pull edges and other features out of the pixels — exactly how a convolutional neural network "sees".</span>
+      </p>
+      <div class="tags"><span class="cs">pixely</span><span class="en">pixels</span><span class="cs">konvoluce</span><span class="en">convolution</span><span>CNN</span></div>
+      <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card c8" href="08-genetika.html">
+      <span class="accent"></span>
+      <div class="num"><span class="cs">Příklad 08</span><span class="en">Example 08</span></div>
       <div class="icon">🧬</div>
       <h2><span class="cs">Genetický algoritmus</span><span class="en">Genetic algorithm</span></h2>
       <p>
@@ -433,9 +461,9 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c8" href="08-embeddingy.html">
+    <a class="card c9" href="09-embeddingy.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 08</span><span class="en">Example 08</span></div>
+      <div class="num"><span class="cs">Příklad 09</span><span class="en">Example 09</span></div>
       <div class="icon">🗺️</div>
       <h2><span class="cs">Tokenizace a embeddingy</span><span class="en">Tokenization and embeddings</span></h2>
       <p>
@@ -448,9 +476,9 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c9" href="09-attention.html">
+    <a class="card c10" href="10-attention.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 09</span><span class="en">Example 09</span></div>
+      <div class="num"><span class="cs">Příklad 10</span><span class="en">Example 10</span></div>
       <div class="icon">👁️</div>
       <h2>Attention</h2>
       <p>
@@ -463,9 +491,9 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c10" href="10-token.html">
+    <a class="card c11" href="11-token.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 10</span><span class="en">Example 10</span></div>
+      <div class="num"><span class="cs">Příklad 11</span><span class="en">Example 11</span></div>
       <div class="icon">✍️</div>
       <h2><span class="cs">Jak LLM píše</span><span class="en">How an LLM writes</span></h2>
       <p>
@@ -478,9 +506,9 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c11" href="11-rag.html">
+    <a class="card c12" href="12-rag.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 11</span><span class="en">Example 11</span></div>
+      <div class="num"><span class="cs">Příklad 12</span><span class="en">Example 12</span></div>
       <div class="icon">📎</div>
       <h2><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h2>
       <p>
@@ -493,9 +521,9 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c12" href="12-agents.html">
+    <a class="card c13" href="13-agents.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 12</span><span class="en">Example 12</span></div>
+      <div class="num"><span class="cs">Příklad 13</span><span class="en">Example 13</span></div>
       <div class="icon">🤖</div>
       <h2><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h2>
       <p>
@@ -508,9 +536,9 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c13" href="13-bias.html">
+    <a class="card c14" href="14-bias.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 13</span><span class="en">Example 13</span></div>
+      <div class="num"><span class="cs">Příklad 14</span><span class="en">Example 14</span></div>
       <div class="icon">⚖️</div>
       <h2><span class="cs">Zaujatá data, zaujatý model</span><span class="en">Biased data, biased model</span></h2>
       <p>
@@ -523,16 +551,16 @@
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>
     </a>
 
-    <a class="card c14" href="14-tsp.html">
+    <a class="card c15" href="15-tsp.html">
       <span class="accent"></span>
-      <div class="num"><span class="cs">Příklad 14 · bonus</span><span class="en">Example 14 · bonus</span></div>
+      <div class="num"><span class="cs">Příklad 15 · bonus</span><span class="en">Example 15 · bonus</span></div>
       <div class="icon">🚚</div>
       <h2><span class="cs">Obchodní cestující (TSP)</span><span class="en">Travelling salesman (TSP)</span></h2>
       <p>
         <span class="cs">Najdi nejkratší trasu přes všechna města. Můj starší projekt řeší TSP genetickým
-        algoritmem přímo v prohlížeči — spojuje kombinatorickou explozi (01) s evolucí (07).</span>
+        algoritmem přímo v prohlížeči — spojuje kombinatorickou explozi (01) s evolucí (08).</span>
         <span class="en">Find the shortest route through all the cities. My older project solves the TSP with a genetic
-        algorithm right in the browser — joining combinatorial explosion (01) with evolution (07).</span>
+        algorithm right in the browser — joining combinatorial explosion (01) with evolution (08).</span>
       </p>
       <div class="tags"><span class="cs">optimalizace</span><span class="en">optimization</span><span class="cs">genetický algoritmus</span><span class="en">genetic algorithm</span><span>2-opt</span></div>
       <span class="go"><span class="cs">Otevřít ukázku</span><span class="en">Open demo</span> <span class="arrow">→</span></span>

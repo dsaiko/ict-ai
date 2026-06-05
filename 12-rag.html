@@ -10,7 +10,7 @@
    if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
    window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
 </script>
-<title>Příklad #11 — RAG: model se zdroji</title>
+<title>Příklad #12 — RAG: model se zdroji</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -143,7 +143,7 @@
   </div>
 
   <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">11</span><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h1>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">12</span><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h1>
   <p class="intro">
     <span class="cs">Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví.
     <b>RAG</b> (vyhledáním rozšířená generace) to řeší: model nejdřív <b>najde relevantní text</b> a teprve pak
@@ -159,11 +159,11 @@
       <span class="cs">Níže je malá <b>znalostní báze</b> — pár dokumentů, které model při tréninku neviděl. Napíšeš
       otázku a podíváš se na dvě odpovědi: <b>jen model</b> (musí si tipnout — a halucinuje) a <b>model + RAG</b>
       (nejdřív vyhledá nejpodobnější dokument, přiloží ho k otázce a odpoví z něj). Vyhledávání používá <b>podobnost</b>
-      jako v příkladu 8 (embeddingy) — otázku i dokumenty porovná a vybere nejbližší.</span>
+      jako v příkladu 9 (embeddingy) — otázku i dokumenty porovná a vybere nejbližší.</span>
       <span class="en">Below is a small <b>knowledge base</b> — a few documents the model never saw during training. You type a
       question and look at two answers: <b>the model alone</b> (it has to guess — and hallucinates) and <b>the model + RAG</b>
       (it first finds the most similar document, attaches it to the question and answers from it). Retrieval uses <b>similarity</b>
-      like example 8 (embeddings) — it compares the question with the documents and picks the closest.</span>
+      like example 9 (embeddings) — it compares the question with the documents and picks the closest.</span>
     </p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">otázka</span><span class="en">question</span></span>
@@ -226,9 +226,9 @@
       </div>
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Vyhledání = podobnost</span><span class="en">Retrieval = similarity</span></h3>
-        <p><span class="cs">Hledá se přes <b>podobnost významu</b> (embeddingy z příkladu 8). Otázka i dokumenty se převedou na
+        <p><span class="cs">Hledá se přes <b>podobnost významu</b> (embeddingy z příkladu 9). Otázka i dokumenty se převedou na
            čísla a vybere se text, který je otázce nejblíž.</span>
-           <span class="en">It searches by <b>similarity of meaning</b> (embeddings from example 8). The question and the documents are
+           <span class="en">It searches by <b>similarity of meaning</b> (embeddings from example 9). The question and the documents are
            turned into numbers and the text closest to the question is picked.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
@@ -417,8 +417,8 @@
   /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
   (function(){
     var TITLES = {
-      cs: "Příklad #11 — RAG: model se zdroji",
-      en: "Example #11 — RAG: a model with sources"
+      cs: "Příklad #12 — RAG: model se zdroji",
+      en: "Example #12 — RAG: a model with sources"
     };
     function apply(l){
       document.documentElement.classList.remove('lang-cs','lang-en');

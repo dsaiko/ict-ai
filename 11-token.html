@@ -10,7 +10,7 @@
    if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
    window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
 </script>
-<title>Příklad #10 — Jak LLM píše: predikce dalšího tokenu</title>
+<title>Příklad #11 — Jak LLM píše: predikce dalšího tokenu</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -152,7 +152,7 @@
   </div>
 
   <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">10</span><span class="cs">Jak LLM píše — predikce dalšího tokenu</span><span class="en">How an LLM writes — next-token prediction</span></h1>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">11</span><span class="cs">Jak LLM píše — predikce dalšího tokenu</span><span class="en">How an LLM writes — next-token prediction</span></h1>
   <p class="intro">
     <span class="cs">Skutečné jazykové modely (jako ChatGPT) nevyhrknou hotovou odpověď — píšou ji <b>slovo po slově</b>
     (token po tokenu). V každém kroku spočítají <b>pravděpodobnost</b> pro každé možné další slovo a jedno
@@ -175,11 +175,11 @@
       one word and appends it; <b>Generate</b> does it repeatedly, so you watch text come into being.</span>
     </p>
     <p>
-      <span class="cs">Skutečné LLM se dívají na <b>celou větu</b> (ne jen na poslední slovo — to řeší attention z příkladu 9)
-      a pracují s <b>tokeny</b> (kousky slov, příklad 8), ale princip „spočítej pravděpodobnosti a losuj" je
+      <span class="cs">Skutečné LLM se dívají na <b>celou větu</b> (ne jen na poslední slovo — to řeší attention z příkladu 10)
+      a pracují s <b>tokeny</b> (kousky slov, příklad 9), ale princip „spočítej pravděpodobnosti a losuj" je
       <b>úplně stejný</b>. Posuvníky mění, <i>jak</i> se losuje — sleduj přitom <b>jistotu</b> modelu.</span>
-      <span class="en">Real LLMs look at the <b>whole sentence</b> (not just the last word — that's what attention in example 9 does)
-      and work with <b>tokens</b> (pieces of words, example 8), but the principle "compute probabilities and sample" is
+      <span class="en">Real LLMs look at the <b>whole sentence</b> (not just the last word — that's what attention in example 10 does)
+      and work with <b>tokens</b> (pieces of words, example 9), but the principle "compute probabilities and sample" is
       <b>exactly the same</b>. The sliders change <i>how</i> it samples — watch the model's <b>confidence</b> as you do.</span>
     </p>
     <div class="flow">
@@ -305,10 +305,10 @@
       <div class="tcard" style="--c:#ec4899">
         <h3><span class="dot"></span><span class="cs">Vztah ke „skutečným" LLM</span><span class="en">Relation to "real" LLMs</span></h3>
         <p><span class="cs">Princip je totožný, jen větší: místo posledního slova se model dívá na <b>celou větu</b> (attention,
-           příklad 9), místo slov má <b>tokeny</b> (příklad 8) a pravděpodobnosti počítá <b>neuronová síť</b>
+           příklad 10), místo slov má <b>tokeny</b> (příklad 9) a pravděpodobnosti počítá <b>neuronová síť</b>
            (příklady 5–6) naučená z miliard vět.</span>
            <span class="en">The principle is identical, just bigger: instead of the last word the model looks at the <b>whole sentence</b>
-           (attention, example 9), instead of words it has <b>tokens</b> (example 8), and the probabilities are computed by a
+           (attention, example 10), instead of words it has <b>tokens</b> (example 9), and the probabilities are computed by a
            <b>neural network</b> (examples 5–6) trained on billions of sentences.</span></p>
       </div>
     </div>
@@ -551,8 +551,8 @@ On the table stands a vase with flowers.`,
   /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
   (function(){
     var TITLES = {
-      cs: "Příklad #10 — Jak LLM píše: predikce dalšího tokenu",
-      en: "Example #10 — How an LLM writes: next-token prediction"
+      cs: "Příklad #11 — Jak LLM píše: predikce dalšího tokenu",
+      en: "Example #11 — How an LLM writes: next-token prediction"
     };
     function apply(l){
       document.documentElement.classList.remove('lang-cs','lang-en');

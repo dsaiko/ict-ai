@@ -10,7 +10,7 @@
    if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
    window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
 </script>
-<title>Příklad #12 — Agenti: model, který jedná</title>
+<title>Příklad #13 — Agenti: model, který jedná</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -151,7 +151,7 @@
   </div>
 
   <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">12</span><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h1>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">13</span><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h1>
   <p class="intro">
     <span class="cs">Dosud model jen <b>psal text</b>. Agent jde dál: dostane úkol, sám se rozhodne, <b>zavolá nástroj</b>
     (vyhledávání, kalkulačku, e-mail…), podívá se na výsledek a pokračuje — dokud úkol nesplní. To je směr, kterým
@@ -172,11 +172,11 @@
     </div>
     <p>
       <span class="cs">Samotné LLM neumí přečíst e-mail, spočítat příklad ani nic odeslat — umí jen <b>generovat text</b>
-      (příklad 10). <b>Agent</b> kolem modelu přidá <b>nástroje</b> a <b>smyčku</b>: zadáš úkol, agent si rozmyslí, který
+      (příklad 11). <b>Agent</b> kolem modelu přidá <b>nástroje</b> a <b>smyčku</b>: zadáš úkol, agent si rozmyslí, který
       nástroj použít, <b>zavolá</b> ho, výsledek si <b>zapamatuje</b> a podle něj plánuje další krok — klidně i několik
       za sebou. Zkus to: napiš úkol nebo klikni na předvolbu a spusť agenta.</span>
       <span class="en">A language model on its own can't read an email, do arithmetic, or send anything — it can only <b>generate
-      text</b> (example 10). An <b>agent</b> adds <b>tools</b> and a <b>loop</b> around the model: you give it a task, it decides which
+      text</b> (example 11). An <b>agent</b> adds <b>tools</b> and a <b>loop</b> around the model: you give it a task, it decides which
       tool to use, <b>calls</b> it, <b>remembers</b> the result, and plans the next step from it — possibly several in a row. Try it:
       type a task or click a preset and run the agent.</span>
     </p>
@@ -257,15 +257,15 @@
       <div class="tcard" style="--c:#dc2626">
         <h3><span class="dot"></span><span class="cs">Rizika a dohled</span><span class="en">Risks and oversight</span></h3>
         <p><span class="cs">Agent <b>opravdu jedná</b> ve světě (odešle e-mail, zaplatí, smaže soubor). Když se splete nebo
-           halucinuje (příklad 10), může nadělat škodu — proto potřebuje <b>limity a člověka u kontroly</b>.</span>
+           halucinuje (příklad 11), může nadělat škodu — proto potřebuje <b>limity a člověka u kontroly</b>.</span>
            <span class="en">An agent <b>really acts</b> in the world (sends an email, pays, deletes a file). If it errs or hallucinates
-           (example 10), it can do damage — which is why it needs <b>limits and a human in the loop</b>.</span></p>
+           (example 11), it can do damage — which is why it needs <b>limits and a human in the loop</b>.</span></p>
       </div>
       <div class="tcard" style="--c:#0ea5e9">
         <h3><span class="dot"></span><span class="cs">Celá série v jednom</span><span class="en">The whole series in one</span></h3>
-        <p><span class="cs">Agent spojuje vše: model generuje krok (10), vyhledávání je vlastně RAG (11), plánování trasy úkolů
+        <p><span class="cs">Agent spojuje vše: model generuje krok (11), vyhledávání je vlastně RAG (12), plánování trasy úkolů
            připomíná hledání (3) i optimalizaci. Mozek + nástroje + cíl.</span>
-           <span class="en">An agent ties it all together: the model generates a step (10), search is basically RAG (11), planning a path of
+           <span class="en">An agent ties it all together: the model generates a step (11), search is basically RAG (12), planning a path of
            subtasks echoes search (3) and optimization. Brain + tools + a goal.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
@@ -514,8 +514,8 @@
   /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
   (function(){
     var TITLES = {
-      cs: "Příklad #12 — Agenti: model, který jedná",
-      en: "Example #12 — Agents: a model that acts"
+      cs: "Příklad #13 — Agenti: model, který jedná",
+      en: "Example #13 — Agents: a model that acts"
     };
     function apply(l){
       document.documentElement.classList.remove('lang-cs','lang-en');

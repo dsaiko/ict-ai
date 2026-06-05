@@ -10,7 +10,7 @@
    if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
    window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
 </script>
-<title>Příklad #14 — Problém obchodního cestujícího</title>
+<title>Příklad #15 — Problém obchodního cestujícího</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -113,15 +113,15 @@
   </div>
 
   <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">14</span><span class="cs">Problém obchodního cestujícího</span><span class="en">The travelling salesman problem</span></h1>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">15</span><span class="cs">Problém obchodního cestujícího</span><span class="en">The travelling salesman problem</span></h1>
   <p class="intro">
     <span class="cs">Najdi <b>nejkratší trasu</b>, která projede všemi městy a vrátí se zpět. Vypadá jednoduše,
     ale počet možných tras roste <b>astronomicky</b> — přesně tady se potkávají dva principy z této
-    série: <b>kombinatorická exploze</b> (příklad 1) a <b>evoluční optimalizace</b> (příklad 7).
+    série: <b>kombinatorická exploze</b> (příklad 1) a <b>evoluční optimalizace</b> (příklad 8).
     Níže je můj starší projekt, který TSP řeší <b>genetickým algoritmem</b> přímo v prohlížeči.</span>
     <span class="en">Find the <b>shortest route</b> that visits every city and returns home. It looks simple,
     but the number of possible routes grows <b>astronomically</b> — this is exactly where two principles of
-    this series meet: <b>combinatorial explosion</b> (example 1) and <b>evolutionary optimization</b> (example 7).
+    this series meet: <b>combinatorial explosion</b> (example 1) and <b>evolutionary optimization</b> (example 8).
     Below is my older project that solves the TSP with a <b>genetic algorithm</b> right in the browser.</span>
   </p>
 
@@ -206,10 +206,10 @@
       </div>
       <div class="tcard" style="--c:#16a34a">
         <h3><span class="dot"></span><span class="cs">Genetický algoritmus</span><span class="en">Genetic algorithm</span></h3>
-        <p><span class="cs">Populace tras se <b>kříží a mutuje</b> k lepšímu — přesně princip z příkladu 7, jen místo
+        <p><span class="cs">Populace tras se <b>kříží a mutuje</b> k lepšímu — přesně princip z příkladu 8, jen místo
            věty hledáme nejkratší okruh. 2-opt funguje jako lokální „doladění" potomků.</span>
            <span class="en">A population of routes <b>crosses over and mutates</b> toward better ones — exactly the principle
-           from example 7, only instead of a sentence we seek the shortest loop. 2-opt acts as a local "fine-tuning"
+           from example 8, only instead of a sentence we seek the shortest loop. 2-opt acts as a local "fine-tuning"
            of the offspring.</span></p>
       </div>
       <div class="tcard" style="--c:#6366f1">
@@ -226,8 +226,8 @@
   /* Přepínač jazyka: aktivní vlajka, titulek, uložení volby. */
   (function(){
     var TITLES = {
-      cs: "Příklad #14 — Problém obchodního cestujícího",
-      en: "Example #14 — The travelling salesman problem"
+      cs: "Příklad #15 — Problém obchodního cestujícího",
+      en: "Example #15 — The travelling salesman problem"
     };
     function apply(l){
       document.documentElement.classList.remove('lang-cs','lang-en');

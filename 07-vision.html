@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
+<title>Příklad #7 — Jak počítač vidí</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 730px;
+           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+
+  .explain { width: min(820px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
+  .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  .explain p b { color: #374151; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
+                 border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
+                 font-size: 12.5px; color: #374151; font-weight: 600; }
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #0ea5e9; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .arr { color: #9ca3af; font-size: 15px; }
+
+  .panel { width: min(820px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+
+  .stage { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start; justify-content: center; }
+  .col { text-align: center; }
+  .col .cap { font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 600; }
+  canvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; image-rendering: pixelated;
+           display: block; cursor: crosshair; touch-action: none; }
+  #out { cursor: default; }
+  .kernel { display: inline-grid; grid-template-columns: repeat(3, 34px); gap: 4px; margin: 8px auto 0; }
+  .kernel span { width: 34px; height: 30px; display: flex; align-items: center; justify-content: center;
+                 font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; border-radius: 5px;
+                 background: #f3f4f6; color: #374151; }
+  .kernel span.pos { background: #dbeafe; color: #1e40af; } .kernel span.neg { background: #fee2e2; color: #b91c1c; }
+  .conv { font-size: 26px; color: #cbd5e1; align-self: center; padding-top: 28px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+  .controls .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; }
+  .controls .seg button { border: none; background: #fff; padding: 8px 13px; font-size: 12.5px; font-weight: 600;
+                          color: #6b7280; cursor: pointer; border-right: 1px solid #e5e7eb; }
+  .controls .seg button:last-child { border-right: none; }
+  .controls .seg button.on { background: #0ea5e9; color: #fff; }
+  button.util { font-size: 12.5px; font-weight: 600; padding: 8px 13px; border: none; border-radius: 8px;
+                cursor: pointer; background: #e5e7eb; color: #374151; }
+  button.util:hover { background: #d1d5db; }
+  .hint { font-size: 12px; color: #9ca3af; margin-top: 10px; text-align: center; }
+
+  /* číselný náhled */
+  .numgrid { display: inline-grid; gap: 2px; margin: 0 auto; }
+  .numgrid span { width: 26px; height: 20px; display: flex; align-items: center; justify-content: center;
+                  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 10px; border-radius: 3px; }
+
+  .theory { width: min(820px, 96vw); margin-top: 24px; }
+  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
+  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* ── Přepínač jazyka (vlajky) ── */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
+</style>
+</head>
+<body>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">07</span><span class="cs">Jak počítač vidí</span><span class="en">How a computer sees</span></h1>
+  <p class="intro">
+    <span class="cs">Modely jsme dosud krmili <b>textem</b>. Ale AI zvládá i obrázky, zvuk či video. Jak? Pro počítač je
+    obrázek jen <b>mřížka čísel</b> — jasů jednotlivých pixelů. Tady uvidíš, jak z těch čísel <b>malý filtr</b>
+    (konvoluce) vytáhne <b>rysy</b> jako hrany — což je základ toho, jak dnešní AI „vidí".</span>
+    <span class="en">So far we fed models <b>text</b>. But AI also handles images, sound and video. How? To a computer an image is
+    just a <b>grid of numbers</b> — the brightness of each pixel. Here you'll see how a <b>small filter</b> (a convolution)
+    pulls <b>features</b> like edges out of those numbers — the basis of how today's AI "sees".</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co tenhle příklad dělá</span><span class="en">What this example does</span></h2>
+    <p>
+      <span class="cs">Nakresli něco do levé mřížky (nebo zvol předlohu). Vpravo dole se obrázek ukáže jako <b>čísla</b> —
+      přesně tak ho „vidí" počítač (0 = černá, 255 = bílá; barevný obrázek = tři taková čísla na pixel, R, G, B). Pak vyber
+      <b>filtr</b>: malé okénko <b>3×3</b> (kernel) přejede celý obrázek a pro každý pixel spočítá <b>vážený součet</b> okolí.
+      Výsledek vpravo zvýrazní určitý <b>rys</b> — třeba hrany, rozmazání nebo zaostření.</span>
+      <span class="en">Draw something into the left grid (or pick a template). At the bottom right the image is shown as <b>numbers</b> —
+      exactly how a computer "sees" it (0 = black, 255 = white; a color image = three such numbers per pixel, R, G, B). Then pick a
+      <b>filter</b>: a small <b>3×3</b> window (a kernel) sweeps the whole image and computes a <b>weighted sum</b> of the neighborhood
+      for each pixel. The result on the right highlights a certain <b>feature</b> — edges, blur or sharpening.</span>
+    </p>
+    <p>
+      <span class="cs">Navrstvením tisíců takových filtrů, jejichž hodnoty se síť <b>sama naučí</b>, vznikne <b>konvoluční neuronová
+      síť</b> — rozšíření neuronky z příkladu 6 na obrázky. A moderní <b>multimodální</b> modely převedou obrázek na stejné
+      vektory čísel jako slova (příklad 9), takže ho jazykový model dokáže „vidět" vedle textu.</span>
+      <span class="en">Stack thousands of such filters whose values the network <b>learns by itself</b> and you get a <b>convolutional
+      neural network</b> — the neural net from example 6 extended to images. And modern <b>multimodal</b> models turn an image into the
+      same vectors of numbers as words (example 9), so a language model can "see" it alongside text.</span>
+    </p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">obrázek</span><span class="en">image</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">mřížka čísel (pixely)</span><span class="en">grid of numbers (pixels)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">filtr (konvoluce)</span><span class="en">filter (convolution)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">mapa rysů</span><span class="en">feature map</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="block">
+      <div class="stage">
+        <div class="col">
+          <div class="cap"><span class="cs">vstup (nakresli sem)</span><span class="en">input (draw here)</span></div>
+          <canvas id="in" width="252" height="252"></canvas>
+        </div>
+        <div class="conv">✳</div>
+        <div class="col">
+          <div class="cap"><span class="cs">filtr 3×3 (kernel)</span><span class="en">3×3 filter (kernel)</span></div>
+          <div class="kernel" id="kernel"></div>
+        </div>
+        <div class="conv">→</div>
+        <div class="col">
+          <div class="cap"><span class="cs">výsledek (mapa rysů)</span><span class="en">result (feature map)</span></div>
+          <canvas id="out" width="252" height="252"></canvas>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="seg" id="filters"></div>
+      </div>
+      <div class="controls">
+        <button class="util" data-preset="circle"><span class="cs">○ kruh</span><span class="en">○ circle</span></button>
+        <button class="util" data-preset="cross"><span class="cs">✕ křížek</span><span class="en">✕ cross</span></button>
+        <button class="util" data-preset="letter"><span class="cs">A písmeno</span><span class="en">A letter</span></button>
+        <button class="util" data-preset="stripes"><span class="cs">▦ pruhy</span><span class="en">▦ stripes</span></button>
+        <button class="util" id="btnClear"><span class="cs">vyčistit</span><span class="en">clear</span></button>
+      </div>
+      <div class="hint"><span class="cs">Tip: zkus „hrany" na kruhu — filtr najde obrys. Kresli tažením myši.</span><span class="en">Tip: try "edges" on the circle — the filter finds the outline. Draw by dragging the mouse.</span></div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">tak vidí obrázek počítač — jen čísla (jas pixelu 0–255)</span><span class="en">this is how a computer sees the image — just numbers (pixel brightness 0–255)</span></div>
+      <div style="text-align:center"><div class="numgrid" id="nums"></div></div>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Jak AI „vidí" — a proč je obrázek jen čísla</span><span class="en">How AI "sees" — and why an image is just numbers</span></div>
+    <p class="lead">
+      <span class="cs">Pro počítač není obrázek nic vizuálního — je to <b>tabulka čísel</b>. Aby z nich něco „pochopil", hledá v nich
+      <b>rysy</b>: nejdřív jednoduché (hrany, skvrny), pak jejich kombinace (rohy, tvary), až nakonec celé objekty. A přesně
+      k tomu slouží <b>konvoluce</b> — operace, kterou si tu vyzkoušíš.</span>
+      <span class="en">To a computer an image is nothing visual — it's a <b>table of numbers</b>. To "make sense" of them it looks for
+      <b>features</b>: first simple ones (edges, blobs), then their combinations (corners, shapes), and finally whole objects. That's
+      exactly what <b>convolution</b> is for — the operation you're trying here.</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span><span class="cs">Obrázek = čísla</span><span class="en">An image = numbers</span></h3>
+        <p><span class="cs">Každý pixel je číslo (jas 0–255). Barevný obrázek má na pixel tři čísla (R, G, B). Stejně jako u textu
+           (příklad 9) i tady AI nakonec počítá jen s <b>čísly</b>.</span>
+           <span class="en">Every pixel is a number (brightness 0–255). A color image has three per pixel (R, G, B). Just like with text
+           (example 9), here too the AI ultimately computes with <b>numbers</b> only.</span></p>
+      </div>
+      <div class="tcard" style="--c:#7c3aed">
+        <h3><span class="dot"></span><span class="cs">Konvoluce = hledání rysu</span><span class="en">Convolution = finding a feature</span></h3>
+        <p><span class="cs">Malé okénko (kernel) klouže po obrázku a počítá <b>vážený součet</b> okolí. Podle vah najde hrany,
+           rozmaže, zaostří… Každý filtr hledá <b>jeden rys</b>.</span>
+           <span class="en">A small window (a kernel) slides over the image and computes a <b>weighted sum</b> of the neighborhood. Depending
+           on its weights it finds edges, blurs, sharpens… Each filter looks for <b>one feature</b>.</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">Vrstvy = konvoluční síť</span><span class="en">Layers = a convolutional net</span></h3>
+        <p><span class="cs">Filtry se navrství: první najdou hrany, další z nich skládají tvary, další objekty. Hodnoty filtrů se
+           síť <b>naučí z dat</b> — je to neuronka z příkladu 6 pro obrázky (CNN).</span>
+           <span class="en">Filters stack up: the first find edges, the next build shapes from them, the next objects. The filter values are
+           <b>learned from data</b> — it's the neural net from example 6 for images (a CNN).</span></p>
+      </div>
+      <div class="tcard" style="--c:#a855f7">
+        <h3><span class="dot"></span><span class="cs">Multimodální modely</span><span class="en">Multimodal models</span></h3>
+        <p><span class="cs">Dnešní modely převedou obrázek na <b>vektory</b> stejně jako slova (příklad 9) a vloží je do téhož prostoru.
+           Proto umí LLM „popsat fotku" nebo odpovídat na obrázek.</span>
+           <span class="en">Today's models turn an image into <b>vectors</b> just like words (example 9) and place them in the same space. That's
+           why an LLM can "describe a photo" or answer about an image.</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">K čemu to je</span><span class="en">What it's good for</span></h3>
+        <p><span class="cs">Rozpoznávání objektů a obličejů, lékařské snímky, samořídící auta, čtení textu z fotky i <b>generování</b>
+           obrázků — všechno stojí na téhle myšlence „obrázek → čísla → rysy".</span>
+           <span class="en">Object and face recognition, medical scans, self-driving cars, reading text from a photo, even <b>generating</b>
+           images — all rest on this "image → numbers → features" idea.</span></p>
+      </div>
+      <div class="tcard" style="--c:#0d9488">
+        <h3><span class="dot"></span><span class="cs">Stejný princip jako jinde</span><span class="en">The same principle as elsewhere</span></h3>
+        <p><span class="cs">Vážený součet vstupů (jako u neuronu, příklad 5–6), naučené váhy, vrstvení. „Vidění" není kouzlo — je to
+           táž matematika, jen nad mřížkou pixelů.</span>
+           <span class="en">A weighted sum of inputs (like a neuron, examples 5–6), learned weights, layering. "Seeing" is no magic — it's the
+           same math, just over a grid of pixels.</span></p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+  const G = 28, CELL = 9;
+  const inCv = $('in'), inCtx = inCv.getContext('2d');
+  const outCv = $('out'), outCtx = outCv.getContext('2d');
+  let img = new Float32Array(G*G);          // ink 0..1 (0 = bílá, 1 = černá)
+
+  const FILTERS = {
+    identity: { k:[0,0,0, 0,1,0, 0,0,0], post:'plain' },
+    blur:     { k:[1,1,1, 1,1,1, 1,1,1].map(v=>v/9), post:'plain' },
+    sharpen:  { k:[0,-1,0, -1,5,-1, 0,-1,0], post:'plain' },
+    edge:     { k:[-1,-1,-1, -1,8,-1, -1,-1,-1], post:'abs' },
+    vedge:    { k:[-1,0,1, -2,0,2, -1,0,1], post:'abs' },
+    hedge:    { k:[-1,-2,-1, 0,0,0, 1,2,1], post:'abs' },
+    emboss:   { k:[-2,-1,0, -1,1,1, 0,1,2], post:'half' },
+  };
+  const FNAMES = {
+    cs: { identity:'beze změny', blur:'rozmazat', sharpen:'zaostřit', edge:'hrany', vedge:'svislé hrany', hedge:'vodorovné hrany', emboss:'reliéf' },
+    en: { identity:'no change', blur:'blur', sharpen:'sharpen', edge:'edges', vedge:'vertical edges', hedge:'horizontal edges', emboss:'emboss' },
+  };
+  let curFilter = 'edge';
+
+  // ── kreslení ─────────────────────────────────────────────────
+  function paintAt(cx, cy, erase){
+    const r = inCv.getBoundingClientRect();
+    const x = Math.floor((cx - r.left) / (r.width / G));
+    const y = Math.floor((cy - r.top) / (r.height / G));
+    for (let dy=-1; dy<=1; dy++) for (let dx=-1; dx<=1; dx++){
+      const nx=x+dx, ny=y+dy; if (nx<0||ny<0||nx>=G||ny>=G) continue;
+      const w = (dx===0&&dy===0) ? 1 : 0.45;
+      const i = ny*G+nx;
+      img[i] = erase ? 0 : Math.min(1, img[i] + w);
+    }
+    renderAll();
+  }
+  let drawing = false, eraseMode = false;
+  inCv.addEventListener('mousedown', e => { drawing=true; eraseMode=(e.button===2); paintAt(e.clientX,e.clientY,eraseMode); e.preventDefault(); });
+  inCv.addEventListener('mousemove', e => { if (drawing) paintAt(e.clientX,e.clientY,eraseMode); });
+  window.addEventListener('mouseup', () => drawing=false);
+  inCv.addEventListener('contextmenu', e => e.preventDefault());
+
+  // ── předlohy ─────────────────────────────────────────────────
+  function clearImg(){ img.fill(0); }
+  function set(x,y,v){ if(x>=0&&y>=0&&x<G&&y<G) img[y*G+x]=Math.max(img[y*G+x],v); }
+  const PRESETS = {
+    circle(){ clearImg(); const c=(G-1)/2, rad=9; for(let a=0;a<360;a+=3){const t=a*Math.PI/180;
+      for(let w=-1;w<=1;w++){ set(Math.round(c+(rad+w)*Math.cos(t)), Math.round(c+(rad+w)*Math.sin(t)),1);} } },
+    cross(){ clearImg(); for(let i=4;i<G-4;i++){ for(let w=-1;w<=1;w++){ set(i,i+w,1); set(i,G-1-i+w,1);} } },
+    stripes(){ clearImg(); for(let x=0;x<G;x++) if(Math.floor(x/3)%2===0) for(let y=3;y<G-3;y++) set(x,y,1); },
+    letter(){ clearImg(); const pts=[];
+      for(let y=5;y<23;y++){ pts.push([10+Math.round((y-5)*0.0),y]); } // placeholder
+      // levá a pravá noha + příčka písmene A
+      for(let y=5;y<23;y++){ const t=(y-5)/18; set(Math.round(14-6*t)-0, y,1); set(Math.round(14+6*t),y,1);
+        set(Math.round(14-6*t)+1,y,1); set(Math.round(14+6*t)-1,y,1); }
+      for(let x=10;x<=18;x++){ set(x,15,1); set(x,16,1);} },
+  };
+
+  // ── konvoluce ────────────────────────────────────────────────
+  function convolve(){
+    const out = new Float32Array(G*G);
+    const k = FILTERS[curFilter].k, post = FILTERS[curFilter].post;
+    for (let y=0;y<G;y++) for (let x=0;x<G;x++){
+      let s=0, idx=0;
+      for (let dy=-1;dy<=1;dy++) for (let dx=-1;dx<=1;dx++){
+        const nx=Math.min(G-1,Math.max(0,x+dx)), ny=Math.min(G-1,Math.max(0,y+dy));
+        s += img[ny*G+nx]*k[idx++];
+      }
+      if (post==='abs') s=Math.abs(s);
+      else if (post==='half') s+=0.5;
+      out[y*G+x]=Math.max(0,Math.min(1,s));
+    }
+    return out;
+  }
+
+  // ── vykreslení ───────────────────────────────────────────────
+  function drawGrid(ctx, data){
+    for (let y=0;y<G;y++) for (let x=0;x<G;x++){
+      const b = Math.round(255*(1-data[y*G+x]));   // jas: 255 bílá, 0 černá
+      ctx.fillStyle = `rgb(${b},${b},${b})`;
+      ctx.fillRect(x*CELL, y*CELL, CELL, CELL);
+    }
+  }
+  function renderKernel(){
+    const k = FILTERS[curFilter].k;
+    $('kernel').innerHTML = k.map(v=>{
+      const cls = v>0?'pos':(v<0?'neg':'');
+      const txt = Number.isInteger(v) ? v : v.toFixed(2);
+      return `<span class="${cls}">${txt}</span>`;
+    }).join('');
+  }
+  function renderNums(){
+    // podvzorkuj na 12×12 a ukaž jasy 0–255
+    const P = 12, step = G/P, el = $('nums');
+    el.style.gridTemplateColumns = `repeat(${P}, 26px)`;
+    let html='';
+    for (let py=0;py<P;py++) for (let px=0;px<P;px++){
+      let s=0,c=0;
+      for (let y=Math.floor(py*step);y<Math.floor((py+1)*step);y++)
+        for (let x=Math.floor(px*step);x<Math.floor((px+1)*step);x++){ s+=img[y*G+x]; c++; }
+      const ink=c?s/c:0, b=Math.round(255*(1-ink));
+      html += `<span style="background:rgb(${b},${b},${b});color:${b>128?'#64748b':'#e5e7eb'}">${b}</span>`;
+    }
+    el.innerHTML=html;
+  }
+  function renderAll(){ drawGrid(inCtx,img); drawGrid(outCtx,convolve()); renderNums(); }
+
+  // ── ovládání ─────────────────────────────────────────────────
+  function renderFilterButtons(){
+    $('filters').innerHTML = Object.keys(FILTERS).map(key=>
+      `<button data-f="${key}" class="${key===curFilter?'on':''}">${FNAMES[curLang][key]}</button>`).join('');
+    $('filters').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+      curFilter=b.dataset.f;
+      $('filters').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.f===curFilter));
+      renderKernel(); drawGrid(outCtx,convolve());
+    }));
+  }
+  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{ PRESETS[b.dataset.preset](); renderAll(); }));
+  $('btnClear').addEventListener('click',()=>{ clearImg(); renderAll(); });
+
+  // ── start ────────────────────────────────────────────────────
+  renderFilterButtons();
+  renderKernel();
+  PRESETS.circle();
+  renderAll();
+
+  window.onLangChange = function(l){ curLang=l; renderFilterButtons(); };
+</script>
+
+<script>
+  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
+  (function(){
+    var TITLES = {
+      cs: "Příklad #7 — Jak počítač vidí",
+      en: "Example #7 — How a computer sees"
+    };
+    function apply(l){
+      document.documentElement.classList.remove('lang-cs','lang-en');
+      document.documentElement.classList.add('lang-'+l);
+      document.documentElement.lang = l;
+      if (TITLES[l]) document.title = TITLES[l];
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.classList.toggle('on', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('lang', l); } catch(e){}
+      window.__lang = l;
+      if (typeof window.onLangChange === 'function') window.onLangChange(l);
+    }
+    window.setLang = apply;
+    document.querySelectorAll('.langpill button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.dataset.lang); });
+    });
+    apply(window.__lang || 'cs');
+  })();
+</script>
+</body>
+</html>
