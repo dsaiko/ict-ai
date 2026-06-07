@@ -199,6 +199,13 @@ import Layout from '../layouts/Layout.astro';
 <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">01</span><span class="cs">Binární počítadlo 8×8</span><span class="en">Binary counter 8×8</span></h1>
   <p class="subtitle"><span class="cs">Klikni do mřížky a nastav bity. 64 polí = 64bitové číslo.</span><span class="en">Click the grid to set bits. 64 cells = a 64-bit number.</span></p>
 
+  <div class="whathow">
+    <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Mřížka 64 čtverečků je jedno obrovské číslo zapsané ve dvojkové soustavě. Každý čtvereček je jeden <b>bit</b> — buď 0 (zhasnuto), nebo 1 (svítí). Přesně takhle si počítač ukládá úplně všechno: čísla, text i obrázky.</span><span class="en">A grid of 64 squares is one huge number written in binary. Each square is a single <b>bit</b> — either 0 (off) or 1 (on). This is exactly how a computer stores everything: numbers, text and images.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Klikáním přepínáš jednotlivé bity, tlačítkem <b>RUN</b> spustíš počítání. Políčka začnou naskakovat jako kilometry na tachometru a graf ukáže, jak dlouho by trvalo projít <b>všechny</b> možné kombinace.</span><span class="en">Click to flip individual bits, press <b>RUN</b> to start counting. The cells tick over like a car odometer and the graph shows how long it would take to go through <b>all</b> possible combinations.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Kombinací je 2⁶⁴ — přes 18 trilionů. I kdyby počítač zkoušel milion za vteřinu, trvalo by to déle, než existuje vesmír. Proto AI nemůže jen „zkoušet všechno" hrubou silou — musí být <b>chytrá</b>. Tím celá série začíná.</span><span class="en">There are 2⁶⁴ combinations — over 18 quintillion. Even at a million per second it would take longer than the universe has existed. That is why AI cannot just “try everything” by brute force — it has to be <b>smart</b>. This is where the series begins.</span></p>
+  </div>
+
   <div class="grid" id="grid"></div>
 
   <div class="controls">

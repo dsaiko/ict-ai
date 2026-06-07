@@ -119,6 +119,13 @@ import Layout from '../layouts/Layout.astro';
     explore. <b>Click and drag</b> the mouse to draw walls.</span>
   </p>
 
+  <div class="whathow">
+    <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Bludiště na mřížce a čtyři způsoby, jak v něm najít cestu: náhodné tápání, hladový postup, <b>BFS</b> a <b>A*</b>. Stejný cíl, ale každý prohledá jiný počet políček.</span><span class="en">A grid maze and four ways to find a path through it: random wandering, a greedy approach, <b>BFS</b> and <b>A*</b>. Same goal, but each explores a different number of cells.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Myší nakresli zdi a spusť postupně všechny čtyři postupy. Sleduj, kolik políček každý obarví (= musí prozkoumat), a srovnej čísla v tabulce dole.</span><span class="en">Draw walls with the mouse and run all four methods in turn. Watch how many cells each one colors in (= has to explore), and compare the numbers in the table below.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">V příkladu 1 jsme viděli, že „zkusit všechno" nejde. Tady je řešení: chytré hledání s <b>heuristikou</b> (odhadem směru k cíli) prozkoumá řádově méně možností. Tak se hrubá síla nahrazuje rozumem.</span><span class="en">Example 1 showed that “trying everything” is impossible. Here is the fix: smart search with a <b>heuristic</b> (a guess of the direction toward the goal) explores orders of magnitude fewer options. This is how brute force gives way to reasoning.</span></p>
+  </div>
+
   <div class="grid" id="grid"></div>
 
   <div class="controls">

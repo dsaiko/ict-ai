@@ -65,6 +65,18 @@ const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
   .back:active { transform: scale(.97); }
   .back .arrow { transition: transform .12s; }
   .back:hover .arrow { transform: translateX(-3px); }
+
+  /* Orientační blok „Co a jak?" — stejný vzhled na všech demech.
+     Vizuálně shodný s per-page .explain boxem, aby série držela pohromadě. */
+  .whathow { width: min(700px, 96vw); margin: 0 auto 18px; text-align: left;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .whathow h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
+  .whathow .wh-row { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 9px; }
+  .whathow .wh-row:last-child { margin-bottom: 0; }
+  .whathow .wh-k { font-weight: 700; color: #111827; }
+  .whathow .wh-k::after { content: ": "; }
+  .whathow b { color: #374151; }
 </style>
 <slot name="head" />
 </head>

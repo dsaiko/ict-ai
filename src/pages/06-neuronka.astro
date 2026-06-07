@@ -116,6 +116,13 @@ import Layout from '../layouts/Layout.astro';
     <b>take shape</b> during training.</span>
   </p>
 
+  <div class="whathow">
+    <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Síť propojených neuronů — stejná myšlenka jako perceptron (05), ale neuronů je víc a jsou ve <b>vrstvách</b>. Díky tomu umí nakreslit i zakřivenou hranici, ne jen přímku.</span><span class="en">A network of connected neurons — the same idea as the perceptron (05), but with more neurons arranged in <b>layers</b>. That lets it draw a curved boundary, not just a straight line.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Naklikej body dvou barev (nebo zvol tvar — kruh, kříž, spirálu) a spusť trénink. Sleduj, jak se barevná <b>rozhodovací plocha</b> během učení tvaruje kolem tvých bodů.</span><span class="en">Click points of two colors (or pick a shape — circle, cross, spiral) and start training. Watch the colored <b>decision surface</b> shape itself around your points as it learns.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tady se rodí síla neuronových sítí: skládáním jednoduchých neuronů zvládnou složité, <b>nelineární</b> vzory. Je to základní stavební kámen pod vším ostatním v této sérii — i pod ChatGPT.</span><span class="en">This is where the power of neural networks is born: stacking simple neurons handles complex, <b>non-linear</b> patterns. It is the basic building block under everything else in this series — and under ChatGPT.</span></p>
+  </div>
+
   <div class="diagram">
     <div class="label"><span class="cs">architektura sítě — 2 → 12 → 12 → 1 · barva a tloušťka spoje = váha (modrá +, červená −)</span><span class="en">network architecture — 2 → 12 → 12 → 1 · connection color and thickness = weight (blue +, red −)</span></div>
     <svg id="net" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg"></svg>
