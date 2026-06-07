@@ -1,0 +1,128 @@
+---
+// Sdílený "chrome" všech stránek — dřív doslova zkopírovaný v každém z 16 HTML.
+// Tady žije jen jednou: hlavičkový jazykový skript, přepínač vlajek, tlačítko
+// zpět, spodní lang-switch skript a base CSS chrome.
+//
+// titleCs/titleEn  — titulek stránky v obou jazycích (řídí <title> i přepínač)
+// back             — zobrazit tlačítko "← ZPĚT" (rozcestník ho nemá, dema ano)
+interface Props {
+  titleCs: string;
+  titleEn: string;
+  back?: boolean;
+}
+const { titleCs, titleEn, back = false } = Astro.props;
+
+// Měření návštěvnosti přes GoatCounter (cookieless, bez lišty na souhlas,
+// zdarma pro nekomerční použití). Po registraci na https://www.goatcounter.com
+// sem vlož svůj endpoint, např. 'https://saiko-ai.goatcounter.com/count'.
+// Prázdné = vypnuto. Pozn.: count.js sám přeskakuje localhost i file://,
+// takže `make preview` ani lokální otevření statistiky nešpiní.
+const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
+---
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script is:inline>
+  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
+     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
+  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
+   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
+   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
+</script>
+<title>{titleCs}</title>
+<style is:global>
+  /* ── Sdílený chrome (dřív duplikovaný v každém souboru) ── */
+  * { box-sizing: border-box; }
+
+  /* Přepínač jazyka (vlajky) */
+  .lang-cs .en, .lang-en .cs { display: none; }
+  .langpill {
+    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
+  }
+  .langpill button {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    opacity: .45; transition: opacity .12s, background .12s;
+  }
+  .langpill button:hover { opacity: .8; background: #f3f4f6; }
+  .langpill button.on { opacity: 1; background: #eef2ff; }
+  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
+
+  /* Tlačítko zpět */
+  .back {
+    position: fixed; top: 18px; left: 18px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #374151; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+    transition: background .12s, transform .05s, box-shadow .12s;
+  }
+  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
+  .back:active { transform: scale(.97); }
+  .back .arrow { transition: transform .12s; }
+  .back:hover .arrow { transform: translateX(-3px); }
+</style>
+<slot name="head" />
+</head>
+<body>
+  <div class="langpill" role="group" aria-label="Language / Jazyk">
+    <button data-lang="cs" title="Čeština" aria-label="Čeština">
+      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
+        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
+        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
+      </svg>
+    </button>
+    <button data-lang="en" title="English" aria-label="English">
+      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
+        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <g clip-path="url(#gbA)">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  {back && (
+    <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
+  )}
+
+  <slot />
+
+  <script is:inline define:vars={{ titleCs, titleEn }}>
+    /* Přepínač jazyka: aktivní vlajka, titulek, uložení volby. */
+    (function(){
+      var TITLES = { cs: titleCs, en: titleEn };
+      function apply(l){
+        document.documentElement.classList.remove('lang-cs','lang-en');
+        document.documentElement.classList.add('lang-'+l);
+        document.documentElement.lang = l;
+        if (TITLES[l]) document.title = TITLES[l];
+        document.querySelectorAll('.langpill button').forEach(function(b){
+          b.classList.toggle('on', b.dataset.lang === l);
+        });
+        try { localStorage.setItem('lang', l); } catch(e){}
+        window.__lang = l;
+        if (typeof window.onLangChange === 'function') window.onLangChange(l);
+      }
+      window.setLang = apply;
+      document.querySelectorAll('.langpill button').forEach(function(b){
+        b.addEventListener('click', function(){ apply(b.dataset.lang); });
+      });
+      apply(window.__lang || 'cs');
+    })();
+  </script>
+
+  {GOATCOUNTER && (
+    <script is:inline async src="//gc.zgo.at/count.js" data-goatcounter={GOATCOUNTER}></script>
+  )}
+</body>
+</html>

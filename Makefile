@@ -1,4 +1,4 @@
-.PHONY: help build preview clean deploy-s3 deploy-s3-dryrun deploy-invalidate deploy
+.PHONY: help setup build preview clean deploy-s3 deploy-s3-dryrun deploy-invalidate deploy
 
 # Lokální overrides (AWS_PROFILE, S3_BUCKET, S3_PATH, CLOUDFRONT_DIST).
 # Soubor Makefile.local není součástí gitu — viz .gitignore.
@@ -13,11 +13,13 @@ CLOUDFRONT_DIST  ?=
 
 PREVIEW_PORT     ?= 8080
 
-# Statický web bez build nástroje — "build" jen poskládá dist/ z HTML stránek
-# (bez Makefile, README a obrázků pro GitHub, které na webu nejsou potřeba).
+# Statický web generovaný Astrem: src/pages/*.astro → dist/*.html.
+# Každá stránka je soběstačná (inline CSS i JS, žádné externí assety),
+# takže výstup funguje pod /ai/ i přes file:// stejně jako dřív.
 help:
 	@echo "Základy AI — interaktivní ukázky — dostupné cíle:"
-	@echo "  make build              — poskládá dist/ z *.html"
+	@echo "  make setup              — npm install (závislosti Astro, jednorázově)"
+	@echo "  make build              — astro build (src/pages/*.astro → dist/)"
 	@echo "  make preview            — náhled dist/ na http://localhost:$(PREVIEW_PORT)"
 	@echo "  make clean              — smaže dist/"
 	@echo ""
@@ -29,10 +31,14 @@ help:
 	@echo "Konfigurace deploye je v Makefile.local (mimo git)."
 	@echo "Live: https://www.saiko.cz/$(S3_PATH)"
 
-build:
-	rm -rf dist
-	mkdir -p dist
-	cp *.html dist/
+# node_modules se přeinstaluje, jen když je package.json novější (nebo chybí).
+node_modules: package.json
+	npm install
+
+setup: node_modules
+
+build: node_modules
+	npm run build
 	@echo "→ dist/ obsahuje:" && ls -1 dist/
 
 preview: build

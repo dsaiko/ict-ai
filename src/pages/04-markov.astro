@@ -1,18 +1,9 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>
-  /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
-     Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
-  (function(){var l='cs';try{var q=(location.search.match(/[?&]lang=(cs|en)/)||[])[1];
-   if(q)l=q;else if(localStorage.getItem('lang')==='en')l='en';}catch(e){}
-   window.__lang=l;document.documentElement.classList.add('lang-'+l);})();
-</script>
-<title>Příklad #4 — Učení z textu (Markovův řetězec)</title>
-<style>
-  * { box-sizing: border-box; }
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout titleCs="Příklad #4 — Učení z textu (Markovův řetězec)" titleEn="Example #4 — Learning from text (a Markov chain)" back={true}>
+<style is:global>
+* { box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #f4f5f7; color: #1c1c1e; margin: 0;
@@ -111,32 +102,8 @@
   .langpill button.on { opacity: 1; background: #eef2ff; }
   .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
-</head>
-<body>
-  <div class="langpill" role="group" aria-label="Language / Jazyk">
-    <button data-lang="cs" title="Čeština" aria-label="Čeština">
-      <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
-        <rect width="6" height="2" fill="#fff"/><rect width="6" height="2" y="2" fill="#d7141a"/>
-        <path d="M0,0 L3,2 L0,4 Z" fill="#11457e"/>
-      </svg>
-    </button>
-    <button data-lang="en" title="English" aria-label="English">
-      <svg width="24" height="16" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
-        <clipPath id="gbA"><rect width="60" height="30"/></clipPath>
-        <clipPath id="gbB"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
-        <g clip-path="url(#gbA)">
-          <rect width="60" height="30" fill="#012169"/>
-          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
-          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#gbB)" stroke="#C8102E" stroke-width="4"/>
-          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
-          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
-        </g>
-      </svg>
-    </button>
-  </div>
 
-  <a class="back" href="index.html"><span class="arrow">←</span> <span class="cs">ZPĚT</span><span class="en">BACK</span></a>
-  <h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">04</span><span class="cs">Učení z textu — Markovův řetězec</span><span class="en">Learning from text — a Markov chain</span></h1>
+<h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">04</span><span class="cs">Učení z textu — Markovův řetězec</span><span class="en">Learning from text — a Markov chain</span></h1>
   <p class="intro">
     <span class="cs">V příkladu 2 jsme pravidla psali <b>ručně</b>. Tady se model <b>učí sám z textu</b>:
     spočítá, co po čem nejčastěji následuje, a podle těch pravděpodobností generuje nový text.
@@ -259,7 +226,7 @@
     </p>
   </section>
 
-<script>
+<script is:inline>
   // ── Výchozí trénovací text (dvojjazyčně) ─────────────────────
   const DEFAULT_TEXT = {
     cs:
@@ -447,32 +414,4 @@ The land slept, and only the quiet river flowed tirelessly on toward the grey da
     updateNote();
   };
 </script>
-
-<script>
-  /* Přepínač jazyka: aktivní vlajka, titulek, případné překreslení dynamického obsahu. */
-  (function(){
-    var TITLES = {
-      cs: "Příklad #4 — Učení z textu (Markovův řetězec)",
-      en: "Example #4 — Learning from text (a Markov chain)"
-    };
-    function apply(l){
-      document.documentElement.classList.remove('lang-cs','lang-en');
-      document.documentElement.classList.add('lang-'+l);
-      document.documentElement.lang = l;
-      if (TITLES[l]) document.title = TITLES[l];
-      document.querySelectorAll('.langpill button').forEach(function(b){
-        b.classList.toggle('on', b.dataset.lang === l);
-      });
-      try { localStorage.setItem('lang', l); } catch(e){}
-      window.__lang = l;
-      if (typeof window.onLangChange === 'function') window.onLangChange(l);
-    }
-    window.setLang = apply;
-    document.querySelectorAll('.langpill button').forEach(function(b){
-      b.addEventListener('click', function(){ apply(b.dataset.lang); });
-    });
-    apply(window.__lang || 'cs');
-  })();
-</script>
-</body>
-</html>
+</Layout>

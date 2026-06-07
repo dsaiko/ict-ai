@@ -5,7 +5,7 @@
 
 A set of interactive demonstrations in plain HTML/JavaScript that **reveal the principles behind AI step by step** — from bare combinatorics and the limits of brute force to how today's language models represent meaning and context.
 
-No libraries, no installation. Just open **[`index.html`](index.html)** in a browser and click through the demos.
+The demos are plain HTML/CSS/JS, assembled into self-contained static pages with **[Astro](https://astro.build)**. Visit the **[live site](https://www.saiko.cz/ai/)**, or build from source (see below).
 
 > 🌐 **Bilingual:** the site is in **Czech by default**; switch to **English** with the flags in the top-right corner of any page (your choice is remembered, and `?lang=en` deep-links it).
 
@@ -18,12 +18,12 @@ No libraries, no installation. Just open **[`index.html`](index.html)** in a bro
 ## How to run it
 
 - **Online:** open **[www.saiko.cz/ai](https://www.saiko.cz/ai/)**.
-- **Locally:**
-  1. Download / clone this folder.
-  2. Open **`index.html`** in any modern browser (Chrome, Safari, Firefox, Edge).
+- **From source:**
+  1. Clone this repo.
+  2. `make setup` (installs Astro), then `make preview` — serves a local copy at http://localhost:8080.
   3. Click the examples in the overview. Each has a **← BACK** button in the top-left and a 🇨🇿/🇬🇧 language toggle in the top-right.
 
-> Everything runs locally in the browser; nothing is sent anywhere.
+> Everything runs locally in the browser. For visitor stats the site uses **[GoatCounter](https://www.goatcounter.com)** — anonymous, cookieless page views only: no cookies, no personal data, no cross-site tracking (so no consent banner is needed).
 
 ---
 
@@ -51,7 +51,7 @@ The examples build on each other — each one solves the limitation of the previ
 ## The examples
 
 ### 01 · Binary counter 8×8
-[→ open `01-binary-counter.html`](01-binary-counter.html)
+[→ open `01-binary-counter.html`](https://www.saiko.cz/ai/01-binary-counter.html)
 
 ![Binary counter](images/01.png)
 
@@ -60,7 +60,7 @@ A grid of 64 cells as a single 64-bit number. Click to set bits and press RUN to
 ---
 
 ### 02 · From randomness to language
-[→ open `02-jazyk.html`](02-jazyk.html)
+[→ open `02-jazyk.html`](https://www.saiko.cz/ai/02-jazyk.html)
 
 ![From randomness to language](images/02.png)
 
@@ -69,7 +69,7 @@ Four steps **A–D** as a mini-history of language models: from combinatorially 
 ---
 
 ### 03 · Pathfinding instead of brute force
-[→ open `03-hledani.html`](03-hledani.html)
+[→ open `03-hledani.html`](https://www.saiko.cz/ai/03-hledani.html)
 
 ![Pathfinding](images/03.png)
 
@@ -78,7 +78,7 @@ A grid maze (draw walls with the mouse) and a contest of methods: **random walk,
 ---
 
 ### 04 · Learning from text — a Markov chain
-[→ open `04-markov.html`](04-markov.html)
+[→ open `04-markov.html`](https://www.saiko.cz/ai/04-markov.html)
 
 ![Markov chain](images/04.png)
 
@@ -87,7 +87,7 @@ The first demo of **real learning from data**: the model computes from your text
 ---
 
 ### 05 · Learning from examples — a perceptron
-[→ open `05-perceptron.html`](05-perceptron.html)
+[→ open `05-perceptron.html`](https://www.saiko.cz/ai/05-perceptron.html)
 
 ![Perceptron](images/05.png)
 
@@ -96,7 +96,7 @@ You click two colors of points and the perceptron finds a **separating line** on
 ---
 
 ### 06 · A neural network draws the boundary
-[→ open `06-neuronka.html`](06-neuronka.html)
+[→ open `06-neuronka.html`](https://www.saiko.cz/ai/06-neuronka.html)
 
 ![Neural network](images/06.png)
 
@@ -105,7 +105,7 @@ A sequel to #5: a network of neurons (2 → 12 → 12 → 1) handles a **curved*
 ---
 
 ### 07 · How a computer sees
-[→ open `07-vision.html`](07-vision.html)
+[→ open `07-vision.html`](https://www.saiko.cz/ai/07-vision.html)
 
 ![How a computer sees](images/07.png)
 
@@ -114,7 +114,7 @@ AI isn't only about text — it also handles images, sound and video. How? To a 
 ---
 
 ### 08 · Genetic algorithm
-[→ open `08-genetika.html`](08-genetika.html)
+[→ open `08-genetika.html`](https://www.saiko.cz/ai/08-genetika.html)
 
 ![Genetic algorithm](images/08.png)
 
@@ -123,7 +123,7 @@ A population of random sentences **evolves toward a target** generation by gener
 ---
 
 ### 09 · Tokenization and embeddings
-[→ open `09-embeddingy.html`](09-embeddingy.html)
+[→ open `09-embeddingy.html`](https://www.saiko.cz/ai/09-embeddingy.html)
 
 ![Tokenization and embeddings](images/09.png)
 
@@ -132,7 +132,7 @@ How an LLM "sees" text: chopping it into **tokens** (with IDs from a vocabulary)
 ---
 
 ### 10 · Attention — what the model looks at
-[→ open `10-attention.html`](10-attention.html)
+[→ open `10-attention.html`](https://www.saiko.cz/ai/10-attention.html)
 
 ![Attention](images/10.png)
 
@@ -141,7 +141,7 @@ Click a word in a sentence and see how much **attention** it pays to the others 
 ---
 
 ### 11 · How an LLM writes — next-token prediction
-[→ open `11-token.html`](11-token.html)
+[→ open `11-token.html`](https://www.saiko.cz/ai/11-token.html)
 
 ![How an LLM writes](images/11.png)
 
@@ -150,7 +150,7 @@ Real language models don't blurt out a finished answer — they write it **token
 ---
 
 ### 12 · RAG — a model with sources
-[→ open `12-rag.html`](12-rag.html)
+[→ open `12-rag.html`](https://www.saiko.cz/ai/12-rag.html)
 
 ![RAG — a model with sources](images/12.png)
 
@@ -159,7 +159,7 @@ A language model only knows what it learned during training — and sounds confi
 ---
 
 ### 13 · Agents — a model that acts
-[→ open `13-agents.html`](13-agents.html)
+[→ open `13-agents.html`](https://www.saiko.cz/ai/13-agents.html)
 
 ![Agents — a model that acts](images/13.png)
 
@@ -168,7 +168,7 @@ So far the model only **wrote text**. An **agent** is the equation **model + mem
 ---
 
 ### 14 · Biased data, biased model
-[→ open `14-bias.html`](14-bias.html)
+[→ open `14-bias.html`](https://www.saiko.cz/ai/14-bias.html)
 
 ![Biased data, biased model](images/14.png)
 
@@ -177,7 +177,7 @@ The classifiers in 05–06 learn from data — so **what happens when the data i
 ---
 
 ### 15 · The travelling salesman problem (TSP) — bonus
-[→ open `15-tsp.html`](15-tsp.html) · [app ↗](https://saiko.cz/tsp/) · [source code ↗](https://github.com/dsaiko/tsp)
+[→ open `15-tsp.html`](https://www.saiko.cz/ai/15-tsp.html) · [app ↗](https://saiko.cz/tsp/) · [source code ↗](https://github.com/dsaiko/tsp)
 
 ![Travelling salesman problem](images/15.png)
 
@@ -187,7 +187,7 @@ A bonus card with an embedded older project: a **TSP visualizer that solves the 
 
 ## Implementation notes
 
-- **No dependencies** — each example is a single standalone `.html` file with embedded CSS and JavaScript.
+- **Self-contained output** — built with [Astro](https://astro.build) from `.astro` sources in `src/pages/`; each generated page is a single `.html` with **inline CSS and JS and no external assets**, so it works under any sub-path and even via `file://`. Shared chrome (language toggle, back button, base styles) lives once in `src/layouts/Layout.astro`, and the overview is generated from a single data list — adding an example is one entry plus one `.astro` file.
 - **Bilingual in one file** — Czech and English content live side by side; a flag toggle (top-right) switches them instantly with no reload, and the choice is saved to `localStorage`. You can deep-link a language with `?lang=en` / `?lang=cs`.
 - **Exact arithmetic** — the counter in example 1 uses `BigInt`, because a normal JS number is only exact up to 53 bits.
 - **From-scratch implementations** — the neural network (incl. backpropagation), the Markov chain, A\*/BFS, the genetic algorithm, convolution and attention are all written from the ground up, without ML libraries, so the principle is visible in the code.
@@ -200,7 +200,8 @@ A bonus card with an embedded older project: a **TSP visualizer that solves the 
 The site is static; it's deployed to S3 + CloudFront via the `Makefile` (configuration in `Makefile.local`, outside git):
 
 ```bash
-make build              # assembles dist/ from *.html
+make setup              # install dependencies (Astro), one-off
+make build              # astro build: src/pages/*.astro → dist/
 make preview            # local preview at http://localhost:8080
 make deploy             # build → sync to S3 → CloudFront invalidation
 make deploy-s3-dryrun   # deploy dry run
@@ -219,7 +220,7 @@ make deploy-s3-dryrun   # deploy dry run
 
 Sada interaktivních demonstrací v čistém HTML/JavaScriptu, které **krok po kroku odhalují principy za AI** — od holé kombinatoriky a hranic hrubé síly až po to, jak dnešní jazykové modely reprezentují význam a kontext.
 
-Žádné knihovny, žádná instalace. Stačí otevřít **[`index.html`](index.html)** v prohlížeči a proklikat se ukázkami.
+Dema jsou čisté HTML/CSS/JS, poskládaná do soběstačných statických stránek pomocí **[Astro](https://astro.build)**. Otevři **[živou verzi](https://www.saiko.cz/ai/)**, nebo si web sestav ze zdrojů (níže).
 
 > 🌐 **Dvojjazyčné:** web je **výchozí v češtině**; na **angličtinu** přepneš vlajkami v pravém horním rohu každé stránky (volba se pamatuje, případně ji nastaví `?lang=en`).
 
@@ -232,12 +233,12 @@ Sada interaktivních demonstrací v čistém HTML/JavaScriptu, které **krok po 
 ## Jak to spustit
 
 - **Online:** otevři **[www.saiko.cz/ai](https://www.saiko.cz/ai/)**.
-- **Lokálně:**
-  1. Stáhni / naklonuj tuto složku.
-  2. Otevři **`index.html`** v libovolném moderním prohlížeči (Chrome, Safari, Firefox, Edge).
+- **Ze zdrojů:**
+  1. Naklonuj repozitář.
+  2. `make setup` (nainstaluje Astro), pak `make preview` — spustí lokální kopii na http://localhost:8080.
   3. Klikej v rozcestníku na jednotlivé příklady. Každý má vlevo nahoře tlačítko **← ZPĚT** a vpravo nahoře přepínač jazyka 🇨🇿/🇬🇧.
 
-> Vše běží lokálně v prohlížeči, nic se nikam neodesílá.
+> Vše běží lokálně v prohlížeči. Pro statistiku návštěvnosti web používá **[GoatCounter](https://www.goatcounter.com)** — jen anonymní, bezcookie zobrazení stránek: žádné cookies, žádná osobní data, žádné sledování napříč weby (proto bez lišty na souhlas).
 
 ---
 
@@ -265,7 +266,7 @@ Příklady na sebe navazují — každý vyřeší hranici toho předchozího:
 ## Příklady
 
 ### 01 · Binární počítadlo 8×8
-[→ otevřít `01-binary-counter.html`](01-binary-counter.html)
+[→ otevřít `01-binary-counter.html`](https://www.saiko.cz/ai/01-binary-counter.html)
 
 ![Binární počítadlo](images/01.png)
 
@@ -274,7 +275,7 @@ Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tl
 ---
 
 ### 02 · Od náhody k jazyku
-[→ otevřít `02-jazyk.html`](02-jazyk.html)
+[→ otevřít `02-jazyk.html`](https://www.saiko.cz/ai/02-jazyk.html)
 
 ![Od náhody k jazyku](images/02.png)
 
@@ -283,7 +284,7 @@ Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tl
 ---
 
 ### 03 · Hledání cesty místo hrubé síly
-[→ otevřít `03-hledani.html`](03-hledani.html)
+[→ otevřít `03-hledani.html`](https://www.saiko.cz/ai/03-hledani.html)
 
 ![Hledání cesty](images/03.png)
 
@@ -292,7 +293,7 @@ Bludiště na mřížce (zdi kreslíš myší) a souboj postupů: **náhodné t�
 ---
 
 ### 04 · Učení z textu — Markovův řetězec
-[→ otevřít `04-markov.html`](04-markov.html)
+[→ otevřít `04-markov.html`](https://www.saiko.cz/ai/04-markov.html)
 
 ![Markovův řetězec](images/04.png)
 
@@ -301,7 +302,7 @@ První ukázka **skutečného učení z dat**: model si z vloženého textu spo�
 ---
 
 ### 05 · Učení z příkladů — perceptron
-[→ otevřít `05-perceptron.html`](05-perceptron.html)
+[→ otevřít `05-perceptron.html`](https://www.saiko.cz/ai/05-perceptron.html)
 
 ![Perceptron](images/05.png)
 
@@ -310,7 +311,7 @@ Naklikáš dvě barvy bodů a perceptron sám hledá **dělicí přímku**. Sch�
 ---
 
 ### 06 · Neuronová síť kreslí hranici
-[→ otevřít `06-neuronka.html`](06-neuronka.html)
+[→ otevřít `06-neuronka.html`](https://www.saiko.cz/ai/06-neuronka.html)
 
 ![Neuronová síť](images/06.png)
 
@@ -319,7 +320,7 @@ Pokračování pětky: síť neuronů (2 → 12 → 12 → 1) zvládne i **zakř
 ---
 
 ### 07 · Jak počítač vidí
-[→ otevřít `07-vision.html`](07-vision.html)
+[→ otevřít `07-vision.html`](https://www.saiko.cz/ai/07-vision.html)
 
 ![Jak počítač vidí](images/07.png)
 
@@ -328,7 +329,7 @@ AI není jen o textu — zvládá i obrázky, zvuk a video. Jak? Pro počítač 
 ---
 
 ### 08 · Genetický algoritmus
-[→ otevřít `08-genetika.html`](08-genetika.html)
+[→ otevřít `08-genetika.html`](https://www.saiko.cz/ai/08-genetika.html)
 
 ![Genetický algoritmus](images/08.png)
 
@@ -337,7 +338,7 @@ Populace náhodných vět se křížením a mutací generaci po generaci **vyví
 ---
 
 ### 09 · Tokenizace a embeddingy
-[→ otevřít `09-embeddingy.html`](09-embeddingy.html)
+[→ otevřít `09-embeddingy.html`](https://www.saiko.cz/ai/09-embeddingy.html)
 
 ![Tokenizace a embeddingy](images/09.png)
 
@@ -346,7 +347,7 @@ Jak LLM „vidí" text: rozsekání na **tokeny** (s ID ze slovníku) a 2D **map
 ---
 
 ### 10 · Attention — na co se model dívá
-[→ otevřít `10-attention.html`](10-attention.html)
+[→ otevřít `10-attention.html`](https://www.saiko.cz/ai/10-attention.html)
 
 ![Attention](images/10.png)
 
@@ -355,7 +356,7 @@ Klikni na slovo ve větě a uvidíš, kolik **pozornosti** věnuje ostatním —
 ---
 
 ### 11 · Jak LLM píše — predikce dalšího tokenu
-[→ otevřít `11-token.html`](11-token.html)
+[→ otevřít `11-token.html`](https://www.saiko.cz/ai/11-token.html)
 
 ![Jak LLM píše](images/11.png)
 
@@ -364,7 +365,7 @@ Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token 
 ---
 
 ### 12 · RAG — model se zdroji
-[→ otevřít `12-rag.html`](12-rag.html)
+[→ otevřít `12-rag.html`](https://www.saiko.cz/ai/12-rag.html)
 
 ![RAG — model se zdroji](images/12.png)
 
@@ -373,7 +374,7 @@ Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebe
 ---
 
 ### 13 · Agenti — model, který jedná
-[→ otevřít `13-agents.html`](13-agents.html)
+[→ otevřít `13-agents.html`](https://www.saiko.cz/ai/13-agents.html)
 
 ![Agenti — model, který jedná](images/13.png)
 
@@ -382,7 +383,7 @@ Dosud model jen **psal text**. **Agent** je rovnice **model + paměť + nástroj
 ---
 
 ### 14 · Zaujatá data, zaujatý model
-[→ otevřít `14-bias.html`](14-bias.html)
+[→ otevřít `14-bias.html`](https://www.saiko.cz/ai/14-bias.html)
 
 ![Zaujatá data, zaujatý model](images/14.png)
 
@@ -391,7 +392,7 @@ Klasifikátory z 05–06 se učí z dat — a **co když jsou data zaujatá?** S
 ---
 
 ### 15 · Problém obchodního cestujícího (TSP) — bonus
-[→ otevřít `15-tsp.html`](15-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
+[→ otevřít `15-tsp.html`](https://www.saiko.cz/ai/15-tsp.html) · [aplikace ↗](https://saiko.cz/tsp/) · [zdrojový kód ↗](https://github.com/dsaiko/tsp)
 
 ![Problém obchodního cestujícího](images/15.png)
 
@@ -401,7 +402,7 @@ Bonusová karta s vloženým starším projektem: **vizualizér TSP řešící n
 
 ## Poznámky k implementaci
 
-- **Bez závislostí** — každý příklad je jeden samostatný `.html` soubor s vloženým CSS a JavaScriptem.
+- **Soběstačný výstup** — generováno [Astrem](https://astro.build) ze zdrojů `.astro` v `src/pages/`; každá vygenerovaná stránka je jeden `.html` s **inline CSS i JS a bez externích assetů**, takže funguje pod libovolnou pod-cestou i přes `file://`. Sdílený chrome (přepínač jazyka, tlačítko zpět, základní styly) je jednou v `src/layouts/Layout.astro` a rozcestník se generuje z jediného datového seznamu — přidání příkladu je jeden záznam plus jeden `.astro` soubor.
 - **Dvojjazyčné v jednom souboru** — česká i anglická verze jsou vedle sebe; přepínač s vlajkami (vpravo nahoře) je přepne okamžitě bez načítání stránky a volba se uloží do `localStorage`. Jazyk lze předvolit i přes `?lang=en` / `?lang=cs`.
 - **Přesná aritmetika** — počítadlo v příkladu 1 používá `BigInt`, protože běžné JS číslo je přesné jen do 53 bitů.
 - **Vlastní implementace** — neuronová síť (vč. backpropagation), Markovův řetězec, A\*/BFS, genetický algoritmus, konvoluce i attention jsou napsané od základu, bez ML knihoven, aby šel princip vidět v kódu.
@@ -414,7 +415,8 @@ Bonusová karta s vloženým starším projektem: **vizualizér TSP řešící n
 Web je statický, nasazuje se na S3 + CloudFront pomocí `Makefile` (konfigurace v `Makefile.local`, mimo git):
 
 ```bash
-make build              # poskládá dist/ z *.html
+make setup              # instalace závislostí (Astro), jednorázově
+make build              # astro build: src/pages/*.astro → dist/
 make preview            # lokální náhled na http://localhost:8080
 make deploy             # build → sync na S3 → invalidace CloudFront
 make deploy-s3-dryrun   # zkouška deploye nanečisto
