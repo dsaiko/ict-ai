@@ -131,24 +131,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p>
-      <span class="cs">Náš mini-model se z krátkého textu naučil, <b>jak často po kterém slově následuje které</b>
-      (jako Markovův řetězec z příkladu 4). Napíšeš začátek věty, model se podívá na <b>poslední slovo</b>
-      a nabídne rozdělení pravděpodobností dalšího slova — sloupečky dole. Tlačítkem <b>Další token</b> jedno
-      slovo losuje a přidá ho na konec; <b>Generuj</b> to dělá opakovaně, takže vidíš, jak text vzniká.</span>
-      <span class="en">Our mini-model learned from a short text <b>how often each word is followed by which</b>
-      (like the Markov chain in example 4). You type the start of a sentence, the model looks at the <b>last word</b>
-      and offers a probability distribution over the next word — the bars below. The <b>Next token</b> button samples
-      one word and appends it; <b>Generate</b> does it repeatedly, so you watch text come into being.</span>
-    </p>
-    <p>
-      <span class="cs">Skutečné LLM se dívají na <b>celou větu</b> (ne jen na poslední slovo — to řeší attention z příkladu 10)
-      a pracují s <b>tokeny</b> (kousky slov, příklad 9), ale princip „spočítej pravděpodobnosti a losuj" je
-      <b>úplně stejný</b>. Posuvníky mění, <i>jak</i> se losuje — sleduj přitom <b>jistotu</b> modelu.</span>
-      <span class="en">Real LLMs look at the <b>whole sentence</b> (not just the last word — that's what attention in example 10 does)
-      and work with <b>tokens</b> (pieces of words, example 9), but the principle "compute probabilities and sample" is
-      <b>exactly the same</b>. The sliders change <i>how</i> it samples — watch the model's <b>confidence</b> as you do.</span>
-    </p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Mini-model, který se z krátkého textu naučil, <b>jak často po kterém slově následuje které</b> (jako Markov z příkladu 4) — a podle toho předpovídá další slovo.</span><span class="en">A mini-model that learned from a short text <b>how often each word is followed by which</b> (like the Markov chain in example 4) — and predicts the next word from that.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš začátek věty; model se podívá na poslední slovo a nabídne <b>pravděpodobnosti</b> dalšího (sloupečky dole). <b>Další token</b> jedno losuje a přidá, <b>Generuj</b> opakuje. Posuvníky (teplota, top-k/top-p) mění, <i>jak odvážně</i> losuje.</span><span class="en">Type the start of a sentence; the model looks at the last word and offers <b>probabilities</b> for the next one (the bars below). <b>Next token</b> samples and appends one, <b>Generate</b> repeats it. The sliders (temperature, top-k/top-p) change <i>how boldly</i> it samples.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Skutečné LLM (jako ChatGPT) píšou <b>úplně stejně</b> — token po tokenu — jen koukají na celou větu (attention, 10) a na tokeny (9). Vidíš tu i, <b>proč halucinují</b>: i když si nejsou jisté, stejně sebevědomě něco vyberou.</span><span class="en">Real LLMs (like ChatGPT) write <b>exactly the same way</b> — token by token — they just look at the whole sentence (attention, 10) and at tokens (9). You also see <b>why they hallucinate</b>: even when unsure, they still confidently pick something.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">kontext (co bylo dosud)</span><span class="en">context (so far)</span></span>
       <span class="arr">→</span>

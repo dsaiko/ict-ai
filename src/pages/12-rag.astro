@@ -122,16 +122,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p>
-      <span class="cs">Níže je malá <b>znalostní báze</b> — pár dokumentů, které model při tréninku neviděl. Napíšeš
-      otázku a podíváš se na dvě odpovědi: <b>jen model</b> (musí si tipnout — a halucinuje) a <b>model + RAG</b>
-      (nejdřív vyhledá nejpodobnější dokument, přiloží ho k otázce a odpoví z něj). Vyhledávání používá <b>podobnost</b>
-      jako v příkladu 9 (embeddingy) — otázku i dokumenty porovná a vybere nejbližší.</span>
-      <span class="en">Below is a small <b>knowledge base</b> — a few documents the model never saw during training. You type a
-      question and look at two answers: <b>the model alone</b> (it has to guess — and hallucinates) and <b>the model + RAG</b>
-      (it first finds the most similar document, attaches it to the question and answers from it). Retrieval uses <b>similarity</b>
-      like example 9 (embeddings) — it compares the question with the documents and picks the closest.</span>
-    </p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>RAG</b> (vyhledáním rozšířená generace): místo aby model odpovídal jen z paměti, nejdřív si <b>vyhledá relevantní dokument</b> a teprve pak odpoví — z něj.</span><span class="en"><b>RAG</b> (retrieval-augmented generation): instead of answering from memory alone, the model first <b>retrieves a relevant document</b> and only then answers — from it.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Níže je malá <b>znalostní báze</b> (dokumenty, které model neviděl). Napiš otázku a porovnej dvě odpovědi: <b>jen model</b> (tipuje a halucinuje) a <b>model + RAG</b> (najde nejpodobnější dokument a odpoví z něj). Vyhledávání používá <b>podobnost</b> jako embeddingy (9).</span><span class="en">Below is a small <b>knowledge base</b> (documents the model never saw). Type a question and compare two answers: <b>the model alone</b> (it guesses and hallucinates) and <b>the model + RAG</b> (it finds the most similar document and answers from it). Retrieval uses <b>similarity</b> like embeddings (9).</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tohle je <b>nejčastější reálné nasazení</b> LLM ve firmách — chatbot nad vlastními dokumenty. Dramaticky snižuje halucinace, protože model odpovídá z doloženého textu, ne z paměti.</span><span class="en">This is the <b>most common real-world use</b> of LLMs in companies — a chatbot over your own documents. It dramatically cuts hallucinations, because the model answers from sourced text, not from memory.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">otázka</span><span class="en">question</span></span>
       <span class="arr">→</span>

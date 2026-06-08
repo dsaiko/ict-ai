@@ -115,27 +115,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p>
-      <span class="cs">Zadáš <b>cílovou větu</b> a algoritmus se k ní snaží dopracovat — ale nesmí ji „opsat".
-      Začne se <b>stovkami úplně náhodných</b> řetězců stejné délky (samý nesmysl) a v každé generaci
-      nechá přežít a „rozmnožit" ty, které se cíli nejvíc podobají. Po pár desítkách generací
-      obvykle uhodne celou větu. Je to ukázka, jak lze hledat řešení <b>bez toho, abychom ho znali</b> —
-      stačí umět ohodnotit, jak je dané řešení dobré.</span>
-      <span class="en">You enter a <b>target sentence</b> and the algorithm tries to reach it — but it isn't allowed to "copy"
-      it. It starts with <b>hundreds of completely random</b> strings of the same length (pure nonsense) and in each
-      generation lets the ones most similar to the target survive and "reproduce". After a few dozen generations it
-      usually guesses the whole sentence. It shows how you can search for a solution <b>without knowing it</b> —
-      all you need is to be able to score how good a candidate is.</span>
-    </p>
-    <p>
-      <span class="cs">V poli <b>„nejlepší jedinec"</b> se <b style="color:#16a34a">zeleně</b> zvýrazní písmena, která už
-      sedí na správném místě, a <b>pruh</b> ukazuje shodu v procentech. Úplně dole je ukázka populace —
-      od slušného přes průměrného až po nejhoršího jedince. Posuvníky měníš velikost populace a míru mutace.</span>
-      <span class="en">In the <b>"best individual"</b> field, letters already in the right place are highlighted
-      <b style="color:#16a34a">green</b>, and the <b>bar</b> shows the match as a percentage. At the very bottom is a
-      sample of the population — from a decent one through an average one to the worst. The sliders change the population
-      size and the mutation rate.</span>
-    </p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Genetický algoritmus</b>: populace náhodných vět, která se „přežitím nejlepších" generaci po generaci přiblíží k cílové větě — aniž by ji opsala.</span><span class="en">A <b>genetic algorithm</b>: a population of random sentences that, by “survival of the best”, approaches a target sentence generation by generation — without copying it.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Zadej cílovou větu a spusť. Začne se stovkami <b>náhodných nesmyslů</b> a v každé generaci nechá přežít a „rozmnožit" ty nejpodobnější (zeleně sedící písmena, pruh shody). Posuvníky mění velikost populace a míru <b>mutace</b>.</span><span class="en">Enter a target sentence and run it. It starts with hundreds of <b>random gibberish</b> strings, and each generation lets the most similar ones survive and “reproduce” (green = correct letters, bar = match). Sliders change the population size and the <b>mutation</b> rate.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Ukazuje, jak hledat řešení, <b>aniž ho známe</b> — stačí umět ohodnotit, jak je dobré (fitness). Spojuje náhodu z příkladů 1–2 s evolucí směrem ke smyslu.</span><span class="en">It shows how to search for a solution <b>without knowing it</b> — you only need to score how good it is (fitness). It joins the randomness of examples 1–2 with evolution toward meaning.</span></p>
     <div class="loop">
       <span class="stepc"><span class="n">1</span> <span class="cs">náhodná populace</span><span class="en">random population</span></span>
       <span class="arr">→</span>

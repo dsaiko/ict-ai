@@ -111,24 +111,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p>
-      <span class="cs">Nakresli něco do levé mřížky (nebo zvol předlohu). Vpravo dole se obrázek ukáže jako <b>čísla</b> —
-      přesně tak ho „vidí" počítač (0 = černá, 255 = bílá; barevný obrázek = tři taková čísla na pixel, R, G, B). Pak vyber
-      <b>filtr</b>: malé okénko <b>3×3</b> (kernel) přejede celý obrázek a pro každý pixel spočítá <b>vážený součet</b> okolí.
-      Výsledek vpravo zvýrazní určitý <b>rys</b> — třeba hrany, rozmazání nebo zaostření.</span>
-      <span class="en">Draw something into the left grid (or pick a template). At the bottom right the image is shown as <b>numbers</b> —
-      exactly how a computer "sees" it (0 = black, 255 = white; a color image = three such numbers per pixel, R, G, B). Then pick a
-      <b>filter</b>: a small <b>3×3</b> window (a kernel) sweeps the whole image and computes a <b>weighted sum</b> of the neighborhood
-      for each pixel. The result on the right highlights a certain <b>feature</b> — edges, blur or sharpening.</span>
-    </p>
-    <p>
-      <span class="cs">Navrstvením tisíců takových filtrů, jejichž hodnoty se síť <b>sama naučí</b>, vznikne <b>konvoluční neuronová
-      síť</b> — rozšíření neuronky z příkladu 6 na obrázky. A moderní <b>multimodální</b> modely převedou obrázek na stejné
-      vektory čísel jako slova (příklad 9), takže ho jazykový model dokáže „vidět" vedle textu.</span>
-      <span class="en">Stack thousands of such filters whose values the network <b>learns by itself</b> and you get a <b>convolutional
-      neural network</b> — the neural net from example 6 extended to images. And modern <b>multimodal</b> models turn an image into the
-      same vectors of numbers as words (example 9), so a language model can "see" it alongside text.</span>
-    </p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Pro počítač je obrázek jen <b>mřížka čísel</b> — jasů pixelů (0 = černá, 255 = bílá; barevný = tři čísla na pixel, R, G, B). Žádné „vidění", jen čísla.</span><span class="en">To a computer an image is just a <b>grid of numbers</b> — pixel brightness (0 = black, 255 = white; color = three numbers per pixel, R, G, B). No “seeing”, just numbers.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Nakresli něco do levé mřížky (nebo zvol předlohu) a vyber <b>filtr</b>: malé okénko <b>3×3</b> (kernel) přejede obrázek a pro každý pixel spočítá vážený součet okolí. Výsledek vpravo zvýrazní určitý <b>rys</b> — hrany, rozmazání, zaostření.</span><span class="en">Draw something into the left grid (or pick a template) and choose a <b>filter</b>: a small <b>3×3</b> window (a kernel) sweeps the image and computes a weighted sum of each pixel’s neighborhood. The result on the right highlights a certain <b>feature</b> — edges, blur, sharpening.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Navrstvením tisíců takových filtrů, které se síť <b>sama naučí</b>, vznikne <b>konvoluční neuronová síť</b> — neuronka z příkladu 6 pro obrázky. Multimodální modely pak obrázek převedou na stejné vektory jako slova (příklad 9), takže ho model „vidí" vedle textu.</span><span class="en">Stack thousands of such filters the network <b>learns by itself</b> and you get a <b>convolutional neural network</b> — the neural net from example 6, for images. Multimodal models then turn an image into the same vectors as words (example 9), so a model can “see” it alongside text.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">obrázek</span><span class="en">image</span></span>
       <span class="arr">→</span>

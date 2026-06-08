@@ -108,24 +108,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p>
-      <span class="cs">Každý bod je člověk, který žádá o přijetí. Vodorovně je jeho <b>kvalifikace</b> (vpravo = kvalifikovanější),
-      svisle <b>skupina</b> (A nahoře, B dole) — což by na rozhodnutí <b>nemělo mít vliv</b>. Barva bodu ukazuje, jak se rozhodlo
-      v <b>historických datech</b> (zeleně přijat, šedě zamítnut). Model se z těch dat naučí <b>dělicí hranici</b> a pak rozhoduje
-      nově (modré a červené pole).</span>
-      <span class="en">Each dot is a person applying to be accepted. Horizontally is their <b>qualification</b> (right = more qualified),
-      vertically their <b>group</b> (A on top, B at the bottom) — which <b>should not matter</b> for the decision. The dot's color shows how
-      the <b>historical data</b> decided (green = accepted, grey = rejected). The model learns a <b>decision boundary</b> from that data and
-      then decides anew (the blue and red areas).</span>
-    </p>
-    <p>
-      <span class="cs">Přepni mezi <b>férovými</b> a <b>zaujatými</b> daty a sleduj dole <b>míru přijetí stejně kvalifikovaných</b>
-      lidí v obou skupinách. U férových dat je hranice svislá (rozhoduje jen kvalifikace). U zaujatých se nakloní — a stejně
-      kvalifikovaní lidé ze skupiny B najednou neprojdou.</span>
-      <span class="en">Switch between <b>fair</b> and <b>biased</b> data and watch the <b>acceptance rate of equally qualified</b> people in
-      both groups below. With fair data the boundary is vertical (only qualification matters). With biased data it tilts — and equally
-      qualified people from group B suddenly don't make it.</span>
-    </p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Stejný klasifikátor jako u perceptronu (5). Každý bod je člověk: vodorovně <b>kvalifikace</b>, svisle <b>skupina</b> (A/B — což by nemělo rozhodovat), barva = jak rozhodla <b>historická data</b>. Model se z nich naučí dělicí hranici.</span><span class="en">The same classifier as the perceptron (5). Each dot is a person: horizontally <b>qualification</b>, vertically <b>group</b> (A/B — which shouldn’t decide anything), color = how the <b>historical data</b> decided. The model learns a boundary from them.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Přepínej mezi <b>férovými</b> a <b>zaujatými</b> daty a sleduj dole <b>míru přijetí stejně kvalifikovaných</b> lidí v obou skupinách. U férových je hranice svislá; u zaujatých se nakloní — a kvalifikovaní ze skupiny B najednou neprojdou.</span><span class="en">Switch between <b>fair</b> and <b>biased</b> data and watch the <b>acceptance rate of equally qualified</b> people in both groups below. With fair data the boundary is vertical; with biased data it tilts — and qualified people from group B suddenly don’t make it.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Model nikdy nedostal pokyn někoho znevýhodnit — <b>převzal nespravedlnost z dat</b>. A tváří se objektivně. Tečka za sérií: každý model je jen tak dobrý jako data, na kterých se učí.</span><span class="en">The model was never told to disadvantage anyone — it <b>inherited the unfairness from the data</b>. And it looks objective. A coda to the series: a model is only as good as the data it learns from.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">historická data (s rozhodnutími)</span><span class="en">historical data (with decisions)</span></span>
       <span class="arr">→</span>

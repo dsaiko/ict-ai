@@ -137,16 +137,9 @@ import Layout from '../layouts/Layout.astro';
       <span class="term"><span class="cs">plánování</span><span class="en">planning</span></span>
       <span class="op">=</span><span class="term res">agent</span>
     </div>
-    <p>
-      <span class="cs">Samotné LLM neumí přečíst e-mail, spočítat příklad ani nic odeslat — umí jen <b>generovat text</b>
-      (příklad 11). <b>Agent</b> kolem modelu přidá <b>nástroje</b> a <b>smyčku</b>: zadáš úkol, agent si rozmyslí, který
-      nástroj použít, <b>zavolá</b> ho, výsledek si <b>zapamatuje</b> a podle něj plánuje další krok — klidně i několik
-      za sebou. Zkus to: napiš úkol nebo klikni na předvolbu a spusť agenta.</span>
-      <span class="en">A language model on its own can't read an email, do arithmetic, or send anything — it can only <b>generate
-      text</b> (example 11). An <b>agent</b> adds <b>tools</b> and a <b>loop</b> around the model: you give it a task, it decides which
-      tool to use, <b>calls</b> it, <b>remembers</b> the result, and plans the next step from it — possibly several in a row. Try it:
-      type a task or click a preset and run the agent.</span>
-    </p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Agent</b> = model + paměť + nástroje + plánování. Samotné LLM umí jen <b>generovat text</b> (11); agent kolem něj přidá <b>nástroje</b> a <b>smyčku</b>, takže může i jednat.</span><span class="en">An <b>agent</b> = model + memory + tools + planning. A language model alone can only <b>generate text</b> (11); an agent adds <b>tools</b> and a <b>loop</b> around it, so it can also act.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš úkol (nebo klikni na předvolbu) a spusť agenta. On si rozmyslí, který <b>nástroj</b> použít (vyhledávání, kalkulačku, e-mail…), <b>zavolá</b> ho, výsledek si <b>zapamatuje</b> a podle něj plánuje další krok — klidně několik za sebou.</span><span class="en">Type a task (or click a preset) and run the agent. It decides which <b>tool</b> to use (search, a calculator, email…), <b>calls</b> it, <b>remembers</b> the result and plans the next step from it — possibly several in a row.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tím model přestává být „chytrý textový automat" a stává se něčím, co <b>samostatně řeší úkoly</b>. To je směr, kterým se AI vydala v roce 2026 — vyvrcholení celé série.</span><span class="en">This turns the model from a “clever text machine” into something that <b>solves tasks on its own</b>. It’s the direction AI took in 2026 — the culmination of the whole series.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">úkol</span><span class="en">task</span></span>
       <span class="arr">→</span>

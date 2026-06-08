@@ -110,24 +110,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p>
-      <span class="cs">Napíšeš větu, ta se rozseká na slova. Když na některé <b>klikneš</b>, ukáže se, kolik
-      <b>pozornosti</b> věnuje každému dalšímu slovu — jako procento pod slovem a sytostí modré barvy.
-      Dole je celá <b>mapa pozornosti</b> (všechna slova vůči všem). Přesně takhle „uvažuje" každá
-      vrstva dnešních modelů: každé slovo si <b>přepočítá svůj význam</b> podle toho, na co se ve větě dívá.</span>
-      <span class="en">You type a sentence and it's split into words. When you <b>click</b> one, it shows how much
-      <b>attention</b> it pays to each other word — as a percentage under the word and the saturation of the blue.
-      Below is the full <b>attention map</b> (all words against all). This is exactly how every layer of today's
-      models "reasons": each word <b>recomputes its meaning</b> based on what it looks at in the sentence.</span>
-    </p>
-    <p>
-      <span class="cs">Čím <b>sytější modrá</b> (a vyšší %), tím víc se dané slovo dívá na druhé. Pozornost se vždy
-      rozdělí mezi ostatní slova tak, aby dohromady dala <b>100 %</b>. Často nejvíc padne na slovo
-      samotné a na jeho <b>blízké sousedy</b> — tak to vychází i ve skutečných modelech.</span>
-      <span class="en">The <b>deeper the blue</b> (and higher the %), the more that word looks at another. Attention is always
-      split among the other words so that it adds up to <b>100 %</b>. Often most of it falls on the word
-      itself and its <b>close neighbors</b> — that's how it works out in real models too.</span>
-    </p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Attention</b> (pozornost): když model zpracovává slovo, „rozhlíží se" po ostatních slovech ve větě a každému dá <b>váhu</b> — jak moc je pro něj důležité.</span><span class="en"><b>Attention</b>: when the model processes a word, it “looks around” at the other words in the sentence and gives each a <b>weight</b> — how important it is to it.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš větu a <b>klikni</b> na slovo — uvidíš, kolik pozornosti věnuje každému dalšímu (procento a sytost modré). Dole je celá <b>mapa pozornosti</b>. Pozornost se vždy rozdělí tak, aby dala dohromady <b>100 %</b>.</span><span class="en">Type a sentence and <b>click</b> a word — you’ll see how much attention it pays to each other one (a percentage and the depth of blue). Below is the full <b>attention map</b>. Attention is always split so it adds up to <b>100 %</b>.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Přesně takhle „uvažuje" každá vrstva dnešních transformerů: každé slovo si <b>přepočítá svůj význam</b> podle toho, na co se ve větě dívá. Tím modely chápou kontext — kdo je „on", k čemu patří „to".</span><span class="en">This is exactly how every layer of today’s transformers “reasons”: each word <b>recomputes its meaning</b> based on what it looks at in the sentence. It’s how models grasp context — who “he” is, what “it” refers to.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">dotaz (co hledám?)</span><span class="en">query (what am I looking for?)</span></span>
       <span class="arr">→</span>
