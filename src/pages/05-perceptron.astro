@@ -3,29 +3,9 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout titleCs="Příklad #5 — Učení z příkladů (perceptron)" titleEn="Example #5 — Learning from examples (perceptron)" back={true}>
 <style is:global>
-* { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #f4f5f7; color: #1c1c1e; margin: 0;
-    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
-  }
-  .back {
-    position: fixed; top: 18px; left: 18px; z-index: 10;
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 600; text-decoration: none;
-    color: #374151; background: #fff; border: 1px solid #e5e7eb;
-    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
-    transition: background .12s, transform .05s, box-shadow .12s;
-  }
-  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
-  .back:active { transform: scale(.97); }
-  .back .arrow { transition: transform .12s; }
-  .back:hover .arrow { transform: translateX(-3px); }
-
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 700px;
            text-align: center; line-height: 1.5; }
-  .intro b { color: #374151; }
 
   canvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
            box-shadow: 0 4px 20px rgba(0,0,0,0.07); cursor: crosshair; touch-action: none; }
@@ -61,38 +41,15 @@ import Layout from '../layouts/Layout.astro';
 
   /* teorie */
   .theory { width: min(760px, 96vw); margin-top: 34px; }
-  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; }
-  .theory .lead b { color: #374151; }
-  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
-  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
-           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
-  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+
   .tcard p { margin: 0 0 10px; font-size: 13px; color: #4b5563; line-height: 1.5; }
   .tcard p:last-child { margin-bottom: 0; }
   .tcard .pm { font-size: 12.5px; line-height: 1.65; }
   .tcard .pm div { display: flex; gap: 7px; }
   .tcard .plus { color: #16a34a; font-weight: 700; } .tcard .minus { color: #dc2626; font-weight: 700; }
-
-  /* ── Přepínač jazyka (vlajky) ── */
-  .lang-cs .en, .lang-en .cs { display: none; }
-  .langpill {
-    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
-    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
-  }
-  .langpill button {
-    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
-    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
-    opacity: .45; transition: opacity .12s, background .12s;
-  }
-  .langpill button:hover { opacity: .8; background: #f3f4f6; }
-  .langpill button.on { opacity: 1; background: #eef2ff; }
-  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 
-<h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">05</span><span class="cs">Učení z příkladů — perceptron</span><span class="en">Learning from examples — perceptron</span></h1>
+<h1><span class="badge">05</span><span class="cs">Učení z příkladů — perceptron</span><span class="en">Learning from examples — perceptron</span></h1>
   <p class="intro">
     <span class="cs">Místo abychom pravidlo <b>naprogramovali</b>, necháme ho stroj <b>najít z dat</b>.
     Naklikej do plochy modré a červené body a stiskni „Trénuj" — perceptron sám hledá

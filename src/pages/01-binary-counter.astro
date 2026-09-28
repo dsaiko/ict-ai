@@ -3,11 +3,11 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout titleCs="Příklad #1 — Binární počítadlo 8×8" titleEn="Example #1 — Binary counter 8×8" back={true}>
 <style is:global>
-:root {
+  :root {
     --cell: 56px;
     --gap: 4px;
   }
-  * { box-sizing: border-box; }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #f4f5f7;
@@ -20,19 +20,7 @@ import Layout from '../layouts/Layout.astro';
     justify-content: center;
     padding: 24px;
   }
-  .back {
-    position: fixed; top: 18px; left: 18px; z-index: 10;
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 600; text-decoration: none;
-    color: #374151; background: #fff; border: 1px solid #e5e7eb;
-    border-radius: 999px; padding: 8px 16px;
-    box-shadow: 0 2px 8px rgba(17,24,39,0.06);
-    transition: background .12s, transform .05s, box-shadow .12s;
-  }
-  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
-  .back:active { transform: scale(.97); }
-  .back .arrow { transition: transform .12s; }
-  .back:hover .arrow { transform: translateX(-3px); }
+
   h1 {
     font-size: 20px;
     font-weight: 600;
@@ -178,25 +166,9 @@ import Layout from '../layouts/Layout.astro';
     align-items: center;
     gap: 8px;
   }
-
-  /* ── Přepínač jazyka (vlajky) ── */
-  .lang-cs .en, .lang-en .cs { display: none; }
-  .langpill {
-    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
-    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
-  }
-  .langpill button {
-    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
-    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0; min-width: 0;
-    opacity: .45; transition: opacity .12s, background .12s;
-  }
-  .langpill button:hover { opacity: .8; background: #f3f4f6; }
-  .langpill button.on { opacity: 1; background: #eef2ff; }
-  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 
-<h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">01</span><span class="cs">Binární počítadlo 8×8</span><span class="en">Binary counter 8×8</span></h1>
+<h1><span class="badge">01</span><span class="cs">Binární počítadlo 8×8</span><span class="en">Binary counter 8×8</span></h1>
   <p class="subtitle"><span class="cs">Klikni do mřížky a nastav bity. 64 polí = 64bitové číslo.</span><span class="en">Click the grid to set bits. 64 cells = a 64-bit number.</span></p>
 
   <div class="whathow">
