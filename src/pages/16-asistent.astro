@@ -780,14 +780,18 @@ import Layout from '../layouts/Layout.astro';
   }
   function fmtNum(x){ const s = (Math.abs(x) < 0.005 ? 0 : x).toFixed(2); return curLang === 'cs' ? s.replace('.', ',') : s; }
 
-  // jedno hodnocení: zvýrazni vítěze, nauč se, po chvilce nabídni novou dvojici
+  // jedno hodnocení: zvýrazni vítěze, nauč se, po chvilce nabídni novou dvojici.
+  // Časovač si držíme, aby ho Reset / jiný dotaz / přepnutí jazyka zrušil — jinak by
+  // pozdě vyměnil dvojici, kterou už uživatel hodnotí.
+  let rateTimer = null;
   function rate(k, delay){
     if (busy) return;
     busy = true;
     $(k === 0 ? 'pickA' : 'pickB').classList.add('win');
     $(k === 0 ? 'pickB' : 'pickA').classList.add('lose');
     learn(pair[k], pair[1 - k]);
-    setTimeout(() => { busy = false; samplePair(); renderRL(); }, delay);
+    clearTimeout(rateTimer);
+    rateTimer = setTimeout(() => { rateTimer = null; busy = false; samplePair(); renderRL(); }, delay);
   }
   $('pickA').addEventListener('click', () => { if (!autoTimer) rate(0, 380); });
   $('pickB').addEventListener('click', () => { if (!autoTimer) rate(1, 380); });
@@ -797,7 +801,7 @@ import Layout from '../layouts/Layout.astro';
     b.querySelector('.cs').textContent = on ? 'Stop' : '20 hodnocení automaticky';
     b.querySelector('.en').textContent = on ? 'Stop' : '20 ratings automatically';
   }
-  function stopAuto(){ if (autoTimer){ clearInterval(autoTimer); autoTimer = null; } busy = false; setAutoRunning(false); }
+  function stopAuto(){ if (autoTimer){ clearInterval(autoTimer); autoTimer = null; } clearTimeout(rateTimer); rateTimer = null; busy = false; setAutoRunning(false); }
   $('btnAuto').addEventListener('click', () => {
     if (autoTimer){ stopAuto(); renderRL(); return; }
     let n = 0; setAutoRunning(true);

@@ -254,7 +254,7 @@ export const STAGES = [
     titleCs: `Hledání a pravidla (symbolická AI)`, titleEn: `Search and rules (symbolic AI)`,
     proseCs: `První tradice AI: <b>projít všechno</b> nejde, a tak obří prostor možností krotíme <b>ručně psanými pravidly</b>, chytrým <b>hledáním</b> (A*) a <b>evolucí</b>, které stačí umět řešení ohodnotit.`,
     proseEn: `The first tradition of AI: <b>trying everything</b> is impossible, so we tame the vast space of possibilities with <b>hand-written rules</b>, smart <b>search</b> (A*) and <b>evolution</b>, which only needs to score a solution.` },
-  { c: '#16a34a', icon: '📚', years: '1913–1986', from: '05', to: '08',
+  { c: '#16a34a', icon: '📚', years: '1847–1986', from: '05', to: '08',
     titleCs: `Učení z dat`, titleEn: `Learning from data`,
     proseCs: `Druhá tradice, která zvítězila: pravidla už nepíšeme, model si je <b>vyčte z příkladů</b>. Od četností (Markov) přes perceptron a <b>gradientní sestup</b> až k <b>neuronové síti</b> — a pozor na <b>přeučení</b>.`,
     proseEn: `The second tradition, which won: we no longer write the rules, the model <b>reads them from examples</b>. From frequencies (Markov) through the perceptron and <b>gradient descent</b> to a <b>neural network</b> — and beware of <b>overfitting</b>.` },

@@ -501,7 +501,10 @@ import Layout from '../layouts/Layout.astro';
   function stopGen(finished){
     if (genRaf) { cancelAnimationFrame(genRaf); genRaf = null; }
     if (!finished && genState === 'run') {               // zastav na aktuálním (mezi)stavu
-      GX.set(NX); GY.set(NY); genK = Math.min(genK + 1, genTau.length - 1); genState = 'stopped';
+      GX.set(NX); GY.set(NY); genK = Math.min(genK + 1, genTau.length - 1);
+      // STOP během posledního kroku = tečky už jsou hotové (t = 0) → dokonči, ne „zastaveno v půlce"
+      if (genK >= genTau.length - 1) { drawGen(0); genRaf = null; finishGen(); return; }
+      genState = 'stopped';
       drawGen(0);
     }
     $('btnStopG').disabled = true; $('btnGen').disabled = false; $('sSlider').disabled = false;

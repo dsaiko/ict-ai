@@ -52,7 +52,7 @@ import Layout from '../layouts/Layout.astro';
   .status b { color: #111827; }
 
   #cv { width: 800px; max-width: 100%; height: auto; display: block; margin: 0 auto;
-        background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; cursor: crosshair; touch-action: none; }
+        background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; cursor: crosshair; touch-action: manipulation; }   /* prst smí stránku posouvat */
 
   .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
   button.go, button.util, button.stop { font-size: 14px; font-weight: 700; padding: 10px 20px; border: none;
@@ -802,9 +802,16 @@ import Layout from '../layouts/Layout.astro';
   $('btnRun').addEventListener('click', runToEnd);
   $('btnStop').addEventListener('click', () => { if (!running) return; stopAll(); msg = ['stopped']; render(); });
 
-  // přidání bodu kliknutím / dotykem (plátno může být zmenšené → přepočet přes skutečnou velikost)
-  cv.addEventListener('pointerdown', e => {
-    e.preventDefault();
+  // přidání bodu kliknutím / ťuknutím (plátno může být zmenšené → přepočet přes skutečnou velikost).
+  // Bod přibude až při puštění prstu blízko místa dotyku — posouvání stránky přes plátno
+  // tak nic nepřidá ani nezastaví běžící demo (stejně jako onTap v příkladu 7).
+  let down = null;
+  cv.addEventListener('pointerdown', e => { down = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+  cv.addEventListener('pointercancel', () => { down = null; });
+  cv.addEventListener('pointerup', e => {
+    const tap = down && down.id === e.pointerId && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 10;
+    down = null;
+    if (!tap) return;
     const r = cv.getBoundingClientRect();
     const x = (e.clientX - r.left - cv.clientLeft) / cv.clientWidth * LW;
     const y = (e.clientY - r.top - cv.clientTop) / cv.clientHeight * LH;
