@@ -1,0 +1,880 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout titleCs="Příklad #7 — Jak se model učí: gradientní sestup a přeučení" titleEn="Example #7 — How a model learns: gradient descent and overfitting" back={true}>
+<style is:global>
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; text-align: center; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 760px;
+           text-align: center; line-height: 1.5; }
+
+  .explain { width: min(860px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #0891b2; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .stepc.check .n { background: #f59e0b; }
+
+  .panel { width: min(1040px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+  .parthead { font-size: 17px; font-weight: 700; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+  .parthead .pl { background: #0891b2; color: #fff; border-radius: 6px; padding: 2px 9px; font-size: 14px; }
+  .partsub { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  .partsub b { color: #374151; }
+
+  /* dvě plátna vedle sebe, na úzkém displeji pod sebou */
+  .duo { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); }
+  .duo figure { margin: 0; min-width: 0; }
+  .duo figcaption { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af;
+                    margin-bottom: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; background: #fff;
+           border: 1px solid #e5e7eb; border-radius: 10px; touch-action: manipulation; }
+  canvas.clickable { cursor: crosshair; }
+  canvas.pickable { cursor: pointer; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+  button { font-size: 14px; font-weight: 600; padding: 9px 18px; border: none; border-radius: 8px;
+           cursor: pointer; transition: background .12s, transform .05s; }
+  button:active { transform: scale(.96); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.go   { background: #0891b2; color: #fff; } button.go:hover:not(:disabled) { background: #0e7490; }
+  button.util { background: #e5e7eb; color: #374151; } button.util:hover:not(:disabled) { background: #d1d5db; }
+  button.stop { background: #dc2626; color: #fff; } button.stop:hover:not(:disabled) { background: #b91c1c; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; }
+  .presets button { font-size: 13px; padding: 7px 13px; border: 1px solid #e5e7eb; background: #fff;
+                    color: #374151; border-radius: 999px; }
+  .presets button:hover { background: #f3f4f6; }
+  .presets button.on { border-color: #0891b2; color: #0e7490; background: #ecfeff; }
+
+  .slider { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; color: #374151; }
+  .slider b { font-family: "SF Mono", Menlo, Consolas, monospace; color: #111827; min-width: 48px; display: inline-block; }
+  input[type=range] { width: 220px; max-width: 100%; accent-color: #0891b2; }
+
+  .stat { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 14px; color: #374151;
+          margin-top: 14px; display: flex; gap: 8px 22px; flex-wrap: wrap; }
+  .stat b { color: #111827; }
+  .msg { margin-top: 10px; font-size: 14px; line-height: 1.5; padding: 9px 13px; border-radius: 8px;
+         background: #f9fafb; border: 1px solid #eef0f3; color: #374151; }
+  .msg.good { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+  .msg.warn { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+  .msg.bad  { background: #fef2f2; border-color: #fecaca; color: #991b1b; font-weight: 600; }
+  .hint { font-size: 12.5px; color: #6b7280; margin-top: 10px; line-height: 1.5; }
+  .hint b { color: #374151; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: #4b5563; margin-top: 8px; }
+  .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+  .legend i.ln { width: 18px; height: 3px; border-radius: 2px; vertical-align: 3px; }
+  .legend i.dash { width: 18px; height: 0; border-radius: 0; border-top: 2px dashed #9ca3af; vertical-align: 3px; }
+
+  .verdict { display: inline-block; font-weight: 700; font-size: 15px; padding: 6px 14px; border-radius: 999px; }
+  .verdict.under { background: #eff6ff; color: #1d4ed8; }
+  .verdict.ok    { background: #f0fdf4; color: #15803d; }
+  .verdict.over  { background: #fef2f2; color: #b91c1c; }
+  .vrow { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-top: 14px; }
+  .vtext { font-size: 14px; color: #374151; line-height: 1.5; flex: 1 1 300px; }
+
+  .theory { width: min(860px, 96vw); margin-top: 24px; }
+  .tcard p + p { margin-top: 8px; }
+</style>
+
+<h1><span class="badge">07</span><span class="cs">Jak se model učí: gradientní sestup a přeučení</span><span class="en">How a model learns: gradient descent and overfitting</span></h1>
+  <p class="intro">
+    <span class="cs">Perceptron (6) posouval své váhy „trochu správným směrem". Tady uvidíš, <b>co ten směr přesně je</b>:
+    model spočítá, kam jeho chyba roste, a udělá krok <b>opačně — z kopce</b>. A ve druhé části uvidíš past, do které
+    může učení spadnout: model se data <b>naučí nazpaměť</b>, místo aby je pochopil.</span>
+    <span class="en">The perceptron (6) nudged its weights “a little in the right direction”. Here you’ll see <b>what that direction
+    actually is</b>: the model works out where its error grows and takes a step <b>the opposite way — downhill</b>. In the second
+    part you’ll see the trap learning can fall into: the model <b>memorizes</b> the data instead of understanding it.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Model má čísla (<b>váhy</b>), kterými může otáčet, a jedno číslo, které chce mít co nejmenší: <b>chybu</b>. <b>Gradientní sestup</b> je postup, jak váhy krok za krokem posouvat směrem k menší chybě. <b>Přeučení</b> je, když model trénovací data umí skvěle, ale na nových datech selhává.</span><span class="en">A model has numbers (<b>weights</b>) it can turn, and one number it wants as small as possible: the <b>error</b>. <b>Gradient descent</b> is the recipe for nudging the weights step by step towards a smaller error. <b>Overfitting</b> is when the model does great on the training data but fails on new data.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs"><b>A:</b> stiskni „Spusť" a sleduj, jak bod v krajině chyby sjíždí do údolí a přímka se přitom přimyká k bodům. Pak vyzkoušej tři učící rychlosti: moc malá se plazí, moc velká přestřeluje, až se rozletí. <b>B:</b> posuvníkem zvyšuj složitost modelu — trénovací chyba pořád klesá, ale testovací od určitého místa roste.</span><span class="en"><b>A:</b> press “Run” and watch the point slide down into the valley of the error landscape while the line snuggles up to the data. Then try the three learning rates: too small crawls, too large overshoots until it blows up. <b>B:</b> raise the model complexity with the slider — the training error keeps falling, but the test error starts rising at some point.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Gradientním sestupem (v různých vylepšených variantách) se učí prakticky všechny dnešní neuronové sítě včetně velkých jazykových modelů. A přeučení je hlavní důvod, proč se každý model zkouší na datech, která při učení <b>neviděl</b>.</span><span class="en">Practically every neural network today, large language models included, learns by gradient descent (in various improved flavours). And overfitting is the main reason every model is tested on data it <b>did not see</b> while learning.</span></p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">spočítej chybu</span><span class="en">compute the error</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">spočítej gradient (kam chyba roste)</span><span class="en">compute the gradient (where the error grows)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">udělej krok opačně</span><span class="en">step the opposite way</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">↺</span> <span class="cs">opakuj</span><span class="en">repeat</span></span>
+      <span class="arr">→</span>
+      <span class="stepc check"><span class="n">✓</span> <span class="cs">nakonec ověř na testovacích datech</span><span class="en">finally check on test data</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <!-- ═════════════ ČÁST A: gradientní sestup ═════════════ -->
+    <div class="block">
+      <div class="parthead"><span class="pl">A</span><span class="cs">Gradientní sestup: proložit body přímkou</span><span class="en">Gradient descent: fitting a line to points</span></div>
+      <p class="partsub"><span class="cs">Model je přímka <b>y = w·x + b</b> se dvěma váhami: <b>w</b> (sklon) a <b>b</b> (posun). Chyba je
+        <b>průměrná čtvercová odchylka</b> (MSE): pro každý bod vezmi svislou vzdálenost od přímky (červené úsečky), umocni ji na druhou
+        a zprůměruj. Každá dvojice (w, b) má svou chybu — vpravo je to celé nakreslené jako mapa.</span>
+        <span class="en">The model is a line <b>y = w·x + b</b> with two weights: <b>w</b> (slope) and <b>b</b> (offset). The error is the
+        <b>mean squared error</b> (MSE): for each point take its vertical distance from the line (red segments), square it and
+        average. Every pair (w, b) has its own error — on the right that is all drawn as a map.</span></p>
+      <div class="duo">
+        <figure>
+          <figcaption><span class="cs">data a přímka modelu (klikni = přidej bod)</span><span class="en">data and the model’s line (click = add a point)</span></figcaption>
+          <canvas id="cvData" class="clickable" width="480" height="400"></canvas>
+        </figure>
+        <figure>
+          <figcaption><span class="cs">krajina chyby: každé místo = jedna přímka (w, b)</span><span class="en">error landscape: each spot = one line (w, b)</span></figcaption>
+          <canvas id="cvLand" width="480" height="400"></canvas>
+        </figure>
+      </div>
+
+      <div class="controls">
+        <button class="util" id="btnStep"><span class="cs">Krok</span><span class="en">Step</span></button>
+        <button class="go" id="btnRun"><span class="cs">▶ Spusť</span><span class="en">▶ Run</span></button>
+        <button class="stop" id="btnStop" disabled>■ STOP</button>
+        <button class="util" id="btnReset"><span class="cs">↺ Reset (náhodný start)</span><span class="en">↺ Reset (random start)</span></button>
+        <button class="util" id="btnPts"><span class="cs">Původní body</span><span class="en">Original points</span></button>
+      </div>
+      <div class="controls">
+        <label class="slider"><span class="cs">učící rychlost η:</span><span class="en">learning rate η:</span>
+          <input type="range" id="lr" min="0" max="1000" step="1"> <b id="lrVal"></b></label>
+        <div class="presets" id="presets">
+          <button data-lr="0.02"><span class="cs">moc malá</span><span class="en">too small</span></button>
+          <button data-lr="0.6"><span class="cs">tak akorát</span><span class="en">just right</span></button>
+          <button data-lr="0.85"><span class="cs">moc velká</span><span class="en">too large</span></button>
+        </div>
+      </div>
+
+      <div class="stat">
+        <span><span class="cs">krok:</span><span class="en">step:</span> <b id="sStep">0</b></span>
+        <span>w = <b id="sW"></b></span>
+        <span>b = <b id="sB"></b></span>
+        <span><span class="cs">chyba:</span><span class="en">error:</span> <b id="sL"></b></span>
+        <span><span class="cs">nejmenší možná:</span><span class="en">lowest possible:</span> <b id="sMin"></b></span>
+      </div>
+      <div class="msg" id="msgA"></div>
+      <p class="hint"><span class="cs">Mapu vpravo kreslíme jen pro tebe — <b>algoritmus ji nevidí</b>. Zná jen sklon terénu v místě, kde právě stojí
+        (gradient), jako turista v mlze, který jde pořád z kopce. <b>Červená čárkovaná šipka</b> ukazuje, kam povede příští krok:
+        míří proti gradientu a je dlouhá „gradient × učící rychlost". Poctivě: minimum přímky by šlo spočítat rovnou vzorcem —
+        sestup tu ukazujeme proto, že u neuronových sítí žádný takový vzorec není.</span>
+        <span class="en">The map on the right is drawn just for you — <b>the algorithm cannot see it</b>. It only knows the slope of the terrain
+        where it stands right now (the gradient), like a hiker in fog who keeps walking downhill. The <b>red dashed arrow</b> shows where the
+        next step will go: against the gradient, with length “gradient × learning rate”. To be fair: the best line could be computed
+        directly with a formula — we show descent here because for neural networks no such formula exists.</span></p>
+    </div>
+
+    <!-- ═════════════ ČÁST B: přeučení ═════════════ -->
+    <div class="block">
+      <div class="parthead"><span class="pl">B</span><span class="cs">Přeučení: naučit se nazpaměť místo pochopení</span><span class="en">Overfitting: memorizing instead of understanding</span></div>
+      <p class="partsub"><span class="cs">Body vznikly z hladké křivky (čárkovaně) a náhodného šumu. Model se učí jen z <b>modrých trénovacích</b> bodů;
+        <b>oranžové testovací</b> body při učení <b>nevidí</b> — slouží jako „písemka" na konci. Model je polynom: čím vyšší
+        stupeň, tím složitější (ohebnější) křivku umí nakreslit.</span>
+        <span class="en">The points come from a smooth curve (dashed) plus random noise. The model learns only from the <b>blue training</b>
+        points; it <b>never sees</b> the <b>orange test</b> points while learning — they are the “final exam”. The model is a polynomial:
+        the higher the degree, the more complex (bendier) the curve it can draw.</span></p>
+      <div class="duo">
+        <figure>
+          <figcaption><span class="cs">data a křivka modelu</span><span class="en">data and the model’s curve</span></figcaption>
+          <canvas id="cvFit" width="480" height="360"></canvas>
+          <div class="legend">
+            <span><i style="background:#2563eb"></i><span class="cs">trénovací (model je vidí)</span><span class="en">training (the model sees them)</span></span>
+            <span><i style="background:#f59e0b"></i><span class="cs">testovací (model je nevidí)</span><span class="en">test (the model never sees them)</span></span>
+            <span><i class="ln" style="background:#0891b2"></i><span class="cs">model</span><span class="en">model</span></span>
+            <span><i class="dash"></i><span class="cs">skutečná závislost</span><span class="en">true relationship</span></span>
+          </div>
+        </figure>
+        <figure>
+          <figcaption><span class="cs">chyba podle složitosti modelu (klikni = vyber stupeň)</span><span class="en">error vs. model complexity (click = pick a degree)</span></figcaption>
+          <canvas id="cvErr" class="pickable" width="480" height="360"></canvas>
+          <div class="legend">
+            <span><i class="ln" style="background:#2563eb"></i><span class="cs">trénovací chyba</span><span class="en">training error</span></span>
+            <span><i class="ln" style="background:#f59e0b"></i><span class="cs">testovací chyba</span><span class="en">test error</span></span>
+          </div>
+        </figure>
+      </div>
+
+      <div class="controls">
+        <label class="slider"><span class="cs">složitost modelu (stupeň polynomu):</span><span class="en">model complexity (polynomial degree):</span>
+          <input type="range" id="deg" min="1" max="15" step="1" value="3"> <b id="degVal"></b></label>
+      </div>
+      <div class="controls">
+        <label class="slider"><span class="cs">šum:</span><span class="en">noise:</span>
+          <input type="range" id="noise" min="0" max="0.5" step="0.05" value="0.25"> <b id="noiseVal"></b></label>
+        <button class="util" id="btnNew"><span class="cs">Nová data</span><span class="en">New data</span></button>
+      </div>
+      <div class="vrow">
+        <span class="verdict" id="verdict"></span>
+        <span class="vtext" id="vtext"></span>
+      </div>
+      <div class="stat">
+        <span><span class="cs">trénovací chyba:</span><span class="en">training error:</span> <b id="sTr"></b></span>
+        <span><span class="cs">testovací chyba:</span><span class="en">test error:</span> <b id="sTe"></b></span>
+      </div>
+      <p class="hint"><span class="cs">Poctivě: data jsou uměle vyrobená (sinusovka + šum) a křivku tu nepočítáme gradientním sestupem, ale přímo
+        <b>metodou nejmenších čtverců</b> — dává stejný výsledek, jen hned. Verdikt „nedoučený / tak akorát / přeučený" se řídí testovací
+        chybou; ve skutečnosti by se na to použila zvláštní <b>validační</b> data, aby písemka zůstala nevyzrazená.</span>
+        <span class="en">To be fair: the data are synthetic (a sine wave + noise), and we don’t fit the curve by gradient descent here but directly with
+        <b>least squares</b> — same result, just instantly. The “underfit / just right / overfit” verdict follows the test error; in real life
+        you’d use separate <b>validation</b> data for that, so the exam stays secret.</span></p>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Jak se model učí — a jak se může naučit špatně</span><span class="en">How a model learns — and how it can learn the wrong thing</span></div>
+    <p class="lead">
+      <span class="cs">Učení modelu je <b>hledání vah s nejmenší chybou</b>. U přímky jsou váhy dvě a krajinu chyby jde nakreslit. Neuronová síť jich
+      má tisíce, velký jazykový model miliardy — krajina má pak tolik rozměrů, že si ji nikdo nepředstaví. Postup je ale stejný:
+      spočítej, kam chyba roste, a udělej malý krok opačně.</span>
+      <span class="en">Training a model means <b>searching for the weights with the lowest error</b>. A line has two weights and its error landscape can
+      be drawn. A neural network has thousands, a large language model billions — the landscape then has so many dimensions nobody can
+      picture it. The recipe is the same, though: find where the error grows and take a small step the other way.</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#0891b2">
+        <h3><span class="dot"></span><span class="cs">Ztrátová funkce</span><span class="en">The loss function</span></h3>
+        <p><span class="cs">Aby se stroj mohl zlepšovat, musí „špatnost" vyjádřit <b>jedním číslem</b> — chybou (ztrátou). Tady je to průměr
+           čtverců odchylek (MSE). Umocnění na druhou dělá z chyby vždy kladné číslo a velké odchylky trestá víc než malé.</span>
+           <span class="en">To improve, a machine must express “badness” as <b>one number</b> — the error (the loss). Here it’s the mean of squared
+           deviations (MSE). Squaring makes every error positive and punishes big deviations more than small ones.</span></p>
+      </div>
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span><span class="cs">Gradient: kam to stoupá</span><span class="en">Gradient: which way is uphill</span></h3>
+        <p><span class="cs"><b>Gradient</b> říká, jak se chyba změní, když maličko pohneš každou vahou — dohromady ukazuje směr
+           <b>nejstrmějšího stoupání</b>. My chceme dolů, takže jdeme <b>opačně</b>. Proto se tomu říká gradientní <i>sestup</i>.
+           Všimni si, že šipka nemíří rovnou do minima, ale kolmo na vrstevnice.</span>
+           <span class="en">The <b>gradient</b> tells how the error changes when you nudge each weight a tiny bit — together it points in the
+           direction of <b>steepest ascent</b>. We want to go down, so we go the <b>opposite</b> way. Hence gradient <i>descent</i>. Notice the
+           arrow doesn’t point straight at the minimum but at right angles to the contour lines.</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">Učící rychlost</span><span class="en">The learning rate</span></h3>
+        <p><span class="cs">Říká, jak <b>dlouhý</b> krok uděláme. Příliš malá: učení se plazí a stojí spoustu kroků (u velkých modelů
+           i spoustu peněz za výpočty). Příliš velká: krok přeskočí údolí na druhý svah, chyba roste a model se rozletí. Správná
+           hodnota se v praxi hledá zkoušením.</span>
+           <span class="en">It sets how <b>long</b> each step is. Too small: learning crawls and takes a huge number of steps (for large models
+           also a lot of money for compute). Too large: the step jumps over the valley to the other slope, the error grows and the model
+           blows up. In practice the right value is found by trying.</span></p>
+      </div>
+      <div class="tcard" style="--c:#7c3aed">
+        <h3><span class="dot"></span><span class="cs">Lokální minima</span><span class="en">Local minima</span></h3>
+        <p><span class="cs">Krajina chyby přímky je hladká mísa s jediným dnem. U neuronových sítí je hrbolatá a sestup může uvíznout
+           v <b>místním</b> důlku, který není nejhlubší. U velkých sítí to podle praktických zkušeností vadí méně, než by se zdálo:
+           v obrovském počtu rozměrů obvykle vede nějaký směr dál dolů a mnoho nalezených důlků je zhruba stejně dobrých.
+           Proč přesně to tak funguje, je dodnes předmětem výzkumu.</span>
+           <span class="en">A line’s error landscape is a smooth bowl with a single bottom. For neural networks it is bumpy, and descent can get
+           stuck in a <b>local</b> dip that isn’t the deepest. For large networks, practical experience says this hurts less than you might
+           expect: with a huge number of dimensions some direction usually still leads down, and many of the dips found are roughly equally
+           good. Exactly why this works is still an active research question.</span></p>
+      </div>
+      <div class="tcard" style="--c:#dc2626">
+        <h3><span class="dot"></span><span class="cs">Přeučení = nazpaměť</span><span class="en">Overfitting = memorizing</span></h3>
+        <p><span class="cs">Příliš ohebný model projde každým trénovacím bodem — i jeho šumem — a mezi body divoce kličkuje. Trénovací
+           chyba je skoro nula, na nových datech ale selže. Je to student, který se naučil odpovědi nazpaměť a nepochopil látku.</span>
+           <span class="en">A model that’s too flexible passes through every training point — noise included — and wiggles wildly in between.
+           Its training error is almost zero, yet it fails on new data. It’s the student who memorized the answers without understanding.</span></p>
+        <p><span class="cs">Stejný jev už znáš: Markovův řetězec vysokého řádu (5) jen opisuje předlohu. A difúzní model (11) s dokonalým
+           odšumovačem by jen reprodukoval trénovací obrázky.</span>
+           <span class="en">You’ve met this before: a high-order Markov chain (5) just copies its source text. And a diffusion model (11) with a
+           perfect denoiser would merely reproduce its training images.</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">Trénovací, validační, testovací</span><span class="en">Training, validation, test</span></h3>
+        <p><span class="cs">Data se dělí na tři hromádky: z <b>trénovacích</b> se model učí, podle <b>validačních</b> ladíme nastavení
+           (třeba složitost), <b>testovací</b> se použijí jen jednou na konci jako poctivá písemka. Přeučení brzdí: <b>víc dat</b>,
+           <b>jednodušší model</b>, <b>regularizace</b> (trest za příliš velké váhy) a <b>předčasné zastavení</b> učení ve chvíli, kdy
+           validační chyba začne růst.</span>
+           <span class="en">Data are split into three piles: the model learns from the <b>training</b> set, we tune settings (such as complexity)
+           on the <b>validation</b> set, and the <b>test</b> set is used only once at the end as a fair exam. Overfitting is curbed by
+           <b>more data</b>, a <b>simpler model</b>, <b>regularization</b> (a penalty for overly large weights) and <b>early stopping</b> —
+           halting training once the validation error starts to rise.</span></p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:16px"><span class="cs"><b>Pointa:</b> učení = sjíždění z kopce po krajině chyby. Neuronová síť (8) dělá úplně
+      totéž, jen s tisíci vahami — a <b>backpropagation</b> je jen chytrý a rychlý způsob, jak gradient pro všechny ty váhy spočítat
+      najednou. Velké jazykové modely se s miliardami vah učí právě takhle. A pozor: nízká chyba na trénovacích datech ještě nic
+      nedokazuje — rozhoduje chyba na datech, která model nikdy neviděl.</span>
+      <span class="en"><b>The point:</b> learning = sliding downhill on the error landscape. A neural network (8) does exactly the same, only
+      with thousands of weights — and <b>backpropagation</b> is just a clever, fast way to compute the gradient for all those weights at once.
+      Large language models with billions of weights learn exactly like this. And beware: a low error on the training data proves nothing
+      yet — what counts is the error on data the model has never seen.</span></p>
+  </section>
+
+<script is:inline>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+
+  const I18N = {
+    cs: {
+      clickHint: 'klikni = přidej bod',
+      axW: 'w (sklon)', axB: 'b (posun)',
+      minimum: 'minimum', offMap: 'mimo mapu',
+      lower: 'světlejší = menší chyba',
+      msgIdle: 'Stiskni <b>Krok</b> nebo <b>Spusť</b>. Červená čárkovaná šipka ukazuje, kam povede příští krok.',
+      msgDown: 'Chyba klesá: #A → #B.',
+      msgUp: 'Pozor: chyba <b>vzrostla</b> (#A → #B) — krok přestřelil dno údolí na protější svah.',
+      msgConv: '✓ Hotovo: jsme v minimu (gradient ≈ 0) po #N krocích. Přímka sedí na body, jak nejlépe umí.',
+      msgDiv: '💥 Rozletělo se! Učící rychlost je moc velká: každý krok přeskočí údolí a skončí výš než předchozí, čísla by utekla až do nekonečna (tady jsme to raději zastavili). Zmenši učící rychlost a dej Reset.',
+      msgPoint: 'Přidal(a) jsi bod → změnila se chyba všech přímek, takže se překreslila i krajina chyby.',
+      msgLimit: 'Po #N krocích pořád nejsme v minimu — učící rychlost je asi moc malá.',
+      axDeg: 'stupeň polynomu', axErr: 'chyba (MSE, log. měřítko)',
+      under: 'nedoučený', ok: 'tak akorát', over: 'přeučený',
+      underT: 'Model je moc jednoduchý: nezachytí ani tvar trénovacích bodů, takže chybuje všude.',
+      okT: 'Model zachytil tvar křivky, ale ne šum — funguje dobře i na testovacích bodech, které nikdy neviděl.',
+      overT: 'Model prochází trénovacími body skoro přesně, ale mezi nimi kličkuje — na testovacích bodech chybuje mnohem víc. Naučil se je nazpaměť i se šumem.',
+      dec: ',',
+    },
+    en: {
+      clickHint: 'click = add a point',
+      axW: 'w (slope)', axB: 'b (offset)',
+      minimum: 'minimum', offMap: 'off the map',
+      lower: 'lighter = smaller error',
+      msgIdle: 'Press <b>Step</b> or <b>Run</b>. The red dashed arrow shows where the next step will go.',
+      msgDown: 'The error is falling: #A → #B.',
+      msgUp: 'Careful: the error <b>went up</b> (#A → #B) — the step overshot the bottom of the valley onto the far slope.',
+      msgConv: '✓ Done: we’re at the minimum (gradient ≈ 0) after #N steps. The line fits the points as well as it can.',
+      msgDiv: '💥 It blew up! The learning rate is too large: every step jumps over the valley and lands higher than the last, and the numbers would run off to infinity (we stopped it here). Lower the learning rate and press Reset.',
+      msgPoint: 'You added a point → the error of every line changed, so the error landscape was redrawn too.',
+      msgLimit: 'After #N steps we’re still not at the minimum — the learning rate is probably too small.',
+      axDeg: 'polynomial degree', axErr: 'error (MSE, log scale)',
+      under: 'underfit', ok: 'just right', over: 'overfit',
+      underT: 'The model is too simple: it can’t even follow the shape of the training points, so it’s wrong everywhere.',
+      okT: 'The model caught the shape of the curve but not the noise — it also works on the test points it has never seen.',
+      overT: 'The model passes almost exactly through the training points but wiggles in between — it’s far worse on the test points. It memorized them, noise and all.',
+      dec: '.',
+    },
+  };
+  const T = () => I18N[curLang];
+
+  // ── pomocné funkce ───────────────────────────────────────────
+  // deterministický generátor náhodných čísel (stejné „seed" = stejná data → předvídatelné demo)
+  function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  // normálně rozdělený šum (Box–Muller)
+  function gauss(rnd){ let u = 0; while (!u) u = rnd(); return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*rnd()); }
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  // číslo pro člověka (v češtině desetinná čárka)
+  function fmt(v, d = 2){
+    if (!isFinite(v)) return '∞';
+    const s = Math.abs(v) >= 1e4 ? v.toExponential(1) : v.toFixed(d);
+    return s.replace('.', T().dec);
+  }
+  function fmtErr(v){
+    if (!isFinite(v)) return '∞';
+    if (v !== 0 && (Math.abs(v) < 0.001 || Math.abs(v) >= 1e4)) return v.toExponential(1).replace('.', T().dec);
+    return v.toFixed(v < 10 ? 3 : 1).replace('.', T().dec);
+  }
+  // souřadnice kliknutí v pixelech plátna (plátno může být CSS zmenšené — telefon)
+  function canvasXY(cv, e){
+    const r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left - cv.clientLeft) / cv.clientWidth * cv.width,
+             y: (e.clientY - r.top - cv.clientTop) / cv.clientHeight * cv.height };
+  }
+  // „ťuknutí" pointer eventy: pointerdown + pointerup skoro na stejném místě.
+  // Když prst místo toho posouvá stránku, prohlížeč pošle pointercancel a nic se nestane.
+  function onTap(cv, fn){
+    let down = null;
+    cv.addEventListener('pointerdown', e => { down = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+    cv.addEventListener('pointercancel', () => { down = null; });
+    cv.addEventListener('pointerup', e => {
+      if (down && down.id === e.pointerId && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 10) fn(canvasXY(cv, e));
+      down = null;
+    });
+  }
+  // text na poloprůhledném bílém štítku (aktuálním písmem plátna)
+  function tag(ctx, text, x, y, align = 'left'){
+    const wd = ctx.measureText(text).width, x0 = align === 'right' ? x - wd : x;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillRect(x0 - 3, y - 12, wd + 6, 16);
+    ctx.fillStyle = '#374151'; ctx.textAlign = 'left'; ctx.fillText(text, x0, y);
+  }
+  function arrow(ctx, x1, y1, x2, y2, head){
+    const a = Math.atan2(y2 - y1, x2 - x1);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    if (Math.hypot(x2 - x1, y2 - y1) < head * 1.2) return;
+    ctx.beginPath(); ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - head*Math.cos(a - 0.45), y2 - head*Math.sin(a - 0.45));
+    ctx.lineTo(x2 - head*Math.cos(a + 0.45), y2 - head*Math.sin(a + 0.45));
+    ctx.closePath(); ctx.fill();
+  }
+
+  // ═════════════ ČÁST A: gradientní sestup ═════════════
+  const cvD = $('cvData'), cD = cvD.getContext('2d');
+  const cvL = $('cvLand'), cL = cvL.getContext('2d');
+  const DW = cvD.width, DH = cvD.height, LW = cvL.width, LH = cvL.height;
+  const XR = [-1, 2], YR = [-1.25, 3.5];          // rozsah grafu dat
+  // mapa chyby: ±RW v ose w a ±RB v ose b kolem minima; poměr RW:RB = poměr plátna,
+  // takže obě osy mají stejné měřítko a šipka gradientu je opravdu kolmá na vrstevnice
+  const RW = 3, RB = RW * LH / LW;
+  const LR_MIN = 0.01, LR_MAX = 1.5;               // posuvník učící rychlosti (logaritmicky)
+  const DIVERGE = 1e4;                             // chyba nad touhle mezí (nebo ∞) = rozletělo se
+  const MAX_STEPS = 3000;
+
+  let pts = [];                  // body {x, y}
+  let w = 0, b = 0;              // váhy modelu y = w·x + b
+  let start = { w: -1.3, b: 0.2 };  // výchozí bod (Reset ho vylosuje znovu)
+  let path = [];                 // trajektorie v rovině (w, b)
+  let step = 0, lr = 0.6, timerA = null, diverged = false;
+  let S = null;                  // průměry Σx, Σx², Σy, Σxy, Σy² → chyba libovolné přímky v O(1)
+  let opt = { w: 0, b: 0, L: 0 };// skutečné minimum — JEN pro kreslení mapy, algoritmus ho nepoužívá
+  let msgKey = 'msgIdle', msgArgs = {};
+  const heat = document.createElement('canvas'); heat.width = LW; heat.height = LH;
+
+  function defaultPoints(){
+    const rnd = mulberry32(7), out = [], n = 16;
+    for (let i = 0; i < n; i++) {
+      const x = -0.5 + 2 * (i + 0.5) / n + (rnd() - 0.5) * 0.1;
+      out.push({ x, y: 1.2 * x + 0.6 + 0.3 * gauss(rnd) });   // „pravda" y = 1,2·x + 0,6 plus šum
+    }
+    return out;
+  }
+
+  // chyba (MSE) a její gradient — přímo z definice, bod po bodu
+  //   L(w,b)  = 1/n · Σ (w·xᵢ + b − yᵢ)²
+  //   ∂L/∂w   = 2/n · Σ (w·xᵢ + b − yᵢ) · xᵢ      (derivace vnitřku podle w je xᵢ)
+  //   ∂L/∂b   = 2/n · Σ (w·xᵢ + b − yᵢ)           (derivace vnitřku podle b je 1)
+  function lossAndGrad(w, b){
+    let L = 0, gw = 0, gb = 0;
+    for (const p of pts) {
+      const e = w * p.x + b - p.y;       // odchylka bodu od přímky (červená úsečka)
+      L += e * e; gw += 2 * e * p.x; gb += 2 * e;
+    }
+    const n = pts.length;
+    return { L: L / n, gw: gw / n, gb: gb / n };
+  }
+
+  // Pro kreslení mapy (~200 000 pixelů) potřebujeme chybu rychle: roznásobením
+  // L = w²·x̄² + 2wb·x̄ + b² − 2w·xy̅ − 2b·ȳ + y̅², kde pruh = průměr přes body.
+  function prepareStats(){
+    const n = pts.length; let sx = 0, sxx = 0, sy = 0, sxy = 0, syy = 0;
+    for (const p of pts) { sx += p.x; sxx += p.x*p.x; sy += p.y; sxy += p.x*p.y; syy += p.y*p.y; }
+    S = { sx: sx/n, sxx: sxx/n, sy: sy/n, sxy: sxy/n, syy: syy/n };
+    // přesné minimum (derivace = 0) — jen abychom věděli, kam mapu vycentrovat
+    const ow = (S.sxy - S.sx*S.sy) / (S.sxx - S.sx*S.sx), ob = S.sy - ow * S.sx;
+    opt = { w: ow, b: ob, L: fastLoss(ow, ob) };
+  }
+  const fastLoss = (w, b) => Math.max(0, w*w*S.sxx + 2*w*b*S.sx + b*b - 2*w*S.sxy - 2*b*S.sy + S.syy);
+
+  // převod (w, b) ↔ pixely mapy
+  const mapX = w => (w - (opt.w - RW)) / (2 * RW) * LW;
+  const mapY = b => (1 - (b - (opt.b - RB)) / (2 * RB)) * LH;
+  // převod data ↔ pixely grafu dat
+  const dX = x => (x - XR[0]) / (XR[1] - XR[0]) * DW;
+  const dY = y => (1 - (y - YR[0]) / (YR[1] - YR[0])) * DH;
+
+  // barevná škála mapy: světlá = malá chyba, tmavá = velká
+  const RAMP = [[0, [255, 251, 235]], [0.3, [186, 240, 250]], [0.65, [34, 160, 190]], [1, [21, 70, 95]]];
+  function rampColor(t){
+    t = clamp(t, 0, 1);
+    for (let i = 1; i < RAMP.length; i++) if (t <= RAMP[i][0]) {
+      const [t0, c0] = RAMP[i-1], [t1, c1] = RAMP[i], k = (t - t0) / (t1 - t0);
+      return [0, 1, 2].map(j => c0[j] + (c1[j] - c0[j]) * k);
+    }
+    return RAMP[RAMP.length - 1][1];
+  }
+
+  // předkreslení krajiny chyby do skrytého plátna (jen když se změní data)
+  function buildHeat(){
+    const hctx = heat.getContext('2d'), img = hctx.createImageData(LW, LH), d = img.data;
+    // referenční „výška" = chyba v nejvzdálenějším rohu mapy
+    let Lref = 0;
+    for (const sw of [-1, 1]) for (const sb of [-1, 1]) Lref = Math.max(Lref, fastLoss(opt.w + sw*RW, opt.b + sb*RB) - opt.L);
+    // v = odmocnina z převýšení nad minimem → vrstevnice vyjdou jako pravidelné elipsy
+    const K = 11, band = new Int16Array(LW * LH), v = new Float32Array(LW * LH);
+    for (let py = 0; py < LH; py++) {
+      const bb = opt.b + RB - (py + 0.5) / LH * 2 * RB;
+      for (let px = 0; px < LW; px++) {
+        const ww = opt.w - RW + (px + 0.5) / LW * 2 * RW;
+        const t = Math.sqrt((fastLoss(ww, bb) - opt.L) / Lref);
+        v[py*LW + px] = t; band[py*LW + px] = Math.floor(t * K);
+      }
+    }
+    for (let py = 0; py < LH; py++) for (let px = 0; px < LW; px++) {
+      const i = py*LW + px, c = rampColor(v[i]);
+      // vrstevnice = hranice mezi „pásmy" stejné chyby
+      const edge = (px + 1 < LW && band[i+1] !== band[i]) || (py + 1 < LH && band[i+LW] !== band[i]);
+      const k = edge ? 0.72 : 1;
+      d[i*4] = c[0]*k; d[i*4+1] = c[1]*k; d[i*4+2] = c[2]*k; d[i*4+3] = 255;
+    }
+    hctx.putImageData(img, 0, 0);
+  }
+
+  // ── kreslení: graf dat ──
+  function drawData(){
+    const c = cD;
+    c.clearRect(0, 0, DW, DH);
+    // mřížka a osy
+    c.lineWidth = 1; c.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif'; c.fillStyle = '#9ca3af';
+    for (let x = Math.ceil(XR[0]); x <= XR[1]; x++) {
+      c.strokeStyle = x === 0 ? '#9ca3af' : '#f0f1f3';
+      c.beginPath(); c.moveTo(dX(x), 0); c.lineTo(dX(x), DH); c.stroke();
+      c.fillText(String(x), dX(x) + 4, DH - 6);
+    }
+    for (let y = Math.ceil(YR[0]); y <= YR[1]; y++) {
+      c.strokeStyle = y === 0 ? '#9ca3af' : '#f0f1f3';
+      c.beginPath(); c.moveTo(0, dY(y)); c.lineTo(DW, dY(y)); c.stroke();
+      if (y !== 0) c.fillText(String(y), dX(0) + 4, dY(y) - 4);
+    }
+    c.fillText('x', DW - 14, dY(0) - 6); c.fillText('y', dX(0) - 12, 14);
+
+    const ok = isFinite(w) && isFinite(b);
+    // odchylky bodů od přímky (to, co MSE sčítá)
+    if (ok) {
+      c.strokeStyle = 'rgba(220,38,38,0.55)'; c.lineWidth = 2;
+      for (const p of pts) {
+        c.beginPath(); c.moveTo(dX(p.x), dY(p.y)); c.lineTo(dX(p.x), clamp(dY(w*p.x + b), -50, DH + 50)); c.stroke();
+      }
+    }
+    // přímka modelu — ořízneme ji na viditelný obdélník, ať obří čísla nerozbijí kreslení
+    if (ok) {
+      let x0 = XR[0], x1 = XR[1];
+      if (Math.abs(w) > 1e-9) {
+        const xa = (YR[0] - 1 - b) / w, xb = (YR[1] + 1 - b) / w;
+        x0 = Math.max(x0, Math.min(xa, xb)); x1 = Math.min(x1, Math.max(xa, xb));
+      }
+      if (x0 < x1) {
+        c.strokeStyle = '#0891b2'; c.lineWidth = 3.5;
+        c.beginPath(); c.moveTo(dX(x0), dY(w*x0 + b)); c.lineTo(dX(x1), dY(w*x1 + b)); c.stroke();
+      }
+    }
+    // body
+    for (const p of pts) {
+      c.beginPath(); c.arc(dX(p.x), dY(p.y), 6.5, 0, 7);
+      c.fillStyle = '#2563eb'; c.fill(); c.lineWidth = 2; c.strokeStyle = '#fff'; c.stroke();
+    }
+    c.fillStyle = '#9ca3af'; c.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif';
+    c.textAlign = 'right'; c.fillText(T().clickHint, DW - 8, 16); c.textAlign = 'left';
+  }
+
+  // ── kreslení: krajina chyby a trajektorie ──
+  function drawLand(){
+    const c = cL;
+    c.clearRect(0, 0, LW, LH);
+    c.drawImage(heat, 0, 0);
+    c.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif';
+
+    // popisky os (celá čísla w a b) na bílých štítcích, ať jsou čitelné i na tmavé části mapy
+    for (let v = Math.ceil(opt.w - RW); v <= opt.w + RW; v++) {
+      const x = mapX(v); c.fillStyle = '#374151'; c.fillRect(x, LH - 5, 1, 5); tag(c, String(v), x + 3, LH - 8);
+    }
+    for (let v = Math.ceil(opt.b - RB); v <= opt.b + RB; v++) {
+      const y = mapY(v); c.fillStyle = '#374151'; c.fillRect(0, y, 5, 1); tag(c, String(v), 8, y + 4);
+    }
+    c.font = '600 12px -apple-system, "Segoe UI", Roboto, sans-serif';
+    tag(c, T().axW + ' →', LW - 8, LH - 26, 'right');
+    tag(c, '↑ ' + T().axB, 30, 17);
+    c.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif';
+    tag(c, T().lower, LW - 8, 17, 'right');
+
+    // minimum (✕)
+    const mx = mapX(opt.w), my = mapY(opt.b);
+    c.strokeStyle = '#111827'; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(mx - 6, my - 6); c.lineTo(mx + 6, my + 6); c.moveTo(mx + 6, my - 6); c.lineTo(mx - 6, my + 6); c.stroke();
+    c.fillStyle = '#111827'; c.font = '600 12px -apple-system, "Segoe UI", Roboto, sans-serif';
+    c.fillText(T().minimum, mx + 9, my + 16);
+
+    // trajektorie: pixely ořízneme, aby nekonečna a obří čísla neshodila kreslení
+    const P = q => ({ x: clamp(mapX(q.w), -2000, LW + 2000), y: clamp(mapY(q.b), -2000, LH + 2000) });
+    c.save(); c.beginPath(); c.rect(0, 0, LW, LH); c.clip();
+    const pp = path.filter(q => isFinite(q.w) && isFinite(q.b)).map(P);
+    const firstArrow = Math.max(1, pp.length - 40);          // šipky jen u posledních 40 kroků
+    c.strokeStyle = '#111827'; c.fillStyle = '#111827'; c.lineWidth = 2;
+    for (let i = 1; i < pp.length; i++) {
+      if (i >= firstArrow) arrow(c, pp[i-1].x, pp[i-1].y, pp[i].x, pp[i].y, 9);
+      else { c.beginPath(); c.moveTo(pp[i-1].x, pp[i-1].y); c.lineTo(pp[i].x, pp[i].y); c.stroke(); }
+    }
+    for (const q of pp) { c.beginPath(); c.arc(q.x, q.y, 2.5, 0, 7); c.fill(); }
+
+    // příští krok = −η · gradient (červená čárkovaná šipka)
+    if (!diverged && isFinite(w) && isFinite(b)) {
+      const g = lossAndGrad(w, b);
+      const nx = P({ w: w - lr * g.gw, b: b - lr * g.gb }), cx = P({ w, b });
+      c.setLineDash([6, 5]); c.strokeStyle = '#dc2626'; c.fillStyle = '#dc2626'; c.lineWidth = 2.5;
+      arrow(c, cx.x, cx.y, nx.x, nx.y, 11);
+      c.setLineDash([]);
+    }
+    c.restore();
+
+    // aktuální bod (když utekl z mapy, ukážeme ho na okraji)
+    if (isFinite(w) && isFinite(b)) {
+      const cx = mapX(w), cy = mapY(b), inside = cx >= 0 && cx <= LW && cy >= 0 && cy <= LH;
+      const px = clamp(cx, 9, LW - 9), py = clamp(cy, 9, LH - 9);
+      c.beginPath(); c.arc(px, py, 8, 0, 7);
+      c.fillStyle = inside ? '#dc2626' : '#fff'; c.fill();
+      c.lineWidth = 2.5; c.strokeStyle = inside ? '#fff' : '#dc2626'; c.stroke();
+      if (!inside) {
+        c.fillStyle = '#991b1b'; c.font = '600 12px -apple-system, "Segoe UI", Roboto, sans-serif';
+        c.textAlign = px > LW / 2 ? 'right' : 'left';
+        c.fillText(T().offMap, px + (px > LW / 2 ? -14 : 14), clamp(py + 4, 30, LH - 30)); c.textAlign = 'left';
+      }
+    }
+  }
+
+  function renderA(){
+    drawData(); drawLand();
+    const L = lossAndGrad(w, b).L;
+    $('sStep').textContent = step;
+    $('sW').textContent = fmt(w); $('sB').textContent = fmt(b);
+    $('sL').textContent = fmtErr(L); $('sMin').textContent = fmtErr(opt.L);
+    const cls = { msgIdle: '', msgDown: '', msgPoint: '', msgUp: 'warn', msgLimit: 'warn', msgConv: 'good', msgDiv: 'bad' }[msgKey];
+    let t = T()[msgKey];
+    for (const k in msgArgs) t = t.replace('#' + k, msgArgs[k]);
+    $('msgA').className = 'msg ' + cls; $('msgA').innerHTML = t;
+    $('btnStep').disabled = diverged || !!timerA;
+    $('btnRun').disabled = diverged || !!timerA;
+    $('btnStop').disabled = !timerA;
+    $('lrVal').textContent = fmt(lr, lr < 0.1 ? 3 : 2);
+    document.querySelectorAll('#presets button').forEach(bt => bt.classList.toggle('on', Math.abs(+bt.dataset.lr - lr) < 1e-9));
+  }
+
+  // jeden krok gradientního sestupu
+  function doStep(){
+    if (diverged) return;
+    const g = lossAndGrad(w, b);
+    w = w - lr * g.gw;                  // krok PROTI gradientu, dlouhý „učící rychlost × gradient"
+    b = b - lr * g.gb;
+    step++;
+    path.push({ w, b });
+    const L2 = lossAndGrad(w, b).L;
+    if (!isFinite(w) || !isFinite(b) || !isFinite(L2) || L2 > DIVERGE) {
+      diverged = true; msgKey = 'msgDiv'; msgArgs = {}; stopRun(); return;
+    }
+    const g2 = lossAndGrad(w, b);
+    if (Math.hypot(g2.gw, g2.gb) < 1e-3) {
+      msgKey = 'msgConv'; msgArgs = { N: step }; stopRun(); return;
+    }
+    msgKey = L2 > g.L ? 'msgUp' : 'msgDown';
+    msgArgs = { A: fmtErr(g.L), B: fmtErr(L2) };
+    if (timerA && step >= MAX_STEPS) { msgKey = 'msgLimit'; msgArgs = { N: step }; stopRun(); }
+  }
+
+  function startRun(){
+    if (timerA || diverged) return;
+    timerA = setInterval(() => { doStep(); renderA(); }, 200);
+    renderA();
+  }
+  function stopRun(){
+    if (timerA) { clearInterval(timerA); timerA = null; }
+  }
+  function restart(){                  // zpět na výchozí bod, vymazat historii
+    stopRun();
+    w = start.w; b = start.b; path = [{ w, b }]; step = 0; diverged = false;
+    msgKey = 'msgIdle'; msgArgs = {};
+  }
+  function randomStart(){             // náhodné místo na mapě, ne úplně blízko minima
+    const a = Math.random() * 2 * Math.PI, r = 0.6 + 0.35 * Math.random();
+    start = { w: opt.w + Math.cos(a) * r * RW, b: opt.b + Math.sin(a) * r * RB };
+  }
+
+  // posuvník: logaritmická stupnice, ať jde jemně nastavit 0,01 i 1,5
+  const lrToSlider = v => Math.round(1000 * Math.log(v / LR_MIN) / Math.log(LR_MAX / LR_MIN));
+  const sliderToLr = s => LR_MIN * Math.pow(LR_MAX / LR_MIN, s / 1000);
+  function setLr(v){ lr = v; $('lr').value = lrToSlider(v); }
+
+  $('lr').addEventListener('input', () => { lr = +sliderToLr(+$('lr').value).toPrecision(2); renderA(); });
+  $('btnStep').addEventListener('click', () => { if (!timerA) { doStep(); renderA(); } });
+  $('btnRun').addEventListener('click', startRun);
+  $('btnStop').addEventListener('click', () => { stopRun(); renderA(); });
+  $('btnReset').addEventListener('click', () => { randomStart(); restart(); renderA(); });
+  $('btnPts').addEventListener('click', () => {
+    stopRun(); pts = defaultPoints(); prepareStats(); buildHeat();
+    start = { w: -1.3, b: 0.2 }; restart(); renderA();
+  });
+  // předvolba = nastav rychlost, vrať se na stejný start a rovnou spusť (férové srovnání)
+  document.querySelectorAll('#presets button').forEach(bt => bt.addEventListener('click', () => {
+    setLr(+bt.dataset.lr); restart(); startRun();
+  }));
+  // kliknutí do dat přidá bod → změní se chyba všech přímek → nová mapa
+  onTap(cvD, ({ x, y }) => {
+    const px = XR[0] + x / DW * (XR[1] - XR[0]), py = YR[0] + (1 - y / DH) * (YR[1] - YR[0]);
+    pts.push({ x: px, y: py });
+    prepareStats(); buildHeat();
+    if (!diverged) { msgKey = 'msgPoint'; msgArgs = {}; }
+    renderA();
+  });
+
+  // ═════════════ ČÁST B: přeučení ═════════════
+  const cvF = $('cvFit'), cF = cvF.getContext('2d'), cvE = $('cvErr'), cE = cvE.getContext('2d');
+  const FW = cvF.width, FH = cvF.height, EW = cvE.width, EH = cvE.height;
+  const NTR = 16, NTE = 30, MAXDEG = 15;
+  const LAMBDA = 1e-9;                              // malá ridge regularizace (jen kvůli numerické stabilitě)
+  const FY = [-2, 2];                               // svislý rozsah grafu
+  const TRUE_F = x => Math.sin(2 * Math.PI * x);    // „skutečná" závislost, kterou model nezná
+  const DEFAULT_SEED = 4;
+  let seedB = DEFAULT_SEED, noise = 0.25, deg = 3;
+  let train = [], test = [], coefs = [], trErr = [], teErr = [];
+
+  // data: x trénovacích bodů zhruba rovnoměrně (s náhodným posunem), testovací náhodně;
+  // šum si pamatujeme zvlášť (z), takže posuvník šumu mění jen jeho velikost, ne body
+  function genB(seed){
+    const rnd = mulberry32(seed);
+    train = []; test = [];
+    for (let i = 0; i < NTR; i++) train.push({ x: (i + 0.5) / NTR + (rnd() - 0.5) * 0.9 / NTR, z: gauss(rnd) });
+    for (let i = 0; i < NTE; i++) test.push({ x: 0.02 + 0.96 * rnd(), z: gauss(rnd) });
+  }
+  function applyNoise(){ for (const p of train.concat(test)) p.y = TRUE_F(p.x) + noise * p.z; }
+
+  // Báze Čebyševových polynomů T₀…T_d na x škálovaném do [−1, 1]:
+  // T₀ = 1, T₁ = x, T_{k+1} = 2x·T_k − T_{k−1}. Hodnoty zůstávají v [−1, 1], takže
+  // soustava rovnic je mnohem stabilnější než s obyčejnými mocninami 1, x, x², … x¹⁵.
+  function basis(x, d){
+    const s = 2 * x - 1, t = [1];
+    if (d >= 1) t.push(s);
+    for (let k = 2; k <= d; k++) t.push(2 * s * t[k-1] - t[k-2]);
+    return t;
+  }
+  // Gaussova eliminace s částečnou pivotací (vždy dělíme největším číslem ve sloupci)
+  function solve(A, y){
+    const n = y.length;
+    for (let c = 0; c < n; c++) {
+      let p = c;
+      for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+      [A[c], A[p]] = [A[p], A[c]]; [y[c], y[p]] = [y[p], y[c]];
+      for (let r = c + 1; r < n; r++) {
+        const m = A[r][c] / A[c][c];
+        for (let k = c; k < n; k++) A[r][k] -= m * A[c][k];
+        y[r] -= m * y[c];
+      }
+    }
+    const x = new Array(n).fill(0);
+    for (let r = n - 1; r >= 0; r--) {
+      let s = y[r];
+      for (let k = r + 1; k < n; k++) s -= A[r][k] * x[k];
+      x[r] = s / A[r][r];
+    }
+    return x;
+  }
+  // Metoda nejmenších čtverců: hledáme koeficienty c, které minimalizují Σ (model(xᵢ) − yᵢ)².
+  // Derivace = 0 dá „normální rovnice" (ΦᵀΦ + λI)·c = Φᵀy; malé λ (ridge) drží soustavu řešitelnou.
+  function fitPoly(data, d){
+    const m = d + 1, A = Array.from({ length: m }, () => new Array(m).fill(0)), y = new Array(m).fill(0);
+    for (const p of data) {
+      const t = basis(p.x, d);
+      for (let i = 0; i < m; i++) { y[i] += t[i] * p.y; for (let j = 0; j < m; j++) A[i][j] += t[i] * t[j]; }
+    }
+    for (let i = 0; i < m; i++) A[i][i] += LAMBDA * data.length;
+    return solve(A, y);
+  }
+  function predict(c, x){ const t = basis(x, c.length - 1); let s = 0; for (let i = 0; i < c.length; i++) s += c[i] * t[i]; return s; }
+  const mse = (c, data) => data.reduce((s, p) => s + (predict(c, p.x) - p.y) ** 2, 0) / data.length;
+
+  // natrénuj všech 15 modelů najednou (jsou malé), ať máme celou křivku chyb
+  function fitAll(){
+    coefs = []; trErr = []; teErr = [];
+    for (let d = 1; d <= MAXDEG; d++) {
+      const c = fitPoly(train, d);           // učí se JEN z trénovacích bodů
+      coefs[d] = c; trErr[d] = mse(c, train); teErr[d] = mse(c, test);
+    }
+  }
+  // verdikt podle testovací chyby vůči nejlepšímu stupni
+  function verdict(){
+    let best = 1; for (let d = 2; d <= MAXDEG; d++) if (teErr[d] < teErr[best]) best = d;
+    if (teErr[deg] > 1.5 * teErr[best]) return deg < best ? 'under' : 'over';
+    return 'ok';
+  }
+
+  const fX = x => 16 + x * (FW - 32);
+  const fY = y => (1 - (y - FY[0]) / (FY[1] - FY[0])) * FH;
+  function drawFit(){
+    const c = cF;
+    c.clearRect(0, 0, FW, FH);
+    c.lineWidth = 1; c.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif';
+    for (let y = FY[0] + 1; y < FY[1]; y++) {
+      c.strokeStyle = y === 0 ? '#d1d5db' : '#f0f1f3';
+      c.beginPath(); c.moveTo(0, fY(y)); c.lineTo(FW, fY(y)); c.stroke();
+    }
+    // skutečná křivka (čárkovaně)
+    c.setLineDash([6, 6]); c.strokeStyle = '#9ca3af'; c.lineWidth = 2; c.beginPath();
+    for (let i = 0; i <= 200; i++) { const x = i / 200; i ? c.lineTo(fX(x), fY(TRUE_F(x))) : c.moveTo(fX(x), fY(TRUE_F(x))); }
+    c.stroke(); c.setLineDash([]);
+    // křivka modelu — pixely ořízneme, přeučený polynom umí vystřelit hodně daleko
+    c.save(); c.beginPath(); c.rect(0, 0, FW, FH); c.clip();
+    c.strokeStyle = '#0891b2'; c.lineWidth = 3.5; c.beginPath();
+    for (let i = 0; i <= 400; i++) {
+      const x = i / 400, py = clamp(fY(predict(coefs[deg], x)), -1000, FH + 1000);
+      i ? c.lineTo(fX(x), py) : c.moveTo(fX(x), py);
+    }
+    c.stroke(); c.restore();
+    // body: testovací (oranžové, menší) a trénovací (modré)
+    for (const p of test) {
+      c.beginPath(); c.arc(fX(p.x), fY(p.y), 5, 0, 7); c.fillStyle = '#f59e0b'; c.fill();
+      c.lineWidth = 1.5; c.strokeStyle = '#fff'; c.stroke();
+    }
+    for (const p of train) {
+      c.beginPath(); c.arc(fX(p.x), fY(p.y), 6.5, 0, 7); c.fillStyle = '#2563eb'; c.fill();
+      c.lineWidth = 2; c.strokeStyle = '#fff'; c.stroke();
+    }
+  }
+
+  // graf chyb: vodorovně stupeň 1–15, svisle chyba v logaritmickém měřítku
+  const EP = { l: 56, r: 12, t: 14, b: 40 };
+  const eX = d => EP.l + (d - 1) / (MAXDEG - 1) * (EW - EP.l - EP.r);
+  let eLo = -3, eHi = 1;
+  const eY = v => { const lv = clamp(Math.log10(Math.max(v, 1e-300)), eLo, eHi);
+                    return EP.t + (1 - (lv - eLo) / (eHi - eLo)) * (EH - EP.t - EP.b); };
+  const decLabel = k => k >= 0 ? String(10 ** k) : (10 ** k).toFixed(-k).replace('.', T().dec);   // 0,01 · 0,1 · 1 · 10
+  function drawErr(){
+    const c = cE;
+    c.clearRect(0, 0, EW, EH);
+    const all = trErr.slice(1).concat(teErr.slice(1)).filter(v => v > 0 && isFinite(v));
+    eLo = clamp(Math.floor(Math.log10(Math.min(...all))), -4, -1);
+    eHi = clamp(Math.ceil(Math.log10(Math.max(...all))), 0, 4);
+    c.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif'; c.lineWidth = 1;
+    // vodorovné čáry po řádech
+    c.textAlign = 'right';
+    for (let k = eLo; k <= eHi; k++) {
+      const y = eY(10 ** k);
+      c.strokeStyle = '#f0f1f3'; c.beginPath(); c.moveTo(EP.l, y); c.lineTo(EW - EP.r, y); c.stroke();
+      c.fillStyle = '#9ca3af'; c.fillText(decLabel(k), EP.l - 6, y + 4);
+    }
+    // zvýrazněný aktuální stupeň
+    const cx = eX(deg);
+    c.fillStyle = 'rgba(8,145,178,0.12)'; c.fillRect(cx - 12, EP.t, 24, EH - EP.t - EP.b);
+    c.strokeStyle = '#0891b2'; c.lineWidth = 2; c.beginPath(); c.moveTo(cx, EP.t); c.lineTo(cx, EH - EP.b); c.stroke();
+    // osa x: stupně
+    c.textAlign = 'center';
+    for (let d = 1; d <= MAXDEG; d++) {
+      c.fillStyle = d === deg ? '#0e7490' : '#9ca3af';
+      c.font = (d === deg ? '700 13px ' : '12px ') + '-apple-system, "Segoe UI", Roboto, sans-serif';
+      c.fillText(String(d), eX(d), EH - EP.b + 16);
+    }
+    c.fillStyle = '#6b7280'; c.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif';
+    c.fillText(T().axDeg + ' →', (EP.l + EW - EP.r) / 2, EH - 6);
+    c.save(); c.translate(14, (EP.t + EH - EP.b) / 2); c.rotate(-Math.PI / 2); c.fillText(T().axErr, 0, 0); c.restore();
+    c.textAlign = 'left';
+    // dvě čáry chyb
+    for (const [arr, col] of [[trErr, '#2563eb'], [teErr, '#f59e0b']]) {
+      c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 3; c.beginPath();
+      for (let d = 1; d <= MAXDEG; d++) d === 1 ? c.moveTo(eX(d), eY(arr[d])) : c.lineTo(eX(d), eY(arr[d]));
+      c.stroke();
+      for (let d = 1; d <= MAXDEG; d++) { c.beginPath(); c.arc(eX(d), eY(arr[d]), d === deg ? 6 : 3.5, 0, 7); c.fill(); }
+    }
+  }
+
+  function renderB(){
+    drawFit(); drawErr();
+    $('degVal').textContent = deg;
+    $('noiseVal').textContent = fmt(noise, 2);
+    const v = verdict();
+    $('verdict').className = 'verdict ' + v; $('verdict').textContent = T()[v];
+    $('vtext').textContent = T()[v + 'T'];
+    $('sTr').textContent = fmtErr(trErr[deg]); $('sTe').textContent = fmtErr(teErr[deg]);
+  }
+  function rebuildB(){ applyNoise(); fitAll(); renderB(); }
+
+  $('deg').addEventListener('input', () => { deg = +$('deg').value; renderB(); });
+  $('noise').addEventListener('input', () => { noise = +$('noise').value; rebuildB(); });
+  $('btnNew').addEventListener('click', () => { seedB = 1 + Math.floor(Math.random() * 1e9); genB(seedB); rebuildB(); });
+  onTap(cvE, ({ x }) => {
+    deg = clamp(Math.round((x - EP.l) / (EW - EP.l - EP.r) * (MAXDEG - 1)) + 1, 1, MAXDEG);
+    $('deg').value = deg; renderB();
+  });
+
+  // ── start ────────────────────────────────────────────────────
+  pts = defaultPoints(); prepareStats(); buildHeat();
+  setLr(0.6); restart();
+  genB(seedB); applyNoise(); fitAll();
+
+  // přepnutí jazyka (volá se i při načtení): překresli všechno, co obsahuje text
+  window.onLangChange = function(l){ curLang = l; renderA(); renderB(); };
+  renderA(); renderB();
+</script>
+</Layout>
