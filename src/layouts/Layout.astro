@@ -28,7 +28,7 @@ const idx = LIVE.findIndex(c => c.slug === slug);
 const ch = idx >= 0 ? LIVE[idx] : null;
 const prev = idx > 0 ? LIVE[idx - 1] : null;
 const next = idx >= 0 && idx < LIVE.length - 1 ? LIVE[idx + 1] : null;
-// text „Co dál?" mluví o bezprostředně následující kapitole → jen když opravdu následuje
+// text „Co dál?“ mluví o bezprostředně následující kapitole → jen když opravdu následuje
 const nextHook = ch && next && ch.nextCs && +next.n === +ch.n + 1;
 
 // ── Verze a datum poslední aktualizace ──
@@ -102,7 +102,7 @@ const FAVICON = 'data:image/svg+xml,' + encodeURIComponent(
   .back .arrow { transition: transform .12s; }
   .back:hover .arrow { transform: translateX(-3px); }
 
-  /* Orientační blok „Co a jak?" — stejný vzhled na všech demech.
+  /* Orientační blok „Co a jak?“ — stejný vzhled na všech demech.
      Vizuálně shodný s per-page .explain boxem, aby série držela pohromadě. */
   .whathow { width: min(700px, 96vw); margin: 0 auto 18px; text-align: left;
     background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
@@ -131,7 +131,7 @@ const FAVICON = 'data:image/svg+xml,' + encodeURIComponent(
   }
   :where(.demo) .intro b { color: #374151; }
 
-  /* blok „Co a jak?" s krokovým diagramem */
+  /* blok „Co a jak?“ s krokovým diagramem */
   :where(.demo) .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
   :where(.demo) .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
   :where(.demo) .explain p b { color: #374151; }

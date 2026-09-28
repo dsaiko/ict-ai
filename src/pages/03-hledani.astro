@@ -69,7 +69,7 @@ import Layout from '../layouts/Layout.astro';
   <p class="intro">
     <span class="cs">V prvním příkladu jsme viděli, že <b>projít všechny možnosti</b> nejde. Tady ukazujeme,
     jak se v obřím prostoru hledá <b>chytře</b>. Stejná mřížka, stejný cíl — ale podívej se,
-    kolik políček musí každý postup prozkoumat. <b>Klikni a táhni</b> myší pro kreslení zdí.</span>
+    kolik políček musí každý postup prozkoumat. <b>Kliknutím a tažením</b> myši nakreslíš zdi.</span>
     <span class="en">In the first example we saw that <b>going through every possibility</b> is impossible. Here we show
     how to search a huge space <b>cleverly</b>. Same grid, same goal — but look how many cells each method has to
     explore. <b>Click and drag</b> the mouse to draw walls.</span>
@@ -79,7 +79,7 @@ import Layout from '../layouts/Layout.astro';
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Bludiště na mřížce a čtyři způsoby, jak v něm najít cestu: náhodné tápání, hladový postup, <b>BFS</b> a <b>A*</b>. Stejný cíl, ale každý prohledá jiný počet políček.</span><span class="en">A grid maze and four ways to find a path through it: random wandering, a greedy approach, <b>BFS</b> and <b>A*</b>. Same goal, but each explores a different number of cells.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Myší nakresli zdi a spusť postupně všechny čtyři postupy. Sleduj, kolik políček každý obarví (= musí prozkoumat), a srovnej čísla v tabulce dole.</span><span class="en">Draw walls with the mouse and run all four methods in turn. Watch how many cells each one colors in (= has to explore), and compare the numbers in the table below.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">V příkladu 1 jsme viděli, že „zkusit všechno" nejde. Tady je řešení: chytré hledání s <b>heuristikou</b> (odhadem směru k cíli) prozkoumá výrazně méně možností — na volné ploše i řádově. Tak se hrubá síla nahrazuje rozumem.</span><span class="en">Example 1 showed that “trying everything” is impossible. Here is the fix: smart search with a <b>heuristic</b> (a guess of the direction toward the goal) explores far fewer options — on open ground even by an order of magnitude. This is how brute force gives way to reasoning.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">V příkladu 1 jsme viděli, že „zkusit všechno“ nejde. Tady je řešení: chytré hledání s <b>heuristikou</b> (odhadem směru k cíli) prozkoumá výrazně méně možností — na volné ploše i řádově. Tak se hrubá síla nahrazuje rozumem.</span><span class="en">Example 1 showed that “trying everything” is impossible. Here is the fix: smart search with a <b>heuristic</b> (a guess of the direction toward the goal) explores far fewer options — on open ground even by an order of magnitude. This is how brute force gives way to reasoning.</span></p>
   </div>
 
   <div class="grid" id="grid"></div>
@@ -132,7 +132,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#9ca3af">
         <h3><span class="dot"></span><span class="cs">Náhodné tápání</span><span class="en">Random walk</span></h3>
         <p><span class="cs">Z aktuálního políčka skočí na <b>náhodného souseda</b>. Nemá paměť ani cíl —
-           jen bloudí. Obdoba „hrubé síly" z prvního příkladu.</span>
+           jen bloudí. Obdoba „hrubé síly“ z prvního příkladu.</span>
            <span class="en">From the current cell it jumps to a <b>random neighbor</b>. It has no memory and no goal —
            it just wanders. Like the "brute force" of the first example.</span></p>
         <div class="pm">
@@ -144,7 +144,7 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Hladový (greedy)</span><span class="en">Greedy</span></h3>
-        <p><span class="cs">Vždy jde tam, co se <b>zdá nejblíž cíli</b> (vzdušná vzdálenost). Řídí se jen
+        <p><span class="cs">Vždy jde na políčko, které se <b>zdá nejblíž cíli</b> (vzdušná vzdálenost). Řídí se jen
            odhadem, kolik zbývá — vůbec ho nezajímá, kolik už ušel.</span>
            <span class="en">It always goes where it <b>seems closest to the goal</b> (straight-line distance). It's guided
            only by the estimate of what remains — it doesn't care how far it has already come.</span></p>
@@ -164,13 +164,13 @@ import Layout from '../layouts/Layout.astro';
         <div class="pm">
           <div><span class="plus">+</span> <span class="cs">úplný — cestu vždy najde</span><span class="en">complete — always finds a path</span></div>
           <div><span class="plus">+</span> <span class="cs">optimální — najde nejkratší cestu</span><span class="en">optimal — finds the shortest path</span></div>
-          <div><span class="minus">–</span> <span class="cs">„slepý": neví, kde je cíl, prozkoumá obří plochu</span><span class="en">"blind": doesn't know where the goal is, explores a huge area</span></div>
+          <div><span class="minus">–</span> <span class="cs">„slepý“: neví, kde je cíl, prozkoumá obří plochu</span><span class="en">"blind": doesn't know where the goal is, explores a huge area</span></div>
         </div>
       </div>
 
       <div class="tcard" style="--c:#22c55e">
         <h3><span class="dot"></span><span class="cs">A* (A-star)</span><span class="en">A* (A-star)</span></h3>
-        <p><span class="cs">Spojí to nejlepší z obou: sečte <b>ušlou vzdálenost</b> a <b>odhad zbývající</b>
+        <p><span class="cs">Spojí to nejlepší z obou: sečte <b>ušlou vzdálenost</b> a <b>odhad zbývající vzdálenosti</b>
            (heuristiku). Míří k cíli, ale nezapomíná hlídat délku cesty.</span>
            <span class="en">It combines the best of both: it adds the <b>distance travelled</b> and the <b>estimate of what
            remains</b> (the heuristic). It heads for the goal but keeps an eye on path length.</span></p>
@@ -185,8 +185,8 @@ import Layout from '../layouts/Layout.astro';
     <p class="lead" style="margin-top:16px">
       <span class="cs"><b>Pointa:</b> BFS i A* najdou stejně dlouhou (nejkratší) cestu, ale A* k tomu prozkoumá
       výrazně méně polí — chytrá heuristika tedy zmenší prohledávaný prostor. Na volné ploše
-      (zkus „Smazat zdi") je to i řádově méně; zdi, které heuristiku „oklamou", náskok zmenšují.
-      Hladový je nejúspornější, ale za cenu, že cesta nemusí být nejkratší.</span>
+      (zkus „Smazat zdi“) je to i řádově méně; zdi, které heuristiku „oklamou“, náskok zmenšují.
+      Hladový postup je nejúspornější, ale za cenu toho, že cesta nemusí být nejkratší.</span>
       <span class="en"><b>The point:</b> both BFS and A* find an equally long (shortest) path, but A* explores far fewer
       cells — a smart heuristic shrinks the search space. On open ground (try "Clear walls") it's even an
       order of magnitude fewer; walls that "fool" the heuristic shrink the lead.

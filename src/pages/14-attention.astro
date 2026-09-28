@@ -63,7 +63,7 @@ import Layout from '../layouts/Layout.astro';
 
 <h1><span class="badge">14</span><span class="cs">Attention — na co se model dívá</span><span class="en">Attention — what the model looks at</span></h1>
   <p class="intro">
-    <span class="cs">Když model zpracovává slovo, „rozhlíží se" po ostatních slovech ve větě a každému dá
+    <span class="cs">Když model zpracovává slovo, „rozhlíží se“ po ostatních slovech ve větě a každému dá
     <b>váhu pozornosti</b> — jak moc je pro něj důležité. Tahle myšlenka (<i>attention</i>) je
     srdcem dnešních modelů. <b>Klikni na slovo</b> a uvidíš, kam se dívá.</span>
     <span class="en">When a model processes a word, it "looks around" at the other words in the sentence and gives each an
@@ -73,9 +73,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Attention</b> (pozornost): když model zpracovává slovo, „rozhlíží se" po ostatních slovech ve větě a každému dá <b>váhu</b> — jak moc je pro něj důležité. Z nejdůležitějších slov si pak poskládá, co slovo <b>v téhle větě</b> znamená.</span><span class="en"><b>Attention</b>: when the model processes a word, it “looks around” at the other words in the sentence and gives each a <b>weight</b> — how important it is to it. From the most important ones it then works out what the word means <b>in this sentence</b>.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Vyber jednu z <b>dvojic vět</b> a přepínej mezi nimi. Věty se liší jen koncem, ale zvýrazněné slovo se najednou dívá <b>jinam</b> — „byla" na kočku, „byl" na stůl. Klikni i na jiná slova; dole je celá <b>mapa pozornosti</b> (každý řádek dává 100 %).</span><span class="en">Pick one of the <b>sentence pairs</b> and switch between them. The sentences differ only at the end, yet the highlighted word suddenly looks <b>somewhere else</b> — “it” at the cat, or at the table. Click other words too; below is the full <b>attention map</b> (each row adds up to 100 %).</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Přesně takhle pracuje každá vrstva dnešních <b>transformerů</b>: každé slovo si <b>přepočítá svůj význam</b> podle toho, na co se dívá. Tím modely chápou kontext — kdo je „on", který „zámek" je myšlen, ke kterému slovu patří tvar slovesa.</span><span class="en">This is exactly how every layer of today’s <b>transformers</b> works: each word <b>recomputes its meaning</b> from what it looks at. It’s how models grasp context — who “it” is, which “bank” is meant, which word a verb has to agree with.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Attention</b> (pozornost): když model zpracovává slovo, „rozhlíží se“ po ostatních slovech ve větě a každému dá <b>váhu</b> — jak moc je pro něj důležité. Z nejdůležitějších slov si pak poskládá, co slovo <b>v téhle větě</b> znamená.</span><span class="en"><b>Attention</b>: when the model processes a word, it “looks around” at the other words in the sentence and gives each a <b>weight</b> — how important it is to it. From the most important ones it then works out what the word means <b>in this sentence</b>.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Vyber jednu z <b>dvojic vět</b> a přepínej mezi nimi. Věty se liší jen koncem, ale zvýrazněné slovo se najednou dívá <b>jinam</b> — „byla“ na kočku, „byl“ na stůl. Klikni i na jiná slova; dole je celá <b>mapa pozornosti</b> (každý řádek dává 100 %).</span><span class="en">Pick one of the <b>sentence pairs</b> and switch between them. The sentences differ only at the end, yet the highlighted word suddenly looks <b>somewhere else</b> — “it” at the cat, or at the table. Click other words too; below is the full <b>attention map</b> (each row adds up to 100 %).</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Přesně takhle pracuje každá vrstva dnešních <b>transformerů</b>: každé slovo si <b>přepočítá svůj význam</b> podle toho, na co se dívá. Díky tomu modely chápou kontext — kdo je „on“, o který „zámek“ jde, ke kterému slovu patří tvar slovesa.</span><span class="en">This is exactly how every layer of today’s <b>transformers</b> works: each word <b>recomputes its meaning</b> from what it looks at. It’s how models grasp context — who “it” is, which “bank” is meant, which word a verb has to agree with.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">dotaz (co hledám?)</span><span class="en">query (what am I looking for?)</span></span>
       <span class="arr">→</span>
@@ -91,7 +91,7 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="panel">
     <div class="block">
-      <div class="label"><span class="cs">1 · dvojice vět — liší se jedním slovem, pozornost přeskočí</span><span class="en">1 · sentence pairs — one word differs, attention jumps</span></div>
+      <div class="label"><span class="cs">1 · dvojice vět — liší se jen malou změnou, a pozornost přeskočí</span><span class="en">1 · sentence pairs — a small change, and attention jumps</span></div>
       <div class="pairs" id="pairs"></div>
       <div class="label" style="margin-top:16px"><span class="cs">věta (nebo napiš vlastní)</span><span class="en">sentence (or type your own)</span></div>
       <input type="text" id="text">
@@ -101,10 +101,10 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <div class="block">
-      <div class="label"><span class="cs">2 · mapa pozornosti — řádek = „odkud", sloupec = „kam se dívá"</span><span class="en">2 · attention map — row = "from", column = "looks at"</span></div>
+      <div class="label"><span class="cs">2 · mapa pozornosti — řádek = „odkud“, sloupec = „kam se dívá“</span><span class="en">2 · attention map — row = "from", column = "looks at"</span></div>
       <div class="scroller"><div class="matrix" id="matrix"></div></div>
       <div class="blocknote">
-        <span class="cs"><b>Jak číst mapu?</b> Každý <b>řádek</b> je jedno slovo („odkud se dívám"), <b>sloupce</b> jsou
+        <span class="cs"><b>Jak číst mapu?</b> Každý <b>řádek</b> je jedno slovo („odkud se dívám“), <b>sloupce</b> jsou
         slova, na která se dívá. Číslo v buňce je <b>% pozornosti</b> a každý řádek dává dohromady
         <b>100 %</b>. Klikni na slovo nahoře nebo na řádek a zvýrazní se.
         <br><em>Poctivě: u připravených vět jsou vzory pozornosti <b>nastavené ručně</b> podle vztahů, které se skutečné modely
@@ -125,7 +125,7 @@ import Layout from '../layouts/Layout.astro';
   <section class="theory">
     <div class="head"><span class="cs">Jak attention funguje</span><span class="en">How attention works</span></div>
     <p class="lead">
-      <span class="cs">Každé slovo vyšle „dotaz" (co hledám?) a každé nabízí „klíč" (co nabízím?). Model spočítá,
+      <span class="cs">Každé slovo vyšle „dotaz“ (co hledám?) a každé nabídne „klíč“ (co nabízím?). Model spočítá,
       jak <b>dotaz sedí ke klíči</b> — čím líp, tím větší pozornost. Váhy se přepočítají tak, aby
       dohromady daly 100 %, a slovo si pak <b>poskládá svůj nový význam</b> z těch, kterým věnovalo
       nejvíc pozornosti. Dotazy a klíče jsou jen vektory čísel (jako embeddingy z příkladu 13) — a to, jak je
@@ -139,30 +139,30 @@ import Layout from '../layouts/Layout.astro';
     <div class="tcards">
       <div class="tcard" style="--c:#2563eb">
         <h3><span class="dot"></span><span class="cs">Dotaz, klíč, hodnota</span><span class="en">Query, key, value</span></h3>
-        <p><span class="cs">Q (co hledám), K (co nabízím), V (co předám). Pozornost = jak dotaz pasuje na klíče
-           (skalární součin vektorů). To rozhoduje, kolik z které „hodnoty" si slovo vezme.</span>
+        <p><span class="cs">Q (co hledám), K (co nabízím), V (co předám). Pozornost = jak dotaz odpovídá klíčům
+           (skalární součin vektorů). To rozhoduje, kolik z které „hodnoty“ si slovo vezme.</span>
            <span class="en">Q (what I'm looking for), K (what I offer), V (what I pass on). Attention = how well the query
            fits the keys (a dot product of vectors). That decides how much of each "value" a word takes.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
         <h3><span class="dot"></span><span class="cs">Váhy dávají 100 %</span><span class="en">Weights add up to 100 %</span></h3>
-        <p><span class="cs">Skóre se přes <b>softmax</b> převede na podíly, co dohromady tvoří jednotku. Slovo tak
-           rozdělí svou pozornost mezi ostatní — většinou hlavně na pár slov, která jsou pro něj klíčová.</span>
+        <p><span class="cs">Skóre se přes <b>softmax</b> převede na podíly, které dohromady tvoří jednotku. Slovo tak
+           rozdělí svou pozornost mezi ostatní — většinou ji ale soustředí na pár slov, která jsou pro něj klíčová.</span>
            <span class="en"><b>Softmax</b> turns the scores into proportions that together make one. So a word splits its
            attention among the others — usually mostly onto the few words that matter to it.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
         <h3><span class="dot"></span><span class="cs">Kontext řeší víceznačnost</span><span class="en">Context resolves ambiguity</span></h3>
-        <p><span class="cs">„Zámek" na kopci s věží je stavba, „zámek" s klíčem a dveřmi je součástka. Slovo samo nestačí —
-           díky pozornosti k okolí model pozná, <b>který význam</b> platí. Jazyk je o <b>vztazích</b> mezi slovy.</span>
+        <p><span class="cs">„Zámek“ na kopci s věží je stavba, „zámek“ s klíčem a dveřmi je součástka. Slovo samo nestačí —
+           díky pozornosti k okolí model pozná, <b>který význam</b> platí. V jazyce jde o <b>vztahy</b> mezi slovy.</span>
            <span class="en">A "bank" by the river is land, a "bank" with money and an account is a company. The word alone isn't
            enough — thanks to attention to its surroundings the model works out <b>which meaning</b> applies. Language is about
            the <b>relationships</b> between words.</span></p>
       </div>
       <div class="tcard" style="--c:#0ea5e9">
         <h3><span class="dot"></span><span class="cs">Víc hlav najednou</span><span class="en">Many heads at once</span></h3>
-        <p><span class="cs">Skutečný model má v každé vrstvě desítky „hlav" pozornosti — každá sleduje jiný vztah: jedna
-           odkazy zájmen, jiná shodu v gramatice, jiná sousední slova. A takových vrstev jsou na sobě desítky. Tady vidíš
+        <p><span class="cs">Skutečný model má v každé vrstvě desítky „hlav“ pozornosti — každá sleduje jiný vztah: jedna
+           odkazy zájmen, jiná gramatickou shodu, jiná sousední slova. A takových vrstev jsou nad sebou desítky. Tady vidíš
            jednu hlavu.</span>
            <span class="en">A real model has dozens of attention "heads" in every layer — each tracks a different relation: one
            pronoun references, another grammatical agreement, another neighboring words. And dozens of such layers are stacked.
@@ -171,7 +171,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Proč je to průlom</span><span class="en">Why it's a breakthrough</span></h3>
         <p><span class="cs">Attention umí spojit i slova daleko od sebe (sloveso na konci s podmětem na začátku) a počítat
-           všechna slova naráz (paralelně na GPU). Na tom stojí <b>transformer</b> (2017) — architektura za ChatGPT,
+           všechna slova naráz (paralelně na GPU). Na tom stojí <b>transformer</b> (2017) — architektura modelů ChatGPT,
            Claude, Gemini a spol.</span>
            <span class="en">Attention can link even far-apart words (a verb at the end with its subject at the start) and process
            all the words at once (in parallel on GPUs). The <b>transformer</b> (2017) is built on this — the architecture behind
@@ -243,12 +243,12 @@ import Layout from '../layouts/Layout.astro';
 
   const I18N = {
     cs: {
-      attends: (w, list) => `Slovo <b>„${w}"</b> se nejvíc dívá na: ${list}.`,
-      item: (w, p) => `„${w}" (${p} %)`,
+      attends: (w, list) => `Slovo <b>„${w}“</b> se nejvíc dívá na: ${list}.`,
+      item: (w, p) => `„${w}“ (${p} %)`,
       enter: 'Zadej větu.',
       modePreset: '✓ připravená věta — vzory pozornosti podle naučených vztahů (nastavené ručně, viz poznámka dole)',
       modeFree: '⚠️ vlastní věta — bez naučených vztahů jen hrubý odhad: slovo se dívá hlavně na své sousedy',
-      pairHint: (a, b) => `Přepni na druhou větu dvojice — „${a}" a „${b}" se dívají každé jinam.`,
+      pairHint: (a, b) => `Přepni na druhou větu dvojice — „${a}“ a „${b}“ se každé dívá jinam.`,
     },
     en: {
       attends: (w, list) => `The word <b>"${w}"</b> attends most to: ${list}.`,
@@ -263,7 +263,7 @@ import Layout from '../layouts/Layout.astro';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
   function tokenize(text){ return (text.trim().match(/[\p{L}\p{N}]+/gu) || []); }
 
-  // „slovo" nebo „slovo#2" → index tokenu
+  // „slovo“ nebo „slovo#2“ → index tokenu
   function findTok(low, ref){
     const [w, k] = ref.split('#'); let seen = 0;
     for (let i = 0; i < low.length; i++) if (low[i] === w && ++seen === (+k || 1)) return i;

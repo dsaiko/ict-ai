@@ -19,7 +19,7 @@ import Layout from '../layouts/Layout.astro';
   .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
   .label .ph { color: #9333ea; font-weight: 700; }
 
-  /* volba tvaru (= trénovací data = „prompt") */
+  /* volba tvaru (= trénovací data = „prompt“) */
   .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; }
   .seg button { border: none; background: #fff; padding: 9px 15px; font-size: 13.5px; font-weight: 600;
                 color: #6b7280; cursor: pointer; border-right: 1px solid #e5e7eb; }
@@ -79,7 +79,7 @@ import Layout from '../layouts/Layout.astro';
   <p class="intro">
     <span class="cs">V příkladu 10 AI obrázky <b>rozpoznávala</b>. Teď je bude <b>tvořit</b>. Nástroje jako Stable Diffusion nebo
     DALL·E stojí na nápadu, který zní skoro jako trik: naučit se <b>odstraňovat šum</b>. Když to model umí, stačí mu dát
-    <b>čistý náhodný šum</b> a nechat ho odšumovat krok za krokem — a z chaosu vyleze nový obrázek.</span>
+    <b>čistý náhodný šum</b> a nechat ho odšumovat krok za krokem — a z chaosu se vynoří nový obrázek.</span>
     <span class="en">In example 10 AI <b>recognized</b> images. Now it will <b>create</b> them. Tools like Stable Diffusion or DALL·E
     rest on an idea that sounds almost like a trick: learn to <b>remove noise</b>. Once a model can do that, you just hand it
     <b>pure random noise</b> and let it denoise step by step — and a new picture emerges from the chaos.</span>
@@ -87,9 +87,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Difúzní model</b>: obrázek se postupně <b>zašumí</b> až na nepoznání a model se učí tenhle proces <b>obrátit</b> — z šumu udělat obrázek. Tady místo fotek pracujeme s <b>tečkami</b>: každá tečka je jeden vzorek („obrázek" o pouhých 2 číslech x, y). Asi 400 teček tvaru jsou <b>trénovací data</b>; každá vygenerovaná tečka je <b>nový vzorek</b>.</span><span class="en">A <b>diffusion model</b>: an image is gradually <b>noised</b> beyond recognition and the model learns to <b>reverse</b> that process — turning noise into an image. Instead of photos we work with <b>dots</b> here: each dot is one sample (an “image” of just 2 numbers, x and y). About 400 dots of a shape are the <b>training data</b>; each generated dot is a <b>new sample</b>.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Vyber tvar. Vlevo posuvníkem času <b>t</b> (nebo tlačítkem „Zašum") sleduj, jak se tvar rozpouští v šumu. Vpravo stiskni <b>„Vygeneruj z šumu"</b>: začne se z nových náhodných teček a ty se krok za krokem složí do tvaru. Pak zkus <b>málo kroků</b> (1, 2, 5) — výsledek je rozmazaný. A zapni „ukaž trénovací body".</span><span class="en">Pick a shape. On the left, use the time slider <b>t</b> (or the “Add noise” button) to watch the shape dissolve into noise. On the right, press <b>“Generate from noise”</b>: it starts from fresh random dots, which assemble into the shape step by step. Then try <b>few steps</b> (1, 2, 5) — the result is blurry. And switch on “show training points”.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Na tomhle principu dnes vzniká většina obrázků od AI. A demo zároveň ukazuje jejich slabinu: model, který si data <b>zapamatuje</b>, je jen <b>kopíruje</b> — odtud spory o autorská práva.</span><span class="en">Most AI-made images today are created on this principle. And the demo also shows its weak spot: a model that <b>memorizes</b> its data just <b>copies</b> it — hence the copyright disputes.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Difúzní model</b>: obrázek se postupně <b>zašumí</b> až na nepoznání a model se učí tenhle proces <b>obrátit</b> — ze šumu udělat obrázek. Tady místo fotek pracujeme s <b>tečkami</b>: každá tečka je jeden vzorek („obrázek“ o pouhých 2 číslech x, y). Asi 400 teček tvaru jsou <b>trénovací data</b>; každá vygenerovaná tečka je <b>nový vzorek</b>.</span><span class="en">A <b>diffusion model</b>: an image is gradually <b>noised</b> beyond recognition and the model learns to <b>reverse</b> that process — turning noise into an image. Instead of photos we work with <b>dots</b> here: each dot is one sample (an “image” of just 2 numbers, x and y). About 400 dots of a shape are the <b>training data</b>; each generated dot is a <b>new sample</b>.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Vyber tvar. Vlevo posuvníkem času <b>t</b> (nebo tlačítkem „Zašum“) sleduj, jak se tvar rozpouští v šumu. Vpravo stiskni <b>„Vygeneruj ze šumu“</b>: začne se z nových náhodných teček a ty se krok za krokem složí do tvaru. Pak zkus <b>málo kroků</b> (1, 2, 5) — výsledek je rozmazaný. A zapni „ukaž trénovací body“.</span><span class="en">Pick a shape. On the left, use the time slider <b>t</b> (or the “Add noise” button) to watch the shape dissolve into noise. On the right, press <b>“Generate from noise”</b>: it starts from fresh random dots, which assemble into the shape step by step. Then try <b>few steps</b> (1, 2, 5) — the result is blurry. And switch on “show training points”.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Na tomhle principu dnes vzniká většina obrázků od AI. A demo zároveň ukazuje jeho slabinu: model, který si data <b>zapamatuje</b>, je jen <b>kopíruje</b> — odtud spory o autorská práva.</span><span class="en">Most AI-made images today are created on this principle. And the demo also shows its weak spot: a model that <b>memorizes</b> its data just <b>copies</b> it — hence the copyright disputes.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">obrázek (trénovací data)</span><span class="en">image (training data)</span></span>
       <span class="arr">→</span>
@@ -105,16 +105,16 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="panel">
     <div class="block">
-      <div class="label"><span class="cs">trénovací data = „prompt" (co má vzniknout)</span><span class="en">training data = the “prompt” (what should appear)</span></div>
+      <div class="label"><span class="cs">trénovací data = „prompt“ (co má vzniknout)</span><span class="en">training data = the “prompt” (what should appear)</span></div>
       <div class="shaperow">
         <div class="seg" id="shapes">
           <button data-shape="heart" class="on"><span class="cs">♥ srdce</span><span class="en">♥ heart</span></button>
           <button data-shape="spiral"><span class="cs">🌀 spirála</span><span class="en">🌀 spiral</span></button>
-          <button data-shape="ai"><span class="cs">„AI" písmena</span><span class="en">“AI” letters</span></button>
+          <button data-shape="ai"><span class="cs">„AI“ písmena</span><span class="en">“AI” letters</span></button>
           <button data-shape="smiley"><span class="cs">☺ smajlík</span><span class="en">☺ smiley</span></button>
         </div>
       </div>
-      <p class="hint"><span class="cs"><b>Zjednodušení:</b> skutečný obrázek jsou miliony čísel (pixely, příklad 10). Tady má každý „obrázek" jen <b>2 čísla</b> — polohu jedné tečky. <span id="nTrainCs">420</span> teček tvaru = <span id="nTrainCs2">420</span> trénovacích „obrázků". Model se učí, <b>kde takové tečky leží</b>; volba tvaru tu hraje roli promptu — rozhoduje, kam šum povede.</span><span class="en"><b>Simplification:</b> a real image is millions of numbers (pixels, example 10). Here each “image” has just <b>2 numbers</b> — the position of one dot. <span id="nTrainEn">420</span> dots of the shape = <span id="nTrainEn2">420</span> training “images”. The model learns <b>where such dots lie</b>; the shape choice plays the role of a prompt — it decides where the noise will lead.</span></p>
+      <p class="hint"><span class="cs"><b>Zjednodušení:</b> skutečný obrázek jsou miliony čísel (pixely, příklad 10). Tady má každý „obrázek“ jen <b>2 čísla</b> — polohu jedné tečky. <span id="nTrainCs">420</span> teček tvaru = <span id="nTrainCs2">420</span> trénovacích „obrázků“. Model se učí, <b>kde takové tečky leží</b>; volba tvaru tu hraje roli promptu — rozhoduje, kam šum povede.</span><span class="en"><b>Simplification:</b> a real image is millions of numbers (pixels, example 10). Here each “image” has just <b>2 numbers</b> — the position of one dot. <span id="nTrainEn">420</span> dots of the shape = <span id="nTrainEn2">420</span> training “images”. The model learns <b>where such dots lie</b>; the shape choice plays the role of a prompt — it decides where the noise will lead.</span></p>
     </div>
 
     <div class="phases">
@@ -150,7 +150,7 @@ import Layout from '../layouts/Layout.astro';
           <span class="val" id="sVal">40</span>
         </div>
         <div class="controls">
-          <button class="go" id="btnGen"><span class="cs">Vygeneruj z šumu ▶</span><span class="en">Generate from noise ▶</span></button>
+          <button class="go" id="btnGen"><span class="cs">Vygeneruj ze šumu ▶</span><span class="en">Generate from noise ▶</span></button>
           <button class="stop" id="btnStopG" disabled>■ STOP</button>
         </div>
         <label class="check"><input type="checkbox" id="chkDDPM"> <span><span class="cs">se šumem (DDPM) — v každém kroku přidej trochu nové náhody</span><span class="en">with noise (DDPM) — add a little fresh randomness at each step</span></span></label>
@@ -161,7 +161,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <div class="block honest">
-      <p><span class="cs"><b>Poctivě:</b> skutečné modely <b>nemají trénovací obrázky u sebe</b>. Odšumování se naučí <b>neuronová síť</b> (typicky předpovídá přidaný šum) z obrovského množství obrázků a pak už data nepotřebuje. Tady odšumovač pro názornost počítáme <b>přesně z trénovacích teček</b> (vážený průměr těch, ze kterých mohla zašuměná tečka vzniknout). Proto výsledek jen <b>kopíruje trénovací data</b> — zapni „ukaž trénovací body" a uvidíš, že vygenerované tečky padají přesně na ně. To je <b>zapamatování (přeučení)</b> z příkladu 7 v čisté podobě a přesně o tomhle se vedou spory o autorská práva: nevrací model jen kopie cizích obrázků?</span><span class="en"><b>Honestly:</b> real models <b>don't keep their training images</b>. The denoising is learned by a <b>neural network</b> (typically predicting the added noise) from a huge number of images, after which the data is no longer needed. Here, for clarity, we compute the denoiser <b>exactly from the training dots</b> (a weighted average of the dots a noisy dot could have come from). That's why the result just <b>copies the training data</b> — switch on “show training points” and you'll see the generated dots land exactly on them. That is <b>memorization (overfitting)</b> from example 7 in its purest form, and exactly what copyright disputes are about: isn't the model just returning copies of other people's images?</span></p>
+      <p><span class="cs"><b>Poctivě:</b> skutečné modely <b>nemají trénovací obrázky u sebe</b>. Odšumování se naučí <b>neuronová síť</b> (typicky předpovídá přidaný šum) z obrovského množství obrázků a pak už data nepotřebuje. Tady odšumovač pro názornost počítáme <b>přesně z trénovacích teček</b> (vážený průměr těch, ze kterých mohla zašuměná tečka vzniknout). Proto výsledek jen <b>kopíruje trénovací data</b> — zapni „ukaž trénovací body“ a uvidíš, že vygenerované tečky padají přesně na ně. To je <b>zapamatování (přeučení)</b> z příkladu 7 v čisté podobě a přesně o tomhle se vedou spory o autorská práva: nevrací model jen kopie cizích obrázků?</span><span class="en"><b>Honestly:</b> real models <b>don't keep their training images</b>. The denoising is learned by a <b>neural network</b> (typically predicting the added noise) from a huge number of images, after which the data is no longer needed. Here, for clarity, we compute the denoiser <b>exactly from the training dots</b> (a weighted average of the dots a noisy dot could have come from). That's why the result just <b>copies the training data</b> — switch on “show training points” and you'll see the generated dots land exactly on them. That is <b>memorization (overfitting)</b> from example 7 in its purest form, and exactly what copyright disputes are about: isn't the model just returning copies of other people's images?</span></p>
     </div>
   </div>
 
@@ -179,7 +179,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#9333ea">
         <h3><span class="dot"></span><span class="cs">Šum a odšumování</span><span class="en">Noise and denoising</span></h3>
         <p><span class="cs">Dopředu: v každém kroku trochu zeslabíme obrázek a přidáme náhodný (gaussovský) šum:
-           <b>x<sub>t</sub> = √ᾱ<sub>t</sub>·x<sub>0</sub> + √(1−ᾱ<sub>t</sub>)·ε</b>. Po dost krocích zbude jen šum. Zpátky:
+           <b>x<sub>t</sub> = √ᾱ<sub>t</sub>·x<sub>0</sub> + √(1−ᾱ<sub>t</sub>)·ε</b>. Po dostatečném počtu kroků zbude jen šum. Zpátky:
            model v každém kroku odhadne, kde byl obrázek, a udělá <b>jeden malý krok</b> k němu. Málo kroků = velké skoky a rozmazaný výsledek.</span>
            <span class="en">Forward: at each step we fade the image a little and add random (Gaussian) noise:
            <b>x<sub>t</sub> = √ᾱ<sub>t</sub>·x<sub>0</sub> + √(1−ᾱ<sub>t</sub>)·ε</b>. After enough steps only noise remains. Backward:
@@ -207,7 +207,7 @@ import Layout from '../layouts/Layout.astro';
         <h3><span class="dot"></span><span class="cs">Obrázek = čísla (příklad 10)</span><span class="en">An image = numbers (example 10)</span></h3>
         <p><span class="cs">Naše tečka má 2 čísla, barevný obrázek 512×512 jich má 786 432 (tři na pixel). Princip je stejný, jen v
            mnohem více rozměrech. <b>Latentní difúze</b> (např. Stable Diffusion) si obrázek nejdřív zmenší na kompaktní
-           reprezentaci, odšumuje tu a teprve nakonec ji převede zpět na pixely — je to mnohem rychlejší.</span>
+           reprezentaci, odšumuje ji a teprve nakonec ji převede zpět na pixely — je to mnohem rychlejší.</span>
            <span class="en">Our dot has 2 numbers; a 512×512 color image has 786,432 (three per pixel). The principle is the same, just in
            far more dimensions. <b>Latent diffusion</b> (e.g. Stable Diffusion) first shrinks the image into a compact
            representation, denoises that, and only at the end turns it back into pixels — which is much faster.</span></p>
@@ -215,15 +215,15 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#f59e0b">
         <h3><span class="dot"></span><span class="cs">Zapamatování a autorská práva</span><span class="en">Memorization and copyright</span></h3>
         <p><span class="cs">Naše demo si data pamatuje dokonale, takže jen kopíruje — přeučení z příkladu 7. Skutečné modely mají
-           obrázky <b>zobecňovat</b>, ale výzkumníci ukázali, že občas dokážou vrátit téměř přesnou kopii tréninkového obrázku.
-           Proto se vedou spory, zda trénink na cizích dílech bez svolení je v pořádku.</span>
+           obrázky <b>zobecňovat</b>, ale výzkumníci ukázali, že občas dokážou vrátit téměř přesnou kopii trénovacího obrázku.
+           Proto se vedou spory, zda je trénink na cizích dílech bez svolení v pořádku.</span>
            <span class="en">Our demo remembers the data perfectly, so it just copies — the overfitting from example 7. Real models are meant to
            <b>generalize</b>, but researchers have shown they can occasionally return a near-exact copy of a training image.
            That's why there are disputes over whether training on other people's work without permission is OK.</span></p>
       </div>
       <div class="tcard" style="--c:#dc2626">
         <h3><span class="dot"></span><span class="cs">Rizika: deepfakes a falešné fotky</span><span class="en">Risks: deepfakes and fake photos</span></h3>
-        <p><span class="cs">Vygenerovaná „fotka" může vypadat úplně skutečně — falešné zprávy, podvržené fotky lidí (deepfakes),
+        <p><span class="cs">Vygenerovaná „fotka“ může vypadat úplně skutečně — falešné zprávy, podvržené fotky lidí (deepfakes),
            podvody. Fotka dnes sama o sobě <b>nic nedokazuje</b>: ověřuj <b>zdroj</b> (kdo ji zveřejnil, kde jinde se objevila).
            Vodoznaky a metadata o původu pomáhají, ale dají se odstranit.</span>
            <span class="en">A generated “photo” can look completely real — fake news, forged pictures of people (deepfakes),
@@ -232,7 +232,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </div>
     <p class="lead" style="margin-top:16px"><span class="cs"><b>Pointa:</b> generovat = <b>odšumovat</b>. Model nekreslí tah po tahu, ale z náhodného šumu opakovaně
-      „ubírá, co tam nepatří". A to, co v šumu „vidí", je jen to, co se naučil z dat — proto je kvalita i původ trénovacích dat tak důležitá.</span>
+      „ubírá, co tam nepatří“. A to, co v šumu „vidí“, je jen to, co se naučil z dat — proto jsou kvalita i původ trénovacích dat tak důležité.</span>
       <span class="en"><b>The point:</b> generating = <b>denoising</b>. The model doesn't draw stroke by stroke; it repeatedly “removes what doesn't belong”
       from random noise. And what it “sees” in the noise is only what it learned from data — which is why the quality and origin of training data matter so much.</span></p>
   </section>
@@ -244,18 +244,18 @@ import Layout from '../layouts/Layout.astro';
   const I18N = {
     cs: {
       fwdStat: (t, s, n) => `t = <b>${t}</b> / ${T} · signál √ᾱ = <b>${s}</b> · šum √(1−ᾱ) = <b>${n}</b>`,
-      fwd0: 'Čistý tvar = trénovací data. Posuň čas <b>t</b> nebo stiskni „Zašum".',
+      fwd0: 'Čistý tvar = trénovací data. Posuň čas <b>t</b> nebo stiskni „Zašum“.',
       fwdMid: 'Tvar slábne (zmenšuje se ke středu) a přibývá šumu — rozpouští se.',
-      fwdEnd: 'Čistý šum: z tvaru nezbylo <b>nic</b>. Teď to otoč → vpravo „Vygeneruj z šumu".',
-      genIdle: 'Nové náhodné tečky (čistý šum). Stiskni „Vygeneruj z šumu".',
+      fwdEnd: 'Čistý šum: z tvaru nezbylo <b>nic</b>. Teď to otoč → vpravo „Vygeneruj ze šumu“.',
+      genIdle: 'Nové náhodné tečky (čistý šum). Stiskni „Vygeneruj ze šumu“.',
       genRun: (k, S, t) => `krok <b>${k}</b> / ${S} · t = <b>${t}</b>`,
       genIdleStat: (S) => `připraveno · ${S} ${S === 1 ? 'krok' : S < 5 ? 'kroky' : 'kroků'} odšumování`,
       genStopped: 'Zastaveno uprostřed — tečky jsou ještě zašuměné.',
-      genRunMsg: 'Odšumovač v každém kroku odhadne, kde tečka „byla", a posune ji o kus tím směrem.',
+      genRunMsg: 'Odšumovač v každém kroku odhadne, kde tečka „byla“, a posune ji o kus tím směrem.',
       genDone: (pct, mean) => `<b>${pct} %</b> teček leží (téměř) přesně na trénovacím bodu · průměrná vzdálenost k nejbližšímu: <b>${mean}</b>`,
       done1: 'Jediný krok: odhad z čistého šumu je jen <b>průměr všech dat</b>, takže se všechno slilo do jednoho místa.',
       doneFew: 'Málo kroků = velké skoky: tečky skončily <b>rozmazaně</b> mezi trénovacími body. Zkus víc kroků.',
-      doneMany: 'Tvar se zformoval z čistého šumu. Zapni „ukaž trénovací body" — tečky jsou <b>kopie</b> trénovacích dat.',
+      doneMany: 'Tvar se zformoval z čistého šumu. Zapni „ukaž trénovací body“ — tečky jsou <b>kopie</b> trénovacích dat.',
       doneManyOn: 'Tvar se zformoval z čistého šumu — a tečky leží <b>přesně na trénovacích bodech</b> (oranžové kroužky). Jsou to jen <b>kopie</b> trénovacích dat.',
       doneMid: 'Skoro hotovo — tvar je vidět, ale část teček ještě neleží přesně na datech.',
     },
@@ -279,7 +279,7 @@ import Layout from '../layouts/Layout.astro';
   };
 
   // ── rozvrh šumu (cosinový, T kroků) ──────────────────────────
-  // ᾱ_t = „kolik původního obrázku ještě zbývá" (1 na začátku → 0 na konci).
+  // ᾱ_t = „kolik původního obrázku ještě zbývá“ (1 na začátku → 0 na konci).
   const T = 100, S_OFF = 0.008;
   const fcos = t => Math.cos(((t / T) + S_OFF) / (1 + S_OFF) * Math.PI / 2) ** 2;
   const ABAR = [];
@@ -341,7 +341,7 @@ import Layout from '../layouts/Layout.astro';
 
   // ── stav ─────────────────────────────────────────────────────
   let TX, TY;                               // trénovací tečky x0_i
-  let EX, EY;                               // pevný šum ε pro dopředný proces (ať posuvník „jede" plynule)
+  let EX, EY;                               // pevný šum ε pro dopředný proces (ať posuvník „jede“ plynule)
   let fwdT = 0, fwdRaf = null;
   const GX = new Float64Array(N), GY = new Float64Array(N);   // generované tečky: stav na začátku kroku
   const NX = new Float64Array(N), NY = new Float64Array(N);   // … a po kroku (mezi nimi animujeme)
@@ -502,7 +502,7 @@ import Layout from '../layouts/Layout.astro';
     if (genRaf) { cancelAnimationFrame(genRaf); genRaf = null; }
     if (!finished && genState === 'run') {               // zastav na aktuálním (mezi)stavu
       GX.set(NX); GY.set(NY); genK = Math.min(genK + 1, genTau.length - 1);
-      // STOP během posledního kroku = tečky už jsou hotové (t = 0) → dokonči, ne „zastaveno v půlce"
+      // STOP během posledního kroku = tečky už jsou hotové (t = 0) → dokonči, ne „zastaveno v půlce“
       if (genK >= genTau.length - 1) { drawGen(0); genRaf = null; finishGen(); return; }
       genState = 'stopped';
       drawGen(0);

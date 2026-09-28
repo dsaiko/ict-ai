@@ -68,7 +68,7 @@ import Layout from '../layouts/Layout.astro';
 
 <h1><span class="badge">08</span><span class="cs">Neuronová síť kreslí hranici</span><span class="en">A neural network draws the boundary</span></h1>
   <p class="intro">
-    <span class="cs">Stejná úloha jako u perceptronu, ale teď neuronů spojíme víc do <b>vrstev</b>. Síť pak umí
+    <span class="cs">Stejná úloha jako u perceptronu, ale teď spojíme víc neuronů do <b>vrstev</b>. Síť pak umí
     nakreslit i <b>zakřivenou</b> hranici — kruh, spirálu, kříž. Sleduj, jak se barevná
     rozhodovací plocha <b>tvaruje</b> během trénování.</span>
     <span class="en">The same task as the perceptron, but now we connect more neurons into <b>layers</b>. The network
@@ -80,7 +80,7 @@ import Layout from '../layouts/Layout.astro';
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Síť propojených neuronů — stejná myšlenka jako perceptron (06), ale neuronů je víc a jsou ve <b>vrstvách</b>. Díky tomu umí nakreslit i zakřivenou hranici, ne jen přímku.</span><span class="en">A network of connected neurons — the same idea as the perceptron (06), but with more neurons arranged in <b>layers</b>. That lets it draw a curved boundary, not just a straight line.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Naklikej body dvou barev (nebo zvol tvar — kruh, kříž, spirálu) a spusť trénink. Sleduj, jak se barevná <b>rozhodovací plocha</b> během učení tvaruje kolem tvých bodů.</span><span class="en">Click points of two colors (or pick a shape — circle, cross, spiral) and start training. Watch the colored <b>decision surface</b> shape itself around your points as it learns.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tady se rodí síla neuronových sítí: skládáním jednoduchých neuronů zvládnou složité, <b>nelineární</b> vzory. Je to základní stavební kámen pod vším ostatním v této sérii — i pod ChatGPT.</span><span class="en">This is where the power of neural networks is born: stacking simple neurons handles complex, <b>non-linear</b> patterns. It is the basic building block under everything else in this series — and under ChatGPT.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tady se rodí síla neuronových sítí: skládáním jednoduchých neuronů zvládnou složité, <b>nelineární</b> vzory. Je to základní stavební kámen všeho ostatního v této sérii — i ChatGPT.</span><span class="en">This is where the power of neural networks is born: stacking simple neurons handles complex, <b>non-linear</b> patterns. It is the basic building block under everything else in this series — and under ChatGPT.</span></p>
   </div>
 
   <div class="diagram">
@@ -133,7 +133,7 @@ import Layout from '../layouts/Layout.astro';
   <section class="theory">
     <div class="head"><span class="cs">Proč zvládne to, co perceptron ne</span><span class="en">Why it can do what the perceptron can't</span></div>
     <p class="lead">
-      <span class="cs">Perceptron uměl jen rovnou čáru. Síť skládá <b>mnoho neuronů ve vrstvách</b> — každý
+      <span class="cs">Perceptron uměl nakreslit jen rovnou čáru. Síť skládá <b>mnoho neuronů do vrstev</b> — každý
       nakreslí jednoduchou čáru a další vrstvy je <b>kombinují</b> do složitějších tvarů.
       Tak vznikne zakřivená hranice. Učí se <b>zpětným šířením chyby</b> (backpropagation):
       spočítá se chyba na výstupu a postupně se rozpočítá na všechny váhy, které se trochu posunou.</span>
@@ -145,22 +145,22 @@ import Layout from '../layouts/Layout.astro';
     <div class="tcards">
       <div class="tcard" style="--c:#2563eb">
         <h3><span class="dot"></span><span class="cs">Vrstvy = skládání tvarů</span><span class="en">Layers = stacking shapes</span></h3>
-        <p><span class="cs">Skrytá vrstva = sada „čar". Další vrstva je sečte a ohne do křivek. Víc vrstev
+        <p><span class="cs">Skrytá vrstva = sada „čar“. Další vrstva je sečte a ohne do křivek. Víc vrstev
            a neuronů → složitější hranice.</span>
            <span class="en">A hidden layer = a set of "lines". The next layer sums and bends them into curves. More layers
            and neurons → more complex boundaries.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
         <h3><span class="dot"></span><span class="cs">Backpropagation</span><span class="en">Backpropagation</span></h3>
-        <p><span class="cs">Síť hádá, porovná s pravdou, spočítá <b>chybu</b> a tu „pošle zpět" sítí. Každá váha
+        <p><span class="cs">Síť odhadne výsledek, porovná ho s pravdou, spočítá <b>chybu</b> a tu „pošle zpět“ sítí. Každá váha
            se posune směrem, který chybu zmenší. Opakuje se to tisíckrát.</span>
            <span class="en">The network guesses, compares with the truth, computes the <b>error</b> and "sends it back" through
            the network. Each weight shifts in the direction that reduces the error. This repeats thousands of times.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
         <h3><span class="dot"></span><span class="cs">Nelineární aktivace</span><span class="en">Nonlinear activation</span></h3>
-        <p><span class="cs">Mezi vrstvami je „ohýbací" funkce (tanh). Bez ní by i hluboká síť uměla jen přímku —
-           právě ona dovolí zakřivení.</span>
+        <p><span class="cs">Mezi vrstvami je „ohýbací“ funkce (tanh). Bez ní by i hluboká síť uměla jen přímku —
+           právě ona umožňuje zakřivení.</span>
            <span class="en">Between layers there's a "bending" function (tanh). Without it even a deep network could only do a
            straight line — it's what allows curvature.</span></p>
       </div>
@@ -313,7 +313,7 @@ import Layout from '../layouts/Layout.astro';
       ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#fff'; ctx.stroke();
     }
     const m = metrics();
-    $('loss').textContent = m.loss.toFixed(4);
+    $('loss').textContent = dec(m.loss, 4);
     $('acc').textContent  = Math.round(m.acc*100)+' %';
     updateNetWeights();          // promítni aktuální váhy do schématu
     drawWeightMatrices();        // a do maticových heatmap
@@ -448,7 +448,7 @@ import Layout from '../layouts/Layout.astro';
       for (let i = 0; i < mat.length; i++)
         for (let j = 0; j < mat[i].length; j++) {
           const w = mat[i][j], cell = numCells[l][i][j];
-          cell.textContent = (w >= 0 ? '+' : '') + w.toFixed(2);
+          cell.textContent = (w >= 0 ? '+' : '') + dec(w, 2);
           cell.style.color = w >= 0 ? '#2563eb' : '#ef4444';
         }
     });
@@ -474,10 +474,14 @@ import Layout from '../layouts/Layout.astro';
   }
 
   // přepnutí jazyka: přepiš popisky vrstev ve schématu
+  // desetinná čárka v češtině, tečka v angličtině
+  function dec(x, d){ const s = x.toFixed(d); return curLang === 'cs' ? s.replace('.', ',') : s; }
+
   window.onLangChange = function(l){
     curLang = l;
     const layers = I18N[l].layers;
     netLabelEls.forEach((e, i) => { if (e) e.textContent = layers[i]; });
+    updateWeightNumbers(); $('loss').textContent = dec(metrics().loss, 4);   // čísla s čárkou / tečkou
   };
 
   buildNetDiagram();

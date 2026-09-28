@@ -178,8 +178,8 @@ import Layout from '../layouts/Layout.astro';
   <div class="whathow">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Mřížka 64 čtverečků je vlastně <b>malinký černobílý obrázek</b> (8×8 pixelů) — a zároveň jedno obří číslo ve dvojkové soustavě, kde každý čtvereček je jeden <b>bit</b> (0 = zhasnuto, 1 = svítí). Přesně takhle si počítač ukládá obrázky i všechno ostatní.</span><span class="en">The grid of 64 squares is really a <b>tiny black-and-white image</b> (8×8 pixels) — and at the same time one huge number in binary, where each square is a single <b>bit</b> (0 = off, 1 = on). This is exactly how a computer stores images and everything else.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Klikáním rozsvěcíš čtverečky (vlastně <b>kreslíš obrázek</b>) a tlačítkem <b>RUN</b> necháš počítadlo přičítat o jedničku. Políčka naskakují jako tachometr — a postupně tak vzniká <b>jedna možná podoba mřížky za druhou</b>. Graf ukazuje, jak dlouho by trvalo projít je všechny.</span><span class="en">Click to light up squares (you're really <b>drawing a picture</b>) and press <b>RUN</b> to make the counter add one. The cells tick over like an odometer — and step by step it produces <b>one possible look of the grid after another</b>. The graph shows how long it would take to go through them all.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Kdybychom měli dost času, počítač by takhle <b>vygeneroval úplně všechny obrázky</b>, které se do té mřížky vejdou — každé písmeno, každý tvar, i tvůj portrét v 8×8. Jenže jich je 2⁶⁴ (přes 18 trilionů): tempem tohohle dema by to trvalo přes 35 miliard let (víc než stáří vesmíru) a i počítač, který zkusí <b>miliardu za vteřinu</b>, by počítal skoro 600 let — a to jde o pouhých 8×8 pixelů. Mřížka 10×10 (2¹⁰⁰ možností) by i takovou rychlostí trvala tisíckrát déle, než existuje vesmír. Proto AI nemůže „zkoušet všechno" hrubou silou — musí být <b>chytrá</b>. Tím série začíná.</span><span class="en">Given enough time, the computer would this way <b>generate every image</b> that fits in the grid — every letter, every shape, even your portrait in 8×8. But there are 2⁶⁴ of them (over 18 quintillion): at this demo's pace it would take over 35 billion years (longer than the age of the universe), and even a computer trying <b>a billion per second</b> would need almost 600 years — for a mere 8×8 pixels. A 10×10 grid (2¹⁰⁰ possibilities) would, even at that speed, take thousands of times longer than the universe has existed. That's why AI can't just "try everything" by brute force — it has to be <b>smart</b>. This is where the series begins.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Klikáním rozsvěcíš čtverečky (vlastně <b>kreslíš obrázek</b>) a tlačítkem <b>RUN</b> necháš počítadlo přičítat po jedničce. Políčka naskakují jako tachometr — a postupně tak vzniká <b>jedna možná podoba mřížky za druhou</b>. Graf ukazuje, jak dlouho by trvalo projít je všechny.</span><span class="en">Click to light up squares (you're really <b>drawing a picture</b>) and press <b>RUN</b> to make the counter add one. The cells tick over like an odometer — and step by step it produces <b>one possible look of the grid after another</b>. The graph shows how long it would take to go through them all.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Kdybychom měli dost času, počítač by takhle <b>vygeneroval úplně všechny obrázky</b>, které se do té mřížky vejdou — každé písmeno, každý tvar, i tvůj portrét v 8×8. Jenže jich je 2⁶⁴ (přes 18 trilionů): tempem tohohle dema by to trvalo přes 35 miliard let (víc než stáří vesmíru) a i počítač, který zkusí <b>miliardu za vteřinu</b>, by počítal skoro 600 let — a to jde o pouhých 8×8 pixelů. U mřížky 10×10 (2¹⁰⁰ možností) by to i takovou rychlostí trvalo tisíckrát déle, než existuje vesmír. Proto AI nemůže „zkoušet všechno“ hrubou silou — musí být <b>chytrá</b>. Tím série začíná.</span><span class="en">Given enough time, the computer would this way <b>generate every image</b> that fits in the grid — every letter, every shape, even your portrait in 8×8. But there are 2⁶⁴ of them (over 18 quintillion): at this demo's pace it would take over 35 billion years (longer than the age of the universe), and even a computer trying <b>a billion per second</b> would need almost 600 years — for a mere 8×8 pixels. A 10×10 grid (2¹⁰⁰ possibilities) would, even at that speed, take thousands of times longer than the universe has existed. That's why AI can't just "try everything" by brute force — it has to be <b>smart</b>. This is where the series begins.</span></p>
   </div>
 
   <div class="grid" id="grid"></div>
@@ -318,13 +318,14 @@ import Layout from '../layouts/Layout.astro';
     // ms je číslo (float). Vrátí pěkný textový popis trvání.
     const u = T().units;
     if (ms < 1)     return u.lt1;
-    if (ms < 1000)  return ms.toFixed(0) + u.ms;
+    const f = (x, d) => x.toLocaleString(T().locale, { minimumFractionDigits: d, maximumFractionDigits: d });   // 1,5 s (cs) / 1.5 s (en)
+    if (ms < 1000)  return f(ms, 0) + u.ms;
 
     const sec = ms / 1000;
-    if (sec < 60)   return sec.toFixed(1) + u.s;
-    if (sec < 3600) return (sec / 60).toFixed(1) + u.min;
-    if (sec < 86400) return (sec / 3600).toFixed(1) + u.h;
-    if (sec < 31557600) return (sec / 86400).toFixed(1) + u.days;
+    if (sec < 60)   return f(sec, 1) + u.s;
+    if (sec < 3600) return f(sec / 60, 1) + u.min;
+    if (sec < 86400) return f(sec / 3600, 1) + u.h;
+    if (sec < 31557600) return f(sec / 86400, 1) + u.days;
 
     const years = sec / 31557600;
     if (years < 1e6) return years.toLocaleString(T().locale, {maximumFractionDigits: 0}) + u.years;
@@ -342,7 +343,7 @@ import Layout from '../layouts/Layout.astro';
     fill.style.width = Math.max(pctMilli, 0.3) + '%';
     prog.innerHTML =
       n.toLocaleString(T().locale) + T().of + TOTAL.toLocaleString(T().locale) +
-      ' &nbsp;(' + pctMilli.toFixed(6) + ' %)';
+      ' &nbsp;(' + pctMilli.toLocaleString(T().locale, { minimumFractionDigits: 6, maximumFractionDigits: 6 }) + ' %)';
 
     // ms na jeden krok: buď z posuvníku, nebo (při 0) z reálného měření
     const delay = Number(document.getElementById('speed').value);
@@ -367,7 +368,7 @@ import Layout from '../layouts/Layout.astro';
       const ratio = years / UNIVERSE_YEARS;
       cmpEl.textContent = ratio >= 1
         ? '≈ ' + ratio.toLocaleString(T().locale, {maximumFractionDigits: 1}) + T().univTimes
-        : '≈ ' + (ratio * 100).toFixed(1) + T().univPct;
+        : '≈ ' + (ratio * 100).toLocaleString(T().locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + T().univPct;
     } else {
       cmpEl.textContent = '';
     }

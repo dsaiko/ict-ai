@@ -61,9 +61,9 @@ import Layout from '../layouts/Layout.astro';
 
 <h1><span class="badge">04</span><span class="cs">Genetický algoritmus</span><span class="en">Genetic algorithm</span></h1>
   <p class="intro">
-    <span class="cs">Příroda hledá řešení <b>evolucí</b> — a stejně může i počítač. Začneme s populací
-    <b>úplně náhodných</b> vět (jako v příkladu 2) a necháme „přežít a množit se" ty nejlepší.
-    Křížením a mutací se populace generaci po generaci přiblíží k <b>cíli</b>.</span>
+    <span class="cs">Příroda hledá řešení <b>evolucí</b> — a stejně to dokáže i počítač. Začneme s populací
+    <b>úplně náhodných</b> vět (jako v příkladu 2) a necháme „přežít a množit se“ ty nejlepší.
+    Křížením a mutací se populace generaci po generaci přibližuje k <b>cíli</b>.</span>
     <span class="en">Nature finds solutions by <b>evolution</b> — and so can a computer. We start with a population of
     <b>completely random</b> sentences (like in example 2) and let the best ones "survive and reproduce".
     Through crossover and mutation the population edges toward the <b>target</b> generation by generation.</span>
@@ -71,8 +71,8 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Genetický algoritmus</b>: populace náhodných vět, která se „přežitím nejlepších" generaci po generaci přiblíží k cílové větě — aniž by ji opsala.</span><span class="en">A <b>genetic algorithm</b>: a population of random sentences that, by “survival of the best”, approaches a target sentence generation by generation — without copying it.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Zadej cílovou větu a spusť. Začne se stovkami <b>náhodných nesmyslů</b> a v každé generaci nechá přežít a „rozmnožit" ty nejpodobnější (zeleně sedící písmena, pruh shody). Posuvníky mění velikost populace a míru <b>mutace</b>.</span><span class="en">Enter a target sentence and run it. It starts with hundreds of <b>random gibberish</b> strings, and each generation lets the most similar ones survive and “reproduce” (green = correct letters, bar = match). Sliders change the population size and the <b>mutation</b> rate.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Genetický algoritmus</b>: populace náhodných vět, která se „přežitím nejlepších“ generaci po generaci přibližuje k cílové větě — aniž by ji opsala.</span><span class="en">A <b>genetic algorithm</b>: a population of random sentences that, by “survival of the best”, approaches a target sentence generation by generation — without copying it.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Zadej cílovou větu a spusť. Algoritmus začne se stovkami <b>náhodných nesmyslů</b> a v každé generaci nechá přežít a „rozmnožit“ ty nejpodobnější (zeleně sedící písmena, pruh shody). Posuvníky mění velikost populace a míru <b>mutace</b>.</span><span class="en">Enter a target sentence and run it. It starts with hundreds of <b>random gibberish</b> strings, and each generation lets the most similar ones survive and “reproduce” (green = correct letters, bar = match). Sliders change the population size and the <b>mutation</b> rate.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Ukazuje, jak hledat řešení, <b>aniž ho známe</b> — stačí umět ohodnotit, jak je dobré (fitness). Spojuje náhodu z příkladů 1–2 s evolucí směrem ke smyslu.</span><span class="en">It shows how to search for a solution <b>without knowing it</b> — you only need to score how good it is (fitness). It joins the randomness of examples 1–2 with evolution toward meaning.</span></p>
     <div class="loop">
       <span class="stepc"><span class="n">1</span> <span class="cs">náhodná populace</span><span class="en">random population</span></span>
@@ -109,7 +109,7 @@ import Layout from '../layouts/Layout.astro';
 
     <div class="block">
       <div class="label"><span class="cs">2 · nejlepší jedinec v populaci</span><span class="en">2 · best individual in the population</span></div>
-      <div class="best" id="best"><span class="miss"><span class="cs">stiskni „Spustit evoluci"…</span><span class="en">press "Run evolution"…</span></span></div>
+      <div class="best" id="best"><span class="miss"><span class="cs">stiskni „Spustit evoluci“…</span><span class="en">press "Run evolution"…</span></span></div>
       <div class="barwrap"><div class="bar" id="bar"></div></div>
       <div class="stat" style="margin-top:12px">
         <span><span class="cs">generace:</span><span class="en">generation:</span> <b id="gen">0</b></span>
@@ -123,7 +123,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <div class="block">
-      <div class="label"><span class="cs">3 · ukázka populace (pár náhodných jedinců)</span><span class="en">3 · population sample (a few random individuals)</span></div>
+      <div class="label"><span class="cs">3 · ukázka populace (jedinci z první čtvrtiny, prostředka a konce žebříčku)</span><span class="en">3 · population sample (individuals from the top quarter, middle and bottom of the ranking)</span></div>
       <div class="pop" id="pop-view"><span style="color:#cbd5e1">—</span></div>
     </div>
   </div>
@@ -133,7 +133,7 @@ import Layout from '../layouts/Layout.astro';
     <p class="lead">
       <span class="cs">Genetický algoritmus napodobuje přírodní výběr. Místo aby zkoušel kombinace popořadě
       (jako hrubá síla v příkladu 1), pracuje s celou <b>populací</b> řešení a v každé generaci
-      nechá „rodit" lepší z lepších. Náhoda tu má směr — <b>k cíli</b>.</span>
+      nechá ty lepší „rodit“ ještě lepší. Náhoda tu má směr — <b>k cíli</b>.</span>
       <span class="en">A genetic algorithm mimics natural selection. Instead of trying combinations in order
       (like brute force in example 1), it works with a whole <b>population</b> of solutions and in each generation
       lets the better ones "give birth" to even better ones. Here randomness has a direction — <b>toward the target</b>.</span>
@@ -148,14 +148,14 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#2563eb">
         <h3><span class="dot"></span><span class="cs">Výběr a křížení</span><span class="en">Selection and crossover</span></h3>
-        <p><span class="cs">Vybereme dva zdatné „rodiče" a jejich věty <b>zkřížíme</b> — část písmen od jednoho,
+        <p><span class="cs">Vybereme dva zdatné „rodiče“ a jejich věty <b>zkřížíme</b> — část písmen od jednoho,
            část od druhého. Vznikne potomek, který kombinuje to dobré z obou.</span>
            <span class="en">We pick two fit "parents" and <b>cross over</b> their sentences — some letters from one,
            some from the other. The child combines the good bits of both.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">
         <h3><span class="dot"></span><span class="cs">Mutace</span><span class="en">Mutation</span></h3>
-        <p><span class="cs">Občas se náhodně změní písmeno. Drží to rozmanitost a pomáhá objevit, co v populaci
+        <p><span class="cs">Občas se náhodně změní písmeno. Udržuje to rozmanitost a pomáhá objevit, co v populaci
            ještě není. Moc mutace = chaos, málo = uváznutí.</span>
            <span class="en">Now and then a letter changes at random. This keeps diversity and helps discover what isn't
            yet in the population. Too much mutation = chaos, too little = getting stuck.</span></p>
@@ -163,7 +163,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">K čemu to je</span><span class="en">What it's good for</span></h3>
         <p><span class="cs">Hodí se tam, kde neumíme spočítat řešení přímo: návrh tvarů, herní strategie, ladění
-           parametrů. Vždy, když umíme jen <b>ohodnotit</b>, jak dobré řešení je.</span>
+           parametrů. Zkrátka všude, kde umíme jen <b>ohodnotit</b>, jak dobré řešení je.</span>
            <span class="en">It's useful where we can't compute the solution directly: shape design, game strategies, parameter
            tuning. Whenever all we can do is <b>score</b> how good a solution is.</span></p>
       </div>
