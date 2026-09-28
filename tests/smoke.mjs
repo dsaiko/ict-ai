@@ -9,15 +9,16 @@
 // Používá nainstalovaný Google Chrome (playwright-core nic nestahuje);
 // jiný prohlížeč: CHROME_PATH=/cesta/k/chrome npm test
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
+import { CHAPTERS } from '../src/data/chapters.js';
 
 const DIST = fileURLToPath(new URL('../dist/', import.meta.url));   // pathname by nechal %20, %C5%A1…
-const PAGES = ['index', '01-binary-counter', '02-jazyk', '03-hledani', '04-genetika', '05-markov',
-  '06-perceptron', '08-neuronka', '10-vision', '13-embeddingy', '14-attention', '15-token',
-  '17-rag', '18-agents', '19-bias', '21-tsp'];
+// všechny kapitoly z dat série, které mají hotovou stránku
+const PAGES = ['index', ...CHAPTERS.map(c => c.slug).filter(slug => existsSync(new URL(`../dist/${slug}.html`, import.meta.url)))];
 // původní adresy před přečíslováním → musí přesměrovat
 const MOVED = { '04-markov': '05-markov', '08-genetika': '04-genetika', '12-rag': '17-rag', '15-tsp': '21-tsp' };
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
@@ -46,6 +47,19 @@ async function open(page, { mobile = false, lang = 'cs' } = {}) {
   p.on('console', m => { if (m.type() === 'error' && !/ERR_FAILED|ERR_BLOCKED/.test(m.text())) errs.push(m.text()); });
   await p.goto(`${BASE}${page}.html?lang=${lang}`, { waitUntil: 'load' });
   return { p, ctx, errs };
+}
+
+// ── 0) odkazy mezi stránkami vedou na existující soubory ─────────
+console.log('Odkazy');
+for (const f of (await readdir(DIST)).filter(f => f.endsWith('.html'))) {
+  const html = await readFile(join(DIST, f), 'utf8');
+  for (const [, href] of html.matchAll(/href="([^":#?]+\.html)[^"]*"/g))
+    if (!existsSync(join(DIST, href))) fail(f, `odkaz na neexistující ${href}`);
+}
+for (const c of CHAPTERS.filter(c => PAGES.includes(c.slug))) {
+  const html = await readFile(join(DIST, `${c.slug}.html`), 'utf8');
+  if (!html.includes('class="chapfoot"')) fail(c.slug, 'chybí patička kapitoly');
+  if (!html.includes(`<span class="badge">${c.n}</span>`)) fail(c.slug, `odznak neodpovídá číslu ${c.n}`);
 }
 
 // ── 1) každá stránka: chyby JS a přetečení ───────────────────────
