@@ -259,7 +259,7 @@ import Layout from '../layouts/Layout.astro';
         'Tělocvična je v přízemí a o víkendu je přístupná po domluvě se správcem budovy.',
       ],
       re: {
-        math: /\d\s*(?:%|[-+*/×])|kolik\s+je|procent/i,
+        math: /\d\s*(?:%|procent|[-+*/×]\s*\d)/i,
         lookup: /heslo|wi-?fi|knihovn|ředitel|robotik|jídel|tělocvičn|oběd|kancelář|otev[íř]|zav[íř]|kdy\b|kde\b/i,
         send: /pošl|odešl|napiš|e-?mail/i,
         date: /datum|dnes|kolikát|který den|hodin|čas\b/i,
@@ -284,10 +284,10 @@ import Layout from '../layouts/Layout.astro';
         'The gym is on the ground floor and is open on weekends by arrangement with the caretaker.',
       ],
       re: {
-        math: /\d\s*(?:%|[-+*/×])|what\s+is|percent/i,
+        math: /\d\s*(?:%|percent|[-+*/×]\s*\d)/i,
         lookup: /password|wi-?fi|librar|principal|robotic|canteen|lunch|gym|office|open|close|when\b|where\b/i,
         send: /send|email|e-mail|write|mail/i,
-        date: /date|today|day is|time\b|what day/i,
+        date: /date|today|day is|time\b|what day|o'clock/i,
       },
       placeholder: 'e.g. Find the Wi-Fi password and send it by email.',
       defaultRecipient: 'principal@school.org',
@@ -299,13 +299,13 @@ import Layout from '../layouts/Layout.astro';
   const I18N = {
     cs: {
       toolName: { calc:'kalkulačka', search:'vyhledávání', date:'kalendář', email:'odeslat_email' },
-      thought: { calc:'Tohle je výpočet → použiju kalkulačku.', search:'Tuhle informaci neznám z hlavy → vyhledám ji.', date:'Potřebuju aktuální datum → kouknu do kalendáře.', email:'Mám co poslat → odešlu e-mail.' },
+      thought: { calc:'Tohle je výpočet → použiju kalkulačku.', search:'Tuhle informaci neznám z hlavy → vyhledám ji.', date:'Potřebuju aktuální datum a čas → kouknu do kalendáře.', email:'Mám co poslat → odešlu e-mail.' },
       lThought:'Úvaha', lAction:'Akce', lObs:'Pozorování', lAnswer:'Hotovo',
       obsNone:'nic relevantního nenalezeno',
       obsEmail: to => 'e-mail odeslán na: ' + to,
       finalCalc: r => 'Výsledek je <b>' + r + '</b>.',
       finalSearch: s => s,
-      finalDate: d => 'Dnes je <b>' + d + '</b>.',
+      finalDate: d => 'Teď je <b>' + d + '</b>.',
       finalEmail: 'Hotovo — <b>e-mail jsem odeslal</b>.',
       finalEmailWith: c => 'Našel jsem požadovanou informaci a <b>odeslal ji e-mailem</b> (' + c + ').',
       finalGuess: 'Na tohle nemám žádný nástroj — samotný model by si musel jen <b>tipnout</b>.',
@@ -314,13 +314,13 @@ import Layout from '../layouts/Layout.astro';
     },
     en: {
       toolName: { calc:'calculator', search:'search', date:'calendar', email:'send_email' },
-      thought: { calc:'This is a calculation → I\'ll use the calculator.', search:'I don\'t know this offhand → I\'ll look it up.', date:'I need the current date → I\'ll check the calendar.', email:'I have something to send → I\'ll send an email.' },
+      thought: { calc:'This is a calculation → I\'ll use the calculator.', search:'I don\'t know this offhand → I\'ll look it up.', date:'I need the current date and time → I\'ll check the calendar.', email:'I have something to send → I\'ll send an email.' },
       lThought:'Reason', lAction:'Action', lObs:'Observation', lAnswer:'Done',
       obsNone:'nothing relevant found',
       obsEmail: to => 'email sent to: ' + to,
       finalCalc: r => 'The result is <b>' + r + '</b>.',
       finalSearch: s => s,
-      finalDate: d => 'Today is <b>' + d + '</b>.',
+      finalDate: d => 'It is now <b>' + d + '</b>.',
       finalEmail: 'Done — <b>the email has been sent</b>.',
       finalEmailWith: c => 'I found the requested information and <b>sent it by email</b> (' + c + ').',
       finalGuess: 'I have no tool for this — the model alone would just have to <b>guess</b>.',
@@ -345,10 +345,12 @@ import Layout from '../layouts/Layout.astro';
     }
     return bs>0 ? best : null;
   }
+  // uživatelský text jde do innerHTML → escapovat
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
   function fmtNum(n){ return (Math.round(n*100)/100).toLocaleString(DATA[curLang].locale); }
   function calc(task){
     const t = task.replace(/(\d),(\d)/g,'$1.$2');
-    let m = t.match(/(\d+(?:\.\d+)?)\s*%\s*(?:z|of)\s*(\d+(?:\.\d+)?)/i);
+    let m = t.match(/(\d+(?:\.\d+)?)\s*(?:%|procent|percent)\s*(?:z|of)\s*(\d+(?:\.\d+)?)/i);
     if(m) return fmtNum((+m[1])/100*(+m[2]));
     m = t.match(/(\d+(?:\.\d+)?)\s*([-+*/×])\s*(\d+(?:\.\d+)?)/);
     if(m){ const a=+m[1], b=+m[3], op=m[2];
@@ -357,7 +359,8 @@ import Layout from '../layouts/Layout.astro';
   }
   function nowStr(){
     const d = new Date();
-    return d.toLocaleDateString(DATA[curLang].locale, { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    return d.toLocaleDateString(DATA[curLang].locale, { weekday:'long', day:'numeric', month:'long', year:'numeric' }) +
+      ', ' + d.toLocaleTimeString(DATA[curLang].locale, { hour:'2-digit', minute:'2-digit' });
   }
   function recipient(task){
     let m = task.match(/[\w.+-]+@[\w.-]+/);
@@ -421,8 +424,8 @@ import Layout from '../layouts/Layout.astro';
         n++;
         html += '<div class="tstep"><div class="tnum">' + I.lThought.toUpperCase() + ' · ' + (curLang==='cs'?'krok ':'step ') + n + '</div>' +
           '<div class="line">💭 <span class="k">' + I.thought[s.tool] + '</span></div>' +
-          '<div class="line">🔧 <span class="k">' + I.lAction + ':</span> <span class="tool">' + TICON[s.tool] + ' ' + I.toolName[s.tool] + '(' + s.argDisp + ')</span></div>' +
-          '<div class="line">👁 <span class="k">' + I.lObs + ':</span> <span class="obs">' + s.obs + '</span></div></div>';
+          '<div class="line">🔧 <span class="k">' + I.lAction + ':</span> <span class="tool">' + TICON[s.tool] + ' ' + I.toolName[s.tool] + '(' + esc(s.argDisp) + ')</span></div>' +
+          '<div class="line">👁 <span class="k">' + I.lObs + ':</span> <span class="obs">' + esc(s.obs) + '</span></div></div>';
       }
     }
     el.innerHTML = html;
@@ -431,10 +434,9 @@ import Layout from '../layouts/Layout.astro';
 
   function prepare(){ if(timer){clearInterval(timer);timer=null;} steps = runAgent($('task').value.trim()); shown = 0; render(); }
   function reveal(){ if (shown < steps.length){ shown++; render(); } }
+  // vždy přepočítej trasu pro aktuální text — předvolba mění value bez události 'input'
   function runAll(){
-    if (!steps.length || timer) prepare();
-    if (timer){ clearInterval(timer); timer=null; }
-    shown = 0; render();
+    prepare();
     timer = setInterval(() => { reveal(); if (shown >= steps.length){ clearInterval(timer); timer=null; } }, 650);
   }
 
@@ -461,11 +463,11 @@ import Layout from '../layouts/Layout.astro';
 
   window.onLangChange = function(l){
     if(timer){clearInterval(timer);timer=null;}
-    const wasDefault = DATA[curLang].tasks.includes($('task').value.trim());
+    const preset = DATA[curLang].tasks.indexOf($('task').value.trim());   // zachovej zvolenou předvolbu
     curLang = l;
     renderPresets();
     $('task').placeholder = DATA[l].placeholder;
-    if (wasDefault) $('task').value = DATA[l].tasks[3];
+    if (preset >= 0) $('task').value = DATA[l].tasks[preset];
     steps = runAgent($('task').value); shown = steps.length; render();
   };
 </script>
