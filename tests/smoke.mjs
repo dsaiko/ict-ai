@@ -11,9 +11,10 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 
-const DIST = new URL('../dist/', import.meta.url).pathname;
+const DIST = fileURLToPath(new URL('../dist/', import.meta.url));   // pathname by nechal %20, %C5%A1…
 const PAGES = ['index', '01-binary-counter', '02-jazyk', '03-hledani', '04-markov', '05-perceptron',
   '06-neuronka', '07-vision', '08-genetika', '09-embeddingy', '10-attention', '11-token',
   '12-rag', '13-agents', '14-bias', '15-tsp'];
@@ -22,8 +23,10 @@ const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '
 // ── statický server nad dist/ ────────────────────────────────────
 const server = createServer(async (req, res) => {
   const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname)).replace(/^[/\\]+/, '') || 'index.html';
-  try { res.writeHead(200, { 'content-type': TYPES[extname(path)] || 'application/octet-stream' }); res.end(await readFile(join(DIST, path))); }
-  catch { res.writeHead(404).end(); }
+  // nejdřív načíst, pak hlavičky — jinak by 404 volala writeHead podruhé a shodila test
+  let body;
+  try { body = await readFile(join(DIST, path)); } catch { res.writeHead(404).end(); return; }
+  res.writeHead(200, { 'content-type': TYPES[extname(path)] || 'application/octet-stream' }); res.end(body);
 });
 await new Promise(r => server.listen(0, '127.0.0.1', r));
 const BASE = `http://127.0.0.1:${server.address().port}/`;

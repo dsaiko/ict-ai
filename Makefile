@@ -83,4 +83,9 @@ deploy-invalidate:
 		--distribution-id $(CLOUDFRONT_DIST) \
 		--paths "/$(S3_PATH)*"
 
-deploy: test deploy-s3 deploy-invalidate
+# Kroky za sebou i při `make -j`: nejdřív test, pak S3, pak invalidace.
+# (Jako prosté prerekvizity by je paralelní make mohl pustit najednou a nahrát
+# na S3 dřív, než test selže.)
+deploy: test
+	$(MAKE) deploy-s3
+	$(MAKE) deploy-invalidate
