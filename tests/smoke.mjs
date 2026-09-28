@@ -15,12 +15,12 @@ import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import { CHAPTERS } from '../src/data/chapters.js';
+import { MOVED } from '../src/data/redirects.js';
 
 const DIST = fileURLToPath(new URL('../dist/', import.meta.url));   // pathname by nechal %20, %C5%A1…
-// všechny kapitoly z dat série, které mají hotovou stránku
-const PAGES = ['index', ...CHAPTERS.map(c => c.slug).filter(slug => existsSync(new URL(`../dist/${slug}.html`, import.meta.url)))];
-// původní adresy před přečíslováním → musí přesměrovat
-const MOVED = { '04-markov': '05-markov', '08-genetika': '04-genetika', '12-rag': '17-rag', '15-tsp': '20-tsp' };
+// všechny kapitoly série — přísně: chybějící stránka je chyba (viz „Kompletnost" níže),
+// ne tiché vynechání, jako to dělá web (kapitola se tam objeví, až má soubor)
+const PAGES = ['index', ...CHAPTERS.map(c => c.slug)];
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
 
 // ── statický server nad dist/ ────────────────────────────────────
@@ -47,6 +47,19 @@ async function open(page, { mobile = false, lang = 'cs' } = {}) {
   p.on('console', m => { if (m.type() === 'error' && !/ERR_FAILED|ERR_BLOCKED/.test(m.text())) errs.push(m.text()); });
   await p.goto(`${BASE}${page}.html?lang=${lang}`, { waitUntil: 'load' });
   return { p, ctx, errs };
+}
+
+// ── 0a) kompletnost: každá kapitola z dat má zdroj i hotovou stránku a naopak ──
+console.log('Kompletnost');
+{ const SRC = fileURLToPath(new URL('../src/pages/', import.meta.url));
+  const src = (await readdir(SRC)).filter(f => f.endsWith('.astro') && f !== 'index.astro' && !f.startsWith('[')).map(f => f.slice(0, -6));
+  for (const c of CHAPTERS) {
+    if (!src.includes(c.slug)) fail(c.slug, `v chapters.js, ale chybí src/pages/${c.slug}.astro`);
+    if (!existsSync(join(DIST, `${c.slug}.html`))) fail(c.slug, `chybí sestavená stránka dist/${c.slug}.html`);
+  }
+  for (const f of src) if (!CHAPTERS.some(c => c.slug === f)) fail(f, 'stránka existuje, ale chybí v src/data/chapters.js');
+  const nums = CHAPTERS.map(c => +c.n);
+  if (nums.some((n, i) => n !== i + 1)) fail('chapters.js', `čísla kapitol nejdou 1…${nums.length} bez mezer: ${nums.join(', ')}`);
 }
 
 // ── 0) odkazy mezi stránkami vedou na existující soubory ─────────
@@ -192,8 +205,94 @@ for (const [mode, want, label] of [['biased', 'bad', 'Nespravedlivé'], ['fair',
 { const r = await fetch(`${BASE}neexistuje.html`); if (r.status !== 404) fail('server', `chybějící soubor vrátil ${r.status}`);
   const ok = await fetch(`${BASE}index.html`); if (ok.status !== 200) fail('server', 'po 404 server neodpovídá'); }
 
+// escapování vlastního textu v kapitolách 14 a 16
+for (const lang of ['cs', 'en']) {
+  await check('14-attention', 'HTML ve vlastní větě se escapuje', async p => {
+    await p.fill('#text', XSS); await p.waitForTimeout(200);
+    if (await p.$('#sent img, #matrix img, #selhint img')) return 'vykreslil se vložený <img>';
+    if (await pwned(p)) return 'spustil se vložený onerror';
+  }, lang);
+  await check('16-asistent', 'HTML ve vlastní otázce se escapuje', async p => {
+    await p.fill('#q1', XSS); await p.click('#btnSend');
+    await p.waitForFunction(() => /good|bad/.test(document.getElementById('vAsst').className), null, { timeout: 20000 });
+    if (await p.$('#bubU img, #bubA img, #rawBase img, #rawAsst img')) return 'vykreslil se vložený <img>';
+    if (await pwned(p)) return 'spustil se vložený onerror';
+    if (!(await p.textContent('#bubU')).includes('<img')) return 'otázka se v bublině neukázala jako text';
+  }, lang);
+}
+
+// chování nových kapitol, o kterém mluví text na stránce
+const ATT = { cs: [['kočka', 'stůl'], ['věží', 'klíč'], ['holky', 'kluci']], en: [['cat', 'table'], ['river', 'account'], ['keys', 'key']] };
+for (const lang of ['cs', 'en']) {
+  await check('14-attention', 'dvojice vět: klíčové slovo se v A a B dívá jinam', async p => {
+    for (let pi = 0; pi < 3; pi++) for (let vi = 0; vi < 2; vi++) {
+      await p.click(`#pairs button[data-p="${pi}"][data-v="${vi}"]`);
+      const top = await p.evaluate(([pi, vi]) => {
+        const k = PAIRS[curLang][pi].key[vi], row = A[k].map((w, j) => [w, j]).filter(([, j]) => j !== k).sort((a, b) => b[0] - a[0]);
+        return tokens[row[0][1]].toLowerCase();
+      }, [pi, vi]);
+      if (top !== ATT[lang][pi][vi]) return `dvojice ${pi + 1}${'AB'[vi]}: klíčové slovo se dívá na „${top}", čekáno „${ATT[lang][pi][vi]}"`;
+    }
+  }, lang);
+  await check('16-asistent', 'předvolby: asistent odpoví a skončí, základní model jen pokračuje', async p => {
+    const n = await p.$$eval('#pre1 button', b => b.length);
+    for (let i = 0; i < n; i++) {
+      await p.click(`#pre1 button >> nth=${i}`);            // předvolba rovnou odešle (druhý klik by generování zastavil)
+      await p.waitForFunction(() => /good|bad/.test(document.getElementById('vAsst').className), null, { timeout: 20000 });
+      const [a, b] = await p.evaluate(() => [document.getElementById('vAsst').className, document.getElementById('vBase').className]);
+      if (!a.includes('good')) return `předvolba ${i + 1}: asistent neodpověděl a neskončil`;
+      if (!b.includes('bad')) return `předvolba ${i + 1}: základní model „odpověděl" jako asistent`;
+    }
+  }, lang);
+}
+await check('07-gradient', 'učící rychlost: „tak akorát" dojde do minima, „moc velká" se rozletí', async p => {
+  for (const [lr, want] of [['0.6', 'good'], ['0.85', 'bad']]) {
+    await p.click(`[data-lr="${lr}"]`);
+    await p.waitForFunction(w => document.getElementById('msgA').className.includes(w), want, { timeout: 20000 }).catch(() => {});
+    if (!(await p.getAttribute('#msgA', 'class')).includes(want)) return `rychlost ${lr}: čekáno „${want}", je „${await p.getAttribute('#msgA', 'class')}"`;
+  }
+});
+// 12: naučená cesta = sledování nejlepších šipek od startu (stejně jako „Ukaž naučenou cestu")
+const learned = p => p.evaluate(() => {
+  const path = [start], seen = new Set([start]); let s = start;
+  for (let k = 0; k < 4 * N; k++) {
+    const s2 = move(s, bestActionFixed(s)); path.push(s2);
+    if (s2 === goal) return { end: 'goal', path, bfs: bfsLen() };
+    if (grid[s2] === LAVA) return { end: 'lava', path };
+    if (seen.has(s2)) return { end: path.some(c => grid[c] === COIN) ? 'coin' : 'loop', path };
+    seen.add(s2); s = s2;
+  }
+  return { end: 'loop', path };
+});
+const train = async (p, map, algo, runs) => {
+  await p.click(`#maps button[data-map="${map}"]`); await p.click(`[data-algo="${algo}"]`); await p.click('#btnReset');
+  for (let i = 0; i < runs; i++) await p.click('#btnFast');
+  return learned(p);
+};
+await check('12-odmena', 'jednoduchá mapa: po 300 epizodách nejkratší cesta (jako BFS)', async p => {
+  const r = await train(p, 'simple', 'q', 3);
+  if (r.end !== 'goal' || r.path.length - 1 !== r.bfs) return `naučená cesta: ${r.end}, ${r.path.length - 1} kroků (BFS ${r.bfs})`;
+});
+await check('12-odmena', 'mapa Mince: agent chodí pro bonus a do cíle nedojde (reward hacking)', async p => {
+  const r = await train(p, 'coin', 'q', 3);
+  if (r.end !== 'coin') return `naučená cesta končí „${r.end}", čekána smyčka přes minci`;
+});
+await check('12-odmena', 'Útes: SARSA se naučí cestu dál od lávy (aspoň 1 z 5 běhů)', async p => {
+  for (let i = 0; i < 5; i++) {
+    const r = await train(p, 'cliff', 'sarsa', 3);
+    // start i cíl na klasickém útesu s lávou sousedí vždy → posuzujeme jen cestu mezi nimi
+    const safe = r.end === 'goal' && await p.evaluate(path => path.slice(1, -1).every(c => {
+      const [x, y] = [c % COLS, Math.floor(c / COLS)];
+      return ![[1,0],[-1,0],[0,1],[0,-1]].some(([dx, dy]) => { const nx = x + dx, ny = y + dy;
+        return nx >= 0 && ny >= 0 && nx < COLS && ny < ROWS && grid[ny * COLS + nx] === LAVA; });
+    }), r.path);
+    if (safe) return;
+  }
+  return 'ani v jednom z 5 běhů se SARSA nenaučila cestu dál od lávy';
+});
+
 for (const [old, now] of Object.entries(MOVED)) {
-  console.log(`• přesměrování ${old} → ${now}`);
+  console.log(`• přesměrování ${old} → ${now}`);   // všech 12 ze sdílené tabulky
   const o = await open(old, { lang: 'en' });
   await o.p.waitForURL(u => u.pathname.endsWith(`/${now}.html`), { timeout: 5000 }).catch(() => {});
   const u = new URL(o.p.url());

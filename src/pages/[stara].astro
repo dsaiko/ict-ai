@@ -2,14 +2,9 @@
 // Přesměrování původních adres po přečíslování série (v2: 15 → 20 kapitol).
 // Záložky, odkazy z výuky a vyhledávače tak dál fungují: 08-genetika.html →
 // 04-genetika.html atd. Parametr ?lang= (a #kotva) se zachová.
+import { MOVED } from '../data/redirects.js';   // tabulka sdílená se smoke testem
+
 export function getStaticPaths() {
-  // getStaticPaths nevidí ostatní proměnné frontmatteru → tabulka žije tady
-  const MOVED = {
-    '04-markov': '05-markov', '05-perceptron': '06-perceptron', '06-neuronka': '08-neuronka',
-    '07-vision': '10-vision', '08-genetika': '04-genetika', '09-embeddingy': '13-embeddingy',
-    '10-attention': '14-attention', '11-token': '15-token', '12-rag': '17-rag',
-    '13-agents': '18-agents', '14-bias': '19-bias', '15-tsp': '20-tsp',
-  };
   return Object.entries(MOVED).map(([stara, nova]) => ({ params: { stara }, props: { nova } }));
 }
 const target = `${Astro.props.nova}.html`;
