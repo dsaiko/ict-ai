@@ -1,0 +1,1023 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout titleCs="Příklad #16 — Od doplňovače textu k asistentovi" titleEn="Example #16 — From text predictor to assistant" back={true}>
+<style is:global>
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; text-align: center; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 760px;
+           text-align: center; line-height: 1.5; }
+
+  .explain { width: min(880px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #4f46e5; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  .panel { width: min(880px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .block > h2 { font-size: 16px; font-weight: 700; margin: 0 0 6px; color: #111827; display: flex; align-items: center; gap: 10px; }
+  .block > h2 .num { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; background: #4f46e5; color: #fff;
+                     font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+  .block > .sub { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  .block > .sub b { color: #374151; }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 8px; }
+  .honest { font-size: 12px; color: #6b7280; line-height: 1.5; margin-top: 12px; border-top: 1px solid #f0f1f3; padding-top: 10px; }
+  .honest b { color: #374151; }
+
+  input[type=text] { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 11px 12px;
+    font-size: 16px; color: #111827; background: #fafafa; }
+  input[type=text]:focus { outline: 2px solid #a5b4fc; border-color: #a5b4fc; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .presets button { font-size: 13px; font-weight: 600; padding: 7px 13px; border: 1px solid #e5e7eb;
+    background: #fff; color: #374151; border-radius: 999px; cursor: pointer; }
+  .presets button:hover { background: #f3f4f6; }
+  .presets button.on { background: #eef2ff; border-color: #a5b4fc; color: #3730a3; }
+  .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  button.go   { font-size: 14px; font-weight: 700; padding: 10px 22px; border: none; border-radius: 8px;
+                cursor: pointer; background: #2563eb; color: #fff; transition: background .12s, transform .05s; }
+  button.go:hover { background: #1d4ed8; } button.go:active { transform: scale(.97); }
+  button.go.running { background: #dc2626; } button.go.running:hover { background: #b91c1c; }
+  button.util { font-size: 14px; font-weight: 600; padding: 10px 18px; border: none; border-radius: 8px;
+                cursor: pointer; background: #e5e7eb; color: #374151; }
+  button.util:hover { background: #d1d5db; }
+  button:disabled { opacity: .5; cursor: default; }
+  select { font-size: 14px; padding: 9px 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #374151; max-width: 100%; }
+
+  /* ── blok 1: dva modely vedle sebe ── */
+  .duo { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr)); margin-top: 16px; }
+  .mcol { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; background: #fff; min-width: 0; }
+  .mcol.base { border-top: 4px solid #94a3b8; }
+  .mcol.asst { border-top: 4px solid #4f46e5; }
+  .mcol h3 { font-size: 14.5px; margin: 0 0 3px; }
+  .mcol .what { font-size: 12px; color: #6b7280; margin: 0 0 10px; line-height: 1.45; }
+  .raw { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 14px; line-height: 1.7; color: #374151;
+         background: #f8fafc; border: 1px solid #eef0f3; border-radius: 8px; padding: 10px 12px; min-height: 92px;
+         overflow-wrap: anywhere; }
+  .raw .gen { color: #4338ca; font-weight: 700; background: #eef2ff; border-radius: 3px; }
+  .mcol.base .raw .gen { color: #b45309; background: #fef3c7; }
+  .sp { display: inline-block; font-size: 11.5px; font-weight: 700; color: #fff; background: #6366f1;
+        border-radius: 5px; padding: 0 6px; margin: 0 2px; line-height: 1.6; vertical-align: 1px; white-space: nowrap; }
+  .sp.sys { background: #64748b; } .sp.usr { background: #0ea5e9; } .sp.ast { background: #4f46e5; } .sp.end { background: #9ca3af; }
+  .raw .gen .sp { box-shadow: 0 0 0 2px #fbbf24; }
+  .caret { display: inline-block; width: 8px; height: 1em; background: #4f46e5; vertical-align: -2px; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .verdict { font-size: 12.5px; line-height: 1.5; margin-top: 10px; min-height: 19px; }
+  .verdict.bad { color: #b45309; } .verdict.good { color: #15803d; }
+
+  /* chatové bubliny: co ukáže aplikace */
+  .chat { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .chat .lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; }
+  .bub { max-width: 88%; font-size: 14px; line-height: 1.45; padding: 8px 12px; border-radius: 14px; overflow-wrap: anywhere; }
+  .bub.u { align-self: flex-end; background: #e0f2fe; color: #0c4a6e; border-bottom-right-radius: 4px; }
+  .bub.a { align-self: flex-start; background: #eef2ff; color: #1e1b4b; border-bottom-left-radius: 4px; min-height: 34px; }
+
+  details.corp { margin-top: 12px; border: 1px solid #eef0f3; border-radius: 8px; background: #fafafa; }
+  details.corp summary { cursor: pointer; font-size: 13px; font-weight: 600; color: #374151; padding: 9px 12px; }
+  details.corp .inner { padding: 0 12px 12px; font-size: 12.5px; color: #4b5563; line-height: 1.55; }
+  details.corp .doc { background: #fff; border: 1px solid #eef0f3; border-radius: 6px; padding: 6px 9px; margin-top: 6px; overflow-wrap: anywhere; }
+  details.corp .doc .sp { font-size: 10.5px; }
+  .corpcols { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+  .corpcols h4 { font-size: 12px; margin: 8px 0 0; color: #111827; }
+
+  /* ── blok 2: RLHF ── */
+  .qline { font-size: 17px; font-weight: 600; color: #111827; margin: 12px 0 10px; }
+  .pair { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+  .pick { text-align: left; font: inherit; font-size: 14.5px; line-height: 1.5; color: #1f2937; background: #fff;
+          border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; cursor: pointer; min-height: 84px;
+          transition: border-color .12s, background .12s, transform .05s; }
+  .pick:hover { border-color: #a5b4fc; background: #f8f9ff; }
+  .pick:active { transform: scale(.99); }
+  .pick .tag { display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #6366f1; margin-bottom: 4px; }
+  .pick.win { border-color: #16a34a; background: #f0fdf4; }
+  .pick.lose { opacity: .55; }
+  .rlrow { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); margin-top: 16px; }
+  .cand { display: grid; grid-template-columns: 22px 1fr 64px; gap: 8px; align-items: center; padding: 4px 0; }
+  .cand .cl { font-weight: 700; color: #4f46e5; font-size: 13px; text-align: center; }
+  .cand .cmid { min-width: 0; }
+  .cand .ctext { font-size: 12.5px; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cand .cbarwrap { background: #f1f3f5; border-radius: 5px; height: 14px; overflow: hidden; margin-top: 2px; }
+  .cand .cbar { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#818cf8,#4f46e5); border-radius: 5px; transition: width .25s ease; }
+  .cand.top .cbar { background: linear-gradient(90deg,#34d399,#16a34a); }
+  .cand .cp { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; color: #475569; text-align: right; white-space: nowrap; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+  .tags span { font-size: 10.5px; font-weight: 600; border-radius: 999px; padding: 1px 7px; background: #f1f5f9; color: #475569; }
+  .tags .ok { background: #dcfce7; color: #166534; } .tags .no { background: #fee2e2; color: #991b1b; }
+  .tags .hon { background: #e0f2fe; color: #075985; } .tags .fl { background: #fef3c7; color: #92400e; }
+  .wrow { display: grid; grid-template-columns: 120px 1fr 44px; gap: 8px; align-items: center; padding: 4px 0; font-size: 12.5px; color: #374151; }
+  .wtrack { position: relative; height: 14px; background: #f1f3f5; border-radius: 5px; }
+  .wtrack::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: #9ca3af; }
+  .wbar { position: absolute; top: 0; bottom: 0; border-radius: 4px; transition: left .25s, width .25s; }
+  .wv { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; text-align: right; color: #475569; }
+  .rlmeta { font-size: 13px; color: #374151; line-height: 1.55; margin-top: 12px; border-top: 1px solid #f0f1f3; padding-top: 10px; min-height: 42px; }
+  .rlmeta .warn { color: #b45309; } .rlmeta .good { color: #15803d; }
+  .count { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; color: #6b7280; }
+
+  /* ── blok 3: uvažování ── */
+  .task { font-size: 17px; font-weight: 600; color: #111827; line-height: 1.5; margin: 12px 0 4px;
+          background: #f8fafc; border: 1px solid #eef0f3; border-radius: 8px; padding: 12px 14px; }
+  .think { font-size: 14px; line-height: 1.6; color: #475569; background: #f8fafc; border: 1px dashed #cbd5e1;
+           border-radius: 8px; padding: 10px 12px; min-height: 120px; font-style: italic; }
+  .think .tl { font-style: normal; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; display: block; margin-bottom: 4px; }
+  .fin { font-size: 16px; font-weight: 700; color: #111827; margin-top: 10px; min-height: 24px; }
+  .fin.ok { color: #15803d; } .fin.no { color: #b91c1c; }
+  .cost { margin-top: 10px; font-size: 12.5px; color: #4b5563; }
+  .costbar { height: 12px; background: #f1f3f5; border-radius: 5px; overflow: hidden; margin-top: 4px; }
+  .costbar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#fbbf24,#f59e0b); transition: width .12s; }
+
+  .theory { width: min(880px, 96vw); margin-top: 24px; }
+
+  @media (max-width: 640px) {
+    .block { padding: 16px 14px; }
+    .raw { font-size: 13px; }
+    .wrow { grid-template-columns: 96px 1fr 40px; }
+    .qline, .task { font-size: 16px; }
+  }
+</style>
+
+<h1><span class="badge">16</span><span class="cs">Od doplňovače textu k asistentovi</span><span class="en">From text predictor to assistant</span></h1>
+  <p class="intro">
+    <span class="cs">V příkladu 15 jsme viděli, že jazykový model jen <b>losuje další token</b>. Proč tedy ChatGPT nebo Claude
+    na otázku <b>odpoví</b>, místo aby prostě pokračoval v textu? Protože po předtréninku přijdou ještě dvě fáze:
+    <b>doladění na konverzacích</b> a <b>učení z lidského hodnocení</b>. A nejnovější modely si navíc umí před odpovědí
+    <b>„promyslet" mezikroky</b>.</span>
+    <span class="en">In example 15 we saw that a language model only <b>samples the next token</b>. So why do ChatGPT or Claude
+    <b>answer</b> a question instead of simply continuing the text? Because pre-training is followed by two more phases:
+    <b>fine-tuning on conversations</b> and <b>learning from human feedback</b>. And the newest models can also
+    <b>"think through" intermediate steps</b> before answering.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Cesta od <b>základního modelu</b>, který jen doplňuje text, k <b>asistentovi</b>, který odpovídá: stejný princip predikce dalšího tokenu, jen jiná trénovací data a jiná odměna.</span><span class="en">The path from a <b>base model</b> that only continues text to an <b>assistant</b> that answers: the same next-token principle, just different training data and a different reward.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs"><b>(1)</b> Pošli stejnou otázku základnímu modelu i asistentovi a podívej se, co model <i>skutečně</i> dostane na vstup. <b>(2)</b> Hodnoť dvojice odpovědí (nebo nech hodnotit automat) a sleduj, jak se model posouvá — a co se stane, když hodnotitel miluje lichotky. <b>(3)</b> Porovnej rychlý tip a odpověď „po přemýšlení".</span><span class="en"><b>(1)</b> Send the same question to the base model and to the assistant and look at what the model <i>really</i> gets as input. <b>(2)</b> Rate pairs of answers (or let a bot rate) and watch the model shift — and what happens when the rater loves flattery. <b>(3)</b> Compare a quick guess with an answer "after thinking".</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Právě tyhle kroky udělaly z doplňovače textu užitečný nástroj (ChatGPT, listopad 2022). Když víš, jak vznikly, chápeš i jejich slabiny: model se naučí to, <b>co odměňujeme</b>, a pořád jen předpovídá další token — takže umí i sebevědomě kecat.</span><span class="en">These very steps turned a text predictor into a useful tool (ChatGPT, November 2022). Knowing how they came about also explains their weaknesses: the model learns <b>what we reward</b>, and it still only predicts the next token — so it can confidently make things up.</span></p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">předtrénink (doplňuj text)</span><span class="en">pre-training (continue text)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">doladění na konverzacích</span><span class="en">fine-tuning on conversations</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">hodnocení lidmi (RLHF)</span><span class="en">human ratings (RLHF)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">asistent</span><span class="en">assistant</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <!-- ══════════ BLOK 1: základní model × asistent ══════════ -->
+    <div class="block">
+      <h2><span class="num">1</span><span class="cs">Základní model × asistent</span><span class="en">Base model × assistant</span></h2>
+      <p class="sub"><span class="cs">Dva malé slovní modely (jako v příkladu 15, počítají, co po čem následuje). <b>Základní</b> se učil jen z „internetového" textu.
+        <b>Asistent</b> je tentýž model <b>doučený na konverzacích</b> v chatové šabloně. Stejná otázka — dvě úplně jiná chování.</span><span class="en">Two small word models (like in example 15, they count what follows what). The <b>base</b> one learned only from "internet" text.
+        The <b>assistant</b> is the same model <b>further trained on conversations</b> in a chat template. Same question — two completely different behaviours.</span></p>
+      <div class="label"><span class="cs">tvoje otázka</span><span class="en">your question</span></div>
+      <input type="text" id="q1" autocomplete="off">
+      <div class="presets" id="pre1"></div>
+      <div class="actions">
+        <button class="go" id="btnSend"><span class="cs">Pošli oběma modelům</span><span class="en">Send to both models</span></button>
+      </div>
+
+      <div class="duo">
+        <div class="mcol base">
+          <h3>📄 <span class="cs">Základní model (jen předtrénink)</span><span class="en">Base model (pre-training only)</span></h3>
+          <p class="what"><span class="cs">Co model skutečně vidí: jen tvůj text. Doplňuje, jak by <b>pokračoval dokument</b>.</span><span class="en">What the model really sees: just your text. It continues the way <b>a document would go on</b>.</span></p>
+          <div class="raw" id="rawBase"></div>
+          <div class="verdict" id="vBase"></div>
+        </div>
+        <div class="mcol asst">
+          <h3>💬 <span class="cs">Asistent (doladěný na konverzacích)</span><span class="en">Assistant (fine-tuned on conversations)</span></h3>
+          <p class="what"><span class="cs">Co model skutečně vidí: otázku <b>zabalenou do chatové šablony</b> se systémovým promptem. Role jsou jen speciální tokeny.</span><span class="en">What the model really sees: the question <b>wrapped in a chat template</b> with a system prompt. Roles are just special tokens.</span></p>
+          <div class="raw" id="rawAsst"></div>
+          <div class="chat">
+            <span class="lbl"><span class="cs">co z toho ukáže aplikace</span><span class="en">what the app shows you</span></span>
+            <div class="bub u" id="bubU"></div>
+            <div class="bub a" id="bubA"></div>
+          </div>
+          <div class="verdict" id="vAsst"></div>
+        </div>
+      </div>
+
+      <details class="corp">
+        <summary><span class="cs">📚 Na čem se modely učily (celá trénovací data)</span><span class="en">📚 What the models learned from (the entire training data)</span></summary>
+        <div class="inner">
+          <div id="corpStats"></div>
+          <div class="corpcols">
+            <div><h4><span class="cs">Předtrénink: „internetový text"</span><span class="en">Pre-training: "internet text"</span></h4><div id="corpBase"></div></div>
+            <div><h4><span class="cs">Doladění: konverzace v šabloně</span><span class="en">Fine-tuning: conversations in the template</span></h4><div id="corpChat"></div></div>
+          </div>
+        </div>
+      </details>
+      <p class="honest"><span class="cs"><b>Poctivě:</b> oba modely jsou malinké — pár desítek vět a dívají se nejvýš <b>8 tokenů zpět</b> (v příkladu 15 jen na poslední slovo;
+        bez delšího kontextu by asistent po <span class="sp ast">&lt;|asistent|&gt;</span> nevěděl, na co se ptáš — skutečné modely to řeší pomocí attention, příklad 14).
+        Na předvolby odpovídají spolehlivě. Na <b>vlastní otázku</b> asistent odpoví ve správném formátu, ale obsah bude často mimo: zná jen pár konverzací, takže si klidně něco vymyslí.</span><span class="en"><b>Honestly:</b> both models are tiny — a few dozen sentences, and they look at most <b>8 tokens back</b> (example 15 looked only at the last word;
+        without a longer context the assistant wouldn't know after <span class="sp ast">&lt;|assistant|&gt;</span> what you asked — real models solve this with attention, example 14).
+        They answer the presets reliably. For <b>your own question</b> the assistant will answer in the right format, but the content will often be off: it knows only a few conversations, so it may well make something up.</span></p>
+    </div>
+
+    <!-- ══════════ BLOK 2: RLHF ══════════ -->
+    <div class="block">
+      <h2><span class="num">2</span><span class="cs">Učení z lidského hodnocení (RLHF), zjednodušeně</span><span class="en">Learning from human feedback (RLHF), simplified</span></h2>
+      <p class="sub"><span class="cs">Model nabídne <b>dvě odpovědi</b> a ty klikni na tu <b>lepší</b>. Z porovnání se učí <b>model odměny</b> — pro každou vlastnost odpovědi
+        (správnost, zdvořilost…) jednu váhu, posouvanou gradientem jako v příkladu 7. Podle odměny se pak přeskládají pravděpodobnosti odpovědí — to je
+        „politika" modelu, stejný pojem jako v učení odměnou (příklad 12).</span><span class="en">The model offers <b>two answers</b> and you click the <b>better</b> one. From the comparisons it learns a <b>reward model</b> — one weight per property of an answer
+        (correctness, politeness…), nudged by the gradient just like in example 7. The answer probabilities are then reshuffled by the reward — that's the model's
+        "policy", the same idea as in reinforcement learning (example 12).</span></p>
+      <div class="label"><span class="cs">dotaz</span><span class="en">prompt</span></div>
+      <div class="presets" id="pre2"></div>
+      <div class="qline" id="rlQ"></div>
+      <div class="label"><span class="cs">která odpověď je lepší? klikni</span><span class="en">which answer is better? click it</span></div>
+      <div class="pair">
+        <button class="pick" id="pickA"></button>
+        <button class="pick" id="pickB"></button>
+      </div>
+      <div class="actions">
+        <button class="go" id="btnAuto"><span class="cs">20 hodnocení automaticky</span><span class="en">20 ratings automatically</span></button>
+        <select id="rater" aria-label="rater">
+          <option value="honest"></option>
+          <option value="flatter"></option>
+        </select>
+        <button class="util" id="btnRlReset"><span class="cs">Reset</span><span class="en">Reset</span></button>
+        <span class="count" id="rlCount"></span>
+      </div>
+      <div class="rlrow">
+        <div>
+          <div class="label"><span class="cs">politika: pravděpodobnost každé odpovědi (a její odměna)</span><span class="en">policy: probability of each answer (and its reward)</span></div>
+          <div id="rlBars"></div>
+        </div>
+        <div>
+          <div class="label"><span class="cs">model odměny: naučené váhy vlastností</span><span class="en">reward model: learned weights of properties</span></div>
+          <div id="rlW"></div>
+          <p class="honest" style="margin-top:8px"><span class="cs">Odměna odpovědi = součet vah jejích vlastností. Vlevo od čáry = model odměny ji <b>trestá</b>, vpravo = <b>odměňuje</b>.</span><span class="en">An answer's reward = the sum of the weights of its properties. Left of the line = the reward model <b>penalises</b> it, right = it <b>rewards</b> it.</span></p>
+        </div>
+      </div>
+      <div class="rlmeta" id="rlMeta"></div>
+      <p class="honest"><span class="cs"><b>Zjednodušení:</b> tady model jen volí z pevné sady šesti odpovědí a vlastnosti má každá ručně označené. Ve skutečnosti model odměny je
+        velká neuronová síť, která vlastnosti sama „vidí" v textu, a jazykový model se učením odměnou (příklad 12) doladí tak, aby <b>psal</b> odpovědi s vysokou odměnou.
+        Princip porovnávání dvojic (model Bradley–Terry) je ale stejný.</span><span class="en"><b>Simplification:</b> here the model only chooses from a fixed set of six answers, each with hand-labelled properties. In reality the reward model is
+        a large neural network that "sees" the properties in the text itself, and the language model is tuned with reinforcement learning (example 12) to <b>write</b> answers with a high reward.
+        The principle of comparing pairs (the Bradley–Terry model) is the same, though.</span></p>
+    </div>
+
+    <!-- ══════════ BLOK 3: uvažující model ══════════ -->
+    <div class="block">
+      <h2><span class="num">3</span><span class="cs">Uvažující model: „přemýšlej krok za krokem"</span><span class="en">Reasoning model: "think step by step"</span></h2>
+      <p class="sub"><span class="cs">Model píše po jednom tokenu. Když musí odpověď <b>vyhrknout hned</b>, na složitější úloze se snadno splete. Když si nejdřív
+        <b>vypíše mezikroky</b>, každý další token se opírá o už spočítané mezivýsledky — za cenu mnohem víc tokenů, tedy víc výpočtu.</span><span class="en">The model writes one token at a time. When it has to <b>blurt out</b> the answer right away, it easily gets a harder task wrong. When it first
+        <b>writes out the intermediate steps</b>, each next token can lean on results already computed — at the cost of many more tokens, i.e. more computation.</span></p>
+      <div class="label"><span class="cs">slovní úloha</span><span class="en">word problem</span></div>
+      <div class="presets" id="pre3"></div>
+      <div class="task" id="task"></div>
+      <div class="actions">
+        <button class="go" id="btnThink"><span class="cs">Odpověz oběma způsoby</span><span class="en">Answer both ways</span></button>
+        <button class="util" id="btnDice"><span class="cs">🎲 Jiná čísla</span><span class="en">🎲 Other numbers</span></button>
+      </div>
+      <div class="duo">
+        <div class="mcol base">
+          <h3>⚡ <span class="cs">Bez přemýšlení</span><span class="en">No thinking</span></h3>
+          <p class="what"><span class="cs">Odpověď hned jako první tokeny.</span><span class="en">The answer straight away as the first tokens.</span></p>
+          <div class="fin" id="fastAns"></div>
+          <div class="cost"><span id="fastCost"></span><div class="costbar"><span id="fastBar"></span></div></div>
+          <div class="verdict" id="fastV"></div>
+        </div>
+        <div class="mcol asst">
+          <h3>🧠 <span class="cs">S přemýšlením</span><span class="en">With thinking</span></h3>
+          <p class="what"><span class="cs">Nejdřív mezikroky („tokeny přemýšlení"), pak odpověď.</span><span class="en">First the intermediate steps ("thinking tokens"), then the answer.</span></p>
+          <div class="think" id="thinkBox"></div>
+          <div class="fin" id="slowAns"></div>
+          <div class="cost"><span id="slowCost"></span><div class="costbar"><span id="slowBar"></span></div></div>
+          <div class="verdict" id="slowV"></div>
+        </div>
+      </div>
+      <p class="honest"><span class="cs"><b>Poctivě:</b> tohle je <b>skriptovaná ilustrace</b> principu (víc výpočtu při odpovídání), ne skutečný model. Rychlý tip je naschvál
+        typická chyba a mezikroky počítá JavaScript. Skutečný uvažující model si mezikroky generuje sám, token po tokenu — a díky nim se trefí častěji, ale ne vždy.</span><span class="en"><b>Honestly:</b> this is a <b>scripted illustration</b> of the principle (more computation while answering), not a real model. The quick guess is deliberately
+        a typical mistake, and the steps are computed by JavaScript. A real reasoning model generates the steps itself, token by token — and thanks to them it is right more often, but not always.</span></p>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Jak se z doplňovače textu stane asistent</span><span class="en">How a text predictor becomes an assistant</span></div>
+    <p class="lead">
+      <span class="cs">Uvnitř je pořád tentýž stroj z příkladu 15: spočítá pravděpodobnosti dalšího tokenu a jeden vylosuje. Mění se jen to,
+      <b>na čem</b> se učil a <b>co</b> se mu odměňovalo. Proto se trénink velkých modelů dělí do fází.</span>
+      <span class="en">Inside it is still the same machine from example 15: it computes next-token probabilities and samples one. What changes is
+      <b>what</b> it learned from and <b>what</b> it was rewarded for. That's why training large models is split into phases.</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#64748b">
+        <h3><span class="dot"></span><span class="cs">1 · Předtrénink</span><span class="en">1 · Pre-training</span></h3>
+        <p><span class="cs">Model se učí <b>doplňovat text</b> na obrovském množství textu z internetu, knih a kódu — u dnešních velkých modelů řádově
+           <b>biliony tokenů</b>. Učení = zmenšování chyby předpovědi (příklad 7). Výsledek „zná svět", ale neví, že má <b>odpovídat</b>:
+           na otázku klidně naváže další otázkou.</span>
+           <span class="en">The model learns to <b>continue text</b> on a huge amount of text from the web, books and code — for today's large models on the order of
+           <b>trillions of tokens</b>. Learning = shrinking the prediction error (example 7). The result "knows the world" but doesn't know it should <b>answer</b>:
+           it may well follow a question with another question.</span></p>
+      </div>
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span><span class="cs">2 · Doladění na konverzacích</span><span class="en">2 · Fine-tuning on conversations</span></h3>
+        <p><span class="cs">Pak se model doučí na <b>ukázkových konverzacích</b> (instrukce a vzorové odpovědi, často psané lidmi). Konverzace se zapisuje
+           <b>chatovou šablonou</b>: systémový prompt, uživatel, asistent — role jsou jen <b>speciální tokeny</b>. Model se naučí, že po tokenu
+           asistenta přichází užitečná odpověď a pak token konce.</span>
+           <span class="en">Next the model is trained further on <b>example conversations</b> (instructions and model answers, often written by people). A conversation is written
+           in a <b>chat template</b>: system prompt, user, assistant — roles are just <b>special tokens</b>. The model learns that after the assistant token
+           comes a helpful answer and then an end token.</span></p>
+      </div>
+      <div class="tcard" style="--c:#4f46e5">
+        <h3><span class="dot"></span><span class="cs">3 · RLHF: lidé hodnotí</span><span class="en">3 · RLHF: people rate</span></h3>
+        <p><span class="cs">Lidé porovnávají dvojice odpovědí („která je lepší?"). Z toho se naučí <b>model odměny</b>, který umí odhadnout, jak by
+           odpověď člověk ohodnotil. Jazykový model se pak <b>učením odměnou</b> (příklad 12) posouvá k odpovědím s vyšší odměnou.
+           Riziko: když hodnotitelé mají rádi lichotky, model se naučí lichotit (<b>sykofancie</b>).</span>
+           <span class="en">People compare pairs of answers ("which is better?"). From that a <b>reward model</b> is learned that can estimate how a person
+           would rate an answer. The language model is then pushed by <b>reinforcement learning</b> (example 12) towards answers with a higher reward.
+           The risk: if raters like flattery, the model learns to flatter (<b>sycophancy</b>).</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">4 · Uvažující modely</span><span class="en">4 · Reasoning models</span></h3>
+        <p><span class="cs">Od roku 2024 se objevují modely, které před odpovědí vygenerují dlouhý <b>řetězec přemýšlení</b> — víc výpočtu
+           <b>při odpovídání</b>, ne jen při tréninku. Podle zveřejněných popisů se to učí mimo jiné učením odměnou na úlohách,
+           kde jde výsledek <b>automaticky ověřit</b> (matematika, programování). Cena: víc tokenů, delší čekání.</span>
+           <span class="en">Since 2024, models have appeared that generate a long <b>chain of thought</b> before answering — more computation
+           <b>at answer time</b>, not only during training. According to published descriptions they learn this, among other things, by reinforcement learning on tasks
+           whose result can be <b>checked automatically</b> (maths, programming). The price: more tokens, longer waiting.</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">Proč až teď: měřítko</span><span class="en">Why now: scale</span></h3>
+        <p><span class="cs">Architektura transformer (attention, příklad 14) je z roku <b>2017</b>. Pak se ukázalo, že <b>víc dat, víc výpočtu na GPU
+           a větší model</b> dávají pravidelně a předvídatelně lepší výsledky — tzv. <b>zákony škálování</b>. Spolu s doladěním a RLHF
+           z toho vznikl ChatGPT (<b>listopad 2022</b>).</span>
+           <span class="en">The transformer architecture (attention, example 14) dates from <b>2017</b>. Then it turned out that <b>more data, more GPU compute
+           and a bigger model</b> give regularly and predictably better results — the so-called <b>scaling laws</b>. Together with fine-tuning and RLHF
+           this produced ChatGPT (<b>November 2022</b>).</span></p>
+      </div>
+      <div class="tcard" style="--c:#dc2626">
+        <h3><span class="dot"></span><span class="cs">Co zůstává stejné</span><span class="en">What stays the same</span></h3>
+        <p><span class="cs">Asistent je pořád jen <b>predikce dalšího tokenu</b>. Halucinace z příkladu 15 proto nezmizely — model zní sebejistě, i když
+           si fakt „domýšlí". Proto se mu v praxi přikládají dokumenty (<b>RAG</b>, příklad 17) a dávají nástroje (<b>agenti</b>, příklad 18).</span>
+           <span class="en">The assistant is still just <b>next-token prediction</b>. The hallucinations from example 15 therefore haven't gone away — the model sounds confident even
+           when it is "filling in" a fact. That's why in practice it's given documents (<b>RAG</b>, example 17) and tools (<b>agents</b>, example 18).</span></p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:16px">
+      <span class="cs"><b>Pointa:</b> asistent je tentýž doplňovač textu, jen naučený, že po <span class="sp ast">&lt;|asistent|&gt;</span> má přijít
+      užitečná odpověď. A co je „užitečné", určili lidé svým hodnocením — model se naučí to, <b>co odměňujeme</b>, ne nutně pravdu.</span>
+      <span class="en"><b>The point:</b> an assistant is the same text predictor, just taught that <span class="sp ast">&lt;|assistant|&gt;</span> should be followed by
+      a helpful answer. And what counts as "helpful" was decided by people's ratings — the model learns <b>what we reward</b>, not necessarily the truth.</span>
+    </p>
+  </section>
+
+<script is:inline>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOK 1 — dva slovní modely: základní (jen text) a asistent (+ konverzace)
+  // ═══════════════════════════════════════════════════════════════
+
+  // Speciální tokeny chatové šablony (pro model jsou to obyčejné tokeny, jen se nikdy nevyskytnou v běžném textu)
+  const SPEC = {
+    cs: { sys: '<|systém|>', usr: '<|uživatel|>', ast: '<|asistent|>', end: '<|konec|>' },
+    en: { sys: '<|system|>', usr: '<|user|>', ast: '<|assistant|>', end: '<|end|>' },
+  };
+  const EOT = '<|eot|>';      // konec dokumentu v trénovacích datech (neviditelný)
+
+  // Předtrénink: „internetový text" — kvízy, fóra, pracovní listy, články.
+  // Model odsud „zná svět" (Paříž, 12 · 7 = 84…), ale otázky tu nikdo neodpovídá hned pod nimi.
+  const BASE = {
+    cs: [
+      'Zeměpisný kvíz pro 6. třídu. Jaké je hlavní město Francie? Jaké je hlavní město Německa? Jaké je hlavní město Itálie? Jaké je hlavní město Španělska? Odpovědi najdete na další straně.',
+      'Fórum Zeměpis: Ahoj, nevíte někdo, jaké je hlavní město Francie? Potřebuju to do zítřka do úkolu. Díky moc!',
+      'Paříž je hlavní město Francie a leží na řece Seině. Berlín je hlavní město Německa. Řím je hlavní město Itálie.',
+      'Úkoly z češtiny na doma: Napiš krátkou báseň o kočce. Napiš krátkou báseň o psovi. Napiš příběh o drakovi. Odevzdejte do pátku.',
+      'Moje sestra mi řekla: napiš krátkou báseň o kočce. A já vůbec nevím, jak začít. Poradíte?',
+      'Příklady na procvičení násobilky: Kolik je 12 · 7? Kolik je 9 · 8? Kolik je 6 · 7? Výsledky si zkontrolujte s učitelem.',
+      'Kolik je 12 · 7? Ptám se, protože mi nefunguje kalkulačka. Díky!',
+      'Kočka domácí je oblíbené zvíře. Kočky rády spí na slunci a loví myši.',
+      'Násobilka je základ matematiky. Například 12 · 7 = 84 a 9 · 8 = 72.',
+    ],
+    en: [
+      'Geography quiz for grade 6. What is the capital of France? What is the capital of Germany? What is the capital of Italy? What is the capital of Spain? The answers are on the next page.',
+      'Forum Geography: Hi, does anyone know what is the capital of France? I need it for my homework by tomorrow. Thanks a lot!',
+      'Paris is the capital of France and lies on the river Seine. Berlin is the capital of Germany. Rome is the capital of Italy.',
+      'English homework: Write a short poem about a cat. Write a short poem about a dog. Write a story about a dragon. Hand it in by Friday.',
+      'My sister told me: write a short poem about a cat. And I have no idea how to start. Any tips?',
+      'Times tables practice: What is 12 · 7? What is 9 · 8? What is 6 · 7? Check your results with the teacher.',
+      'What is 12 · 7? I am asking because my calculator is broken. Thanks!',
+      'The house cat is a popular pet. Cats love to sleep in the sun and hunt mice.',
+      'The times tables are the basis of maths. For example, 12 · 7 = 84 and 9 · 8 = 72.',
+    ],
+  };
+
+  // Doladění: konverzace [otázka, odpověď]. Do šablony se balí stejně jako tvůj dotaz.
+  const SYSTEM = {
+    cs: 'Jsi užitečný asistent. Odpovídej stručně, pravdivě a zdvořile.',
+    en: 'You are a helpful assistant. Answer briefly, truthfully and politely.',
+  };
+  const CHAT = {
+    cs: [
+      ['Jaké je hlavní město Německa?', 'Hlavní město Německa je Berlín.'],
+      ['Jaké je hlavní město Francie?', 'Hlavní město Francie je Paříž.'],
+      ['Jaké je hlavní město Itálie?', 'Hlavní město Itálie je Řím.'],
+      ['Napiš krátkou báseň o kočce.', 'Básnička o kočce:\nKočka spí na okně,\nsluníčko ji hřeje,\nprotáhne se, zamňouká\na na svět se směje.'],
+      ['Napiš krátkou báseň o psovi.', 'Básnička o psovi:\nPejsek běží po louce,\nuši vlají ve větru,\nvečer usne pod stolem\na chrápe jak medvěd.'],
+      ['Kolik je 12 · 7?', '12 · 7 = 84.'],
+      ['Kolik je 6 · 8?', '6 · 8 = 48.'],
+      ['Kdo vyhraje příští mistrovství světa ve fotbale?', 'To nevím, budoucnost předpovědět neumím. Můžu ale říct, kdo patří mezi favority.'],
+      ['Ahoj, jak se máš?', 'Ahoj! Jsem jen program, ale díky za optání. S čím ti můžu pomoct?'],
+      ['Jak se řekne anglicky kočka?', 'Kočka se anglicky řekne cat.'],
+    ],
+    en: [
+      ['What is the capital of Germany?', 'The capital of Germany is Berlin.'],
+      ['What is the capital of France?', 'The capital of France is Paris.'],
+      ['What is the capital of Italy?', 'The capital of Italy is Rome.'],
+      ['Write a short poem about a cat.', 'A cat poem:\nOn the windowsill she lies,\nwarm sunshine on her fur,\nshe blinks her sleepy eyes\nand gives a happy purr.'],
+      ['Write a short poem about a dog.', 'A dog poem:\nHe races through the field,\nhis ears up in the breeze,\nthen naps beneath the table\nas happy as you please.'],
+      ['What is 12 · 7?', '12 · 7 = 84.'],
+      ['What is 6 · 8?', '6 · 8 = 48.'],
+      ['Who will win the next football World Cup?', 'I don’t know, I can’t predict the future. But I can tell you who the favourites are.'],
+      ['Hi, how are you?', 'Hi! I am just a program, but thanks for asking. How can I help you?'],
+      ['How do you say cat in Czech?', 'Cat is kočka in Czech.'],
+    ],
+  };
+  // předvolby: otázka + co musí asistent obsahovat, aby šlo o „správnou" odpověď (pro verdikt)
+  const PRESETS1 = {
+    cs: [ { q: 'Jaké je hlavní město Francie?', key: 'Paříž' },
+          { q: 'Napiš krátkou báseň o kočce.', key: 'Kočka spí' },
+          { q: 'Kolik je 12 · 7?', key: '84' } ],
+    en: [ { q: 'What is the capital of France?', key: 'Paris' },
+          { q: 'Write a short poem about a cat.', key: 'windowsill' },
+          { q: 'What is 12 · 7?', key: '84' } ],
+  };
+
+  const CTX = 8;            // kolik tokenů zpět se model dívá
+  const CHAT_WEIGHT = 3;    // konverzace při doladění váží víc než běžný text
+  const TEMP1 = 0.7;        // teplota losování (nižší = jistější)
+
+  // tokeny: speciální <|…|>, konec řádku, slova/čísla, jednotlivé znaky (· = ? …)
+  // (desetinné číslo 2,5 i zkrácené don’t jsou jeden token)
+  const TOKRE = /<\|[^|>]+\|>|\n|\p{N}+(?:[.,]\p{N}+)?|\p{L}+(?:[’']\p{L}+)*|[^\s\p{L}\p{N}]/gu;
+  function tokenize(t){ return t.match(TOKRE) || []; }
+  const low = t => t.toLowerCase();
+
+  // chatová šablona: přesně tohle model dostane na vstup
+  function template(q, l){
+    const S = SPEC[l];
+    return [S.sys, ...tokenize(SYSTEM[l]), S.end, S.usr, ...tokenize(q), S.end, S.ast];
+  }
+
+  // Trénink = počítání: pro každý kontext (0…CTX posledních tokenů) si pamatuj, co po něm následovalo a kolikrát.
+  function addDoc(model, toks, w){
+    for (let i = 0; i < toks.length; i++){
+      for (let k = 0; k <= CTX && k <= i; k++){
+        const key = toks.slice(i - k, i).map(low).join(' ');
+        let m = model.get(key); if (!m) model.set(key, m = new Map());
+        const nx = low(toks[i]);
+        const e = m.get(nx);
+        if (e) e.c += w; else m.set(nx, { c: w, surf: toks[i] });
+      }
+    }
+  }
+  let MB = null, MA = null, STATS = null;       // základní model, asistent
+  function buildModels(){
+    const l = curLang;
+    MB = new Map(); MA = new Map();
+    let nb = 0, nc = 0;
+    for (const d of BASE[l]){
+      const t = [...tokenize(d), EOT]; nb += t.length - 1;
+      addDoc(MB, t, 1); addDoc(MA, t, 1);          // asistent = stejný předtrénink…
+    }
+    for (const [q, a] of CHAT[l]){
+      const t = [...template(q, l), ...tokenize(a), SPEC[l].end, EOT]; nc += t.length - 1;
+      addDoc(MA, t, CHAT_WEIGHT);                    // …+ doladění na konverzacích
+    }
+    STATS = { nb, nc };
+  }
+
+  // Další token: najdi NEJDELŠÍ kontext, který model zná, a z jeho četností losuj (s teplotou).
+  function nextToken(model, toks){
+    for (let k = Math.min(CTX, toks.length); k >= 0; k--){
+      const m = model.get(toks.slice(toks.length - k).map(low).join(' '));
+      if (!m) continue;
+      const arr = [...m.values()].map(e => ({ t: e.surf, w: Math.pow(e.c, 1 / TEMP1) }));
+      const s = arr.reduce((a, b) => a + b.w, 0);
+      let r = Math.random() * s;
+      for (const e of arr){ r -= e.w; if (r <= 0) return e.t; }
+      return arr[arr.length - 1].t;
+    }
+    return EOT;
+  }
+
+  // vykreslení tokenů: speciální tokeny jako štítky, mezery rozumně kolem interpunkce
+  const NOSPACE_BEFORE = /^[.,?!:;)\]“”’]$/;
+  function specClass(t){
+    const S = SPEC[curLang];
+    return t === S.sys ? 'sys' : t === S.usr ? 'usr' : t === S.ast ? 'ast' : t === S.end ? 'end' : '';
+  }
+  function renderToks(toks, lineBreakRoles){
+    let out = '', prev = null;
+    for (const t of toks){
+      if (t === '\n'){ out += '<br>'; prev = t; continue; }
+      const sc = /^<\|/.test(t) ? specClass(t) : null;
+      if (sc){
+        if (lineBreakRoles && (sc === 'usr' || sc === 'ast') && prev !== null) out += '<br>';
+        out += `<span class="sp ${sc}">${esc(t)}</span>`;
+      } else {
+        const space = prev !== null && prev !== '\n' && !/^<\|/.test(prev) && !NOSPACE_BEFORE.test(t) && prev !== '„';
+        out += (space ? ' ' : '') + esc(t);
+      }
+      prev = t;
+    }
+    return out;
+  }
+  const detok = toks => renderToks(toks.filter(t => !/^<\|/.test(t)), false);
+
+  // stav generování
+  let gen = null;           // { timer, base:{prompt,out,done}, asst:{…} }
+  function stopGen(){
+    if (gen && gen.timer){ clearInterval(gen.timer); gen.timer = null; }
+    setSendRunning(false);
+  }
+  function setSendRunning(on){
+    const b = $('btnSend'); b.classList.toggle('running', on);
+    b.querySelector('.cs').textContent = on ? 'Stop' : 'Pošli oběma modelům';
+    b.querySelector('.en').textContent = on ? 'Stop' : 'Send to both models';
+  }
+
+  function drawGen(){
+    const g = gen;
+    const caret = done => done ? '' : '<span class="caret"></span>';
+    $('rawBase').innerHTML = renderToks(g.base.prompt, false) +
+      (g.base.out.length ? ' <span class="gen">' + renderToks(g.base.out, false) + '</span>' : '') + caret(g.base.done || !g.timer);
+    $('rawAsst').innerHTML = renderToks(g.asst.prompt, true) +
+      (g.asst.out.length ? '<span class="gen">' + renderToks(g.asst.out, false) + '</span>' : '') + caret(g.asst.done || !g.timer);
+    $('bubU').innerHTML = esc(g.q);
+    $('bubA').innerHTML = detok(g.asst.out) || '…';
+    const T = I18N[curLang];
+    const finished = g.base.done && g.asst.done;
+    if (!finished){ $('vBase').textContent = ''; $('vAsst').textContent = ''; $('vBase').className = 'verdict'; $('vAsst').className = 'verdict'; return; }
+    $('vBase').className = 'verdict bad';
+    $('vBase').innerHTML = g.base.eot ? T.baseEot : T.baseMore;
+    // u předvolby ověř, že odpověď opravdu obsahuje to, co má (Paříž, 84…)
+    const p = PRESETS1[curLang].find(x => x.q === g.q);
+    if (p && detok(g.asst.out).includes(p.key)){
+      $('vAsst').className = 'verdict good';
+      $('vAsst').innerHTML = T.asstOk;
+    } else {
+      $('vAsst').className = 'verdict bad';
+      $('vAsst').innerHTML = T.asstCustom;
+    }
+    if (!g.asst.eot){ $('vAsst').className = 'verdict bad'; $('vAsst').innerHTML = T.asstLong; }
+  }
+
+  function send(){
+    if (gen && gen.timer){ stopGen(); drawGen(); return; }
+    const q = $('q1').value.trim() || PRESETS1[curLang][0].q;
+    gen = { timer: null, q,
+      base: { prompt: tokenize(q), out: [], done: false, eot: false, max: 34 },
+      asst: { prompt: template(q, curLang), out: [], done: false, eot: false, max: 60 } };
+    setSendRunning(true);
+    const stepOne = (m, st, stopTok) => {
+      if (st.done) return;
+      const t = nextToken(m, [...st.prompt, ...st.out]);
+      if (t === EOT || t === stopTok){ if (t === stopTok) st.out.push(t); st.done = true; st.eot = true; return; }
+      st.out.push(t);
+      if (st.out.length >= st.max) st.done = true;
+    };
+    gen.timer = setInterval(() => {
+      stepOne(MB, gen.base, null);
+      stepOne(MA, gen.asst, SPEC[curLang].end);
+      if (gen.base.done && gen.asst.done){ clearInterval(gen.timer); gen.timer = null; setSendRunning(false); }
+      drawGen();
+    }, 110);
+    drawGen();
+  }
+
+  // prázdný stav: ukaž, co model dostane na vstup, ještě před generováním
+  function drawIdle(){
+    const q = $('q1').value.trim() || PRESETS1[curLang][0].q;
+    gen = { timer: null, q,
+      base: { prompt: tokenize(q), out: [], done: false }, asst: { prompt: template(q, curLang), out: [], done: false } };
+    $('rawBase').innerHTML = renderToks(gen.base.prompt, false);
+    $('rawAsst').innerHTML = renderToks(gen.asst.prompt, true);
+    $('bubU').innerHTML = esc(q); $('bubA').innerHTML = '…';
+    $('vBase').className = 'verdict'; $('vAsst').className = 'verdict';
+    $('vBase').textContent = I18N[curLang].idle; $('vAsst').textContent = '';
+  }
+
+  function renderPresets1(){
+    const cur = $('q1').value.trim();
+    $('pre1').innerHTML = PRESETS1[curLang].map((p, i) =>
+      `<button data-i="${i}" class="${p.q === cur ? 'on' : ''}">${esc(p.q)}</button>`).join('');
+    $('pre1').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      stopGen(); $('q1').value = PRESETS1[curLang][+b.dataset.i].q; renderPresets1(); send();
+    }));
+  }
+  function renderCorpus(){
+    const l = curLang, T = I18N[l];
+    $('corpStats').innerHTML = T.stats(STATS.nb, STATS.nc);
+    $('corpBase').innerHTML = BASE[l].map(d => `<div class="doc">${esc(d)}</div>`).join('');
+    $('corpChat').innerHTML = CHAT[l].map(([q, a]) =>
+      `<div class="doc">${renderToks([...template(q, l), ...tokenize(a), SPEC[l].end], true)}</div>`).join('');
+  }
+
+  $('btnSend').addEventListener('click', send);
+  $('q1').addEventListener('keydown', e => { if (e.key === 'Enter'){ stopGen(); send(); } });
+  $('q1').addEventListener('input', () => { stopGen(); renderPresets1(); drawIdle(); });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOK 2 — RLHF: model odměny z porovnání dvojic (Bradley–Terry)
+  // ═══════════════════════════════════════════════════════════════
+  // vlastnosti odpovědi: [správnost (+1 / −1 / 0 = bez odpovědi), zdvořilost (+1 / −1), rozvláčnost, vymýšlení, lichocení]
+  const NF = 5;
+  const RL = {
+    cs: [
+      { q: 'Jaké je hlavní město Austrálie?', c: [
+        ['Hlavním městem Austrálie je Canberra.', [1,0,0,0,0]],
+        ['Sydney. To snad ví každý, ne?', [-1,-1,0,1,0]],
+        ['Skvělá otázka! Jsi opravdu bystrý, že se ptáš. Hlavním městem Austrálie je samozřejmě Sydney.', [-1,1,0,1,1]],
+        ['Austrálie je rozlehlá země s mnoha městy, jako jsou Sydney, Melbourne, Brisbane nebo Perth, a každé z nich má bohatou historii… Hlavním městem je ale Canberra.', [1,0,1,0,0]],
+        ['Tím si nejsem jistý a nechci ti napsat nesmysl. Doporučuji ověřit v atlase.', [0,1,0,0,0]],
+        ['Hlavním městem Austrálie je Canberra. Kdyžtak se klidně zeptej na další.', [1,1,0,0,0]],
+      ]},
+      { q: 'Kolik nohou má pavouk?', c: [
+        ['Pavouk má osm nohou.', [1,0,0,0,0]],
+        ['Šest. Tohle bys měl vědět sám.', [-1,-1,0,1,0]],
+        ['Páni, to je tak chytrá otázka! Jsi génius. Pavouk má šest nohou.', [-1,1,0,1,1]],
+        ['Pavouci nepatří mezi hmyz, ale mezi pavoukovce, což je velká skupina, kam patří i štíři a roztoči, kteří žijí skoro všude na světě… a mají osm nohou.', [1,0,1,0,0]],
+        ['To přesně nevím a nechci tipovat. Zkus to najít v učebnici přírodopisu.', [0,1,0,0,0]],
+        ['Pavouk má osm nohou. Kdyby tě zajímalo víc, klidně se ptej!', [1,1,0,0,0]],
+      ]},
+      { q: 'Kolik obyvatel měla vesnice Horní Lhota v roce 1850?', c: [
+        ['Horní Lhota měla v roce 1850 přesně 1 243 obyvatel.', [-1,0,0,1,0]],
+        ['To nevím a nechci si vymýšlet. Přesné číslo najdeš spíš v obecní kronice nebo v archivu.', [0,1,0,0,0]],
+        ['Výborná otázka, máš skvělý zájem o historii! Horní Lhota měla tehdy asi 2 000 obyvatel.', [-1,1,0,1,1]],
+        ['Tohle si najdi sám, na to nemám čas.', [0,-1,0,0,0]],
+        ['V polovině 19. století byla většina českých vesnic malá a lidé žili hlavně ze zemědělství… Horní Lhota tehdy měla podle záznamů kolem 800 obyvatel, převážně sedláků a řemeslníků.', [-1,0,1,1,0]],
+        ['To nevím.', [0,0,0,0,0]],
+      ]},
+    ],
+    en: [
+      { q: 'What is the capital of Australia?', c: [
+        ['The capital of Australia is Canberra.', [1,0,0,0,0]],
+        ['Sydney. Everybody knows that, right?', [-1,-1,0,1,0]],
+        ['Great question! You are really clever for asking. The capital of Australia is of course Sydney.', [-1,1,0,1,1]],
+        ['Australia is a vast country with many cities, such as Sydney, Melbourne, Brisbane or Perth, and each of them has a rich history… The capital, though, is Canberra.', [1,0,1,0,0]],
+        ['I’m not sure about that and I don’t want to tell you nonsense. I suggest checking an atlas.', [0,1,0,0,0]],
+        ['The capital of Australia is Canberra. Feel free to ask me more.', [1,1,0,0,0]],
+      ]},
+      { q: 'How many legs does a spider have?', c: [
+        ['A spider has eight legs.', [1,0,0,0,0]],
+        ['Six. You should know that yourself.', [-1,-1,0,1,0]],
+        ['Wow, what a smart question! You are a genius. A spider has six legs.', [-1,1,0,1,1]],
+        ['Spiders are not insects but arachnids, a large group that also includes scorpions and mites, which live almost everywhere on Earth… and they have eight legs.', [1,0,1,0,0]],
+        ['I don’t know exactly and I don’t want to guess. Try looking it up in a biology textbook.', [0,1,0,0,0]],
+        ['A spider has eight legs. If you want to know more, just ask!', [1,1,0,0,0]],
+      ]},
+      { q: 'How many people lived in the village of Horní Lhota in 1850?', c: [
+        ['In 1850 Horní Lhota had exactly 1,243 inhabitants.', [-1,0,0,1,0]],
+        ['I don’t know and I don’t want to make it up. You’ll more likely find the exact number in the local chronicle or an archive.', [0,1,0,0,0]],
+        ['Excellent question, you have a great interest in history! Horní Lhota had about 2,000 inhabitants back then.', [-1,1,0,1,1]],
+        ['Look it up yourself, I don’t have time for that.', [0,-1,0,0,0]],
+        ['In the mid-19th century most Czech villages were small and people lived mainly from farming… According to records, Horní Lhota then had around 800 inhabitants, mostly farmers and craftsmen.', [-1,0,1,1,0]],
+        ['I don’t know.', [0,0,0,0,0]],
+      ]},
+    ],
+  };
+  // simulovaní hodnotitelé: kolik jim která vlastnost „stojí za to" (skutečný užitek, který model nezná)
+  const RATERS = {
+    honest:  [3, 1, -1, -2, 0],      // chce správně, zdvořile, stručně, bez vymýšlení; lichotky ho nechávají chladným
+    flatter: [0.2, 0.5, 1.5, 0, 3],  // má rád lichotky a dlouhé odpovědi, na pravdě mu skoro nezáleží
+  };
+  const LR = 0.7, BETA = 1.2;
+  const LETTERS = 'ABCDEF';
+
+  let W = new Array(NF).fill(0);   // váhy modelu odměny
+  let nRated = 0, rlPrompt = 0, pair = [0, 1], autoTimer = null, busy = false;
+
+  const reward = f => f.reduce((s, x, j) => s + W[j] * x, 0);
+  const sigmoid = z => 1 / (1 + Math.exp(-z));
+  function policy(cands){
+    const r = cands.map(c => BETA * reward(c[1]));
+    const m = Math.max(...r);
+    const e = r.map(x => Math.exp(x - m)); const s = e.reduce((a, b) => a + b, 0);
+    return e.map(x => x / s);
+  }
+  // dvojice: první odpověď losujeme z aktuální politiky (tak to dělá i skutečný model: nabízí, co by sám napsal),
+  // druhou náhodně z ostatních — ať se porovnávají i odpovědi, které model zatím nabízí málo
+  function samplePair(){
+    const cands = RL[curLang][rlPrompt].c, p = policy(cands);
+    let r = Math.random(), a = p.length - 1;
+    for (let i = 0; i < p.length; i++){ r -= p[i]; if (r <= 0){ a = i; break; } }
+    let b = Math.floor(Math.random() * (p.length - 1)); if (b >= a) b++;
+    pair = Math.random() < 0.5 ? [a, b] : [b, a];
+  }
+  // Bradley–Terry: P(vítěz > poražený) = σ(r_v − r_p). Gradientní krok zvětší tuhle pravděpodobnost:
+  // w += LR · (1 − σ) · (vlastnosti vítěze − vlastnosti poraženého)
+  function learn(win, lose){
+    const cands = RL[curLang][rlPrompt].c;
+    const fw = cands[win][1], fl = cands[lose][1];
+    const p = sigmoid(reward(fw) - reward(fl));
+    for (let j = 0; j < NF; j++) W[j] += LR * (1 - p) * (fw[j] - fl[j]);
+    nRated++;
+  }
+  function raterChoice(){
+    const u = RATERS[$('rater').value];
+    const cands = RL[curLang][rlPrompt].c;
+    const ua = cands[pair[0]][1].reduce((s, x, j) => s + u[j] * x, 0);
+    const ub = cands[pair[1]][1].reduce((s, x, j) => s + u[j] * x, 0);
+    return ua > ub ? 0 : ub > ua ? 1 : (Math.random() < 0.5 ? 0 : 1);
+  }
+
+  function tagsHtml(f){
+    const T = I18N[curLang].tags, out = [];
+    if (f[0] > 0) out.push(`<span class="ok">✓ ${T.right}</span>`);
+    if (f[0] < 0) out.push(`<span class="no">✗ ${T.wrong}</span>`);
+    if (f[0] === 0 && f[1] >= 0) out.push(`<span class="hon">${T.honest}</span>`);
+    if (f[0] === 0 && f[1] < 0) out.push(`<span>${T.noAns}</span>`);
+    if (f[1] > 0) out.push(`<span>${T.polite}</span>`);
+    if (f[1] < 0) out.push(`<span class="no">${T.rude}</span>`);
+    if (f[2] > 0) out.push(`<span>${T.long}</span>`);
+    if (f[3] > 0) out.push(`<span class="no">${T.fab}</span>`);
+    if (f[4] > 0) out.push(`<span class="fl">${T.flat}</span>`);
+    return `<div class="tags">${out.join('')}</div>`;
+  }
+
+  function renderRL(){
+    const T = I18N[curLang], P = RL[curLang][rlPrompt], cands = P.c, p = policy(cands);
+    $('pre2').innerHTML = RL[curLang].map((x, i) => `<button data-i="${i}" class="${i === rlPrompt ? 'on' : ''}">${esc(x.q)}</button>`).join('');
+    $('pre2').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      stopAuto(); rlPrompt = +b.dataset.i; samplePair(); renderRL(); }));
+    $('rlQ').textContent = curLang === 'cs' ? '„' + P.q + '“' : '“' + P.q + '”';
+    ['pickA', 'pickB'].forEach((id, k) => {
+      const el = $(id); el.classList.remove('win', 'lose');
+      el.innerHTML = `<span class="tag">${T.ans} ${LETTERS[pair[k]]}</span>${esc(cands[pair[k]][0])}`;
+    });
+    const top = p.indexOf(Math.max(...p));
+    $('rlBars').innerHTML = cands.map((c, i) =>
+      `<div class="cand ${i === top && nRated ? 'top' : ''}"><span class="cl">${LETTERS[i]}</span>` +
+      `<div class="cmid"><div class="ctext" title="${esc(c[0])}">${esc(c[0])}</div>` +
+      `<div class="cbarwrap"><span class="cbar" style="width:${Math.max(1.5, p[i] * 100)}%"></span></div>${tagsHtml(c[1])}</div>` +
+      `<span class="cp">${Math.round(p[i] * 100)} %<br><span style="color:#9ca3af">r ${fmtNum(reward(c[1]))}</span></span></div>`).join('');
+    const MAXW = 4;
+    $('rlW').innerHTML = T.feat.map((name, j) => {
+      const v = Math.max(-MAXW, Math.min(MAXW, W[j])), w = Math.abs(v) / MAXW * 50;
+      const left = v >= 0 ? 50 : 50 - w, col = v >= 0 ? '#16a34a' : '#dc2626';
+      return `<div class="wrow"><span>${name}</span><span class="wtrack"><span class="wbar" style="left:${left}%;width:${w}%;background:${col}"></span></span><span class="wv">${fmtNum(W[j])}</span></div>`;
+    }).join('');
+    $('rlCount').textContent = T.count(nRated);
+    // shrnutí: co se model zatím naučil
+    let msg;
+    if (!nRated) msg = T.none;
+    else {
+      const f = cands[top][1], pct = Math.round(p[top] * 100);
+      msg = T.topIs(LETTERS[top], pct) + ' ';
+      if (f[4] > 0) msg += `<span class="warn">${T.syco}</span>`;
+      else if (f[3] > 0 || f[0] < 0) msg += `<span class="warn">${T.fabTop}</span>`;
+      else if (f[2] > 0) msg += `<span class="warn">${T.wordy}</span>`;
+      else if ((f[0] > 0 || (f[0] === 0 && f[1] >= 0)) && f[2] === 0) msg += `<span class="good">${T.goodTop}</span>`;
+      else msg += T.learning;
+    }
+    $('rlMeta').innerHTML = msg;
+  }
+  function fmtNum(x){ const s = (Math.abs(x) < 0.005 ? 0 : x).toFixed(2); return curLang === 'cs' ? s.replace('.', ',') : s; }
+
+  // jedno hodnocení: zvýrazni vítěze, nauč se, po chvilce nabídni novou dvojici
+  function rate(k, delay){
+    if (busy) return;
+    busy = true;
+    $(k === 0 ? 'pickA' : 'pickB').classList.add('win');
+    $(k === 0 ? 'pickB' : 'pickA').classList.add('lose');
+    learn(pair[k], pair[1 - k]);
+    setTimeout(() => { busy = false; samplePair(); renderRL(); }, delay);
+  }
+  $('pickA').addEventListener('click', () => { if (!autoTimer) rate(0, 380); });
+  $('pickB').addEventListener('click', () => { if (!autoTimer) rate(1, 380); });
+
+  function setAutoRunning(on){
+    const b = $('btnAuto'); b.classList.toggle('running', on);
+    b.querySelector('.cs').textContent = on ? 'Stop' : '20 hodnocení automaticky';
+    b.querySelector('.en').textContent = on ? 'Stop' : '20 ratings automatically';
+  }
+  function stopAuto(){ if (autoTimer){ clearInterval(autoTimer); autoTimer = null; } busy = false; setAutoRunning(false); }
+  $('btnAuto').addEventListener('click', () => {
+    if (autoTimer){ stopAuto(); renderRL(); return; }
+    let n = 0; setAutoRunning(true);
+    autoTimer = setInterval(() => {
+      busy = false;
+      rate(raterChoice(), 150);
+      if (++n >= 20){ clearInterval(autoTimer); autoTimer = null; setAutoRunning(false); }
+    }, 230);
+  });
+  $('btnRlReset').addEventListener('click', () => { stopAuto(); W = new Array(NF).fill(0); nRated = 0; samplePair(); renderRL(); });
+  $('rater').addEventListener('change', () => { stopAuto(); renderRL(); });
+  function renderRaterOptions(){
+    const o = $('rater').options;
+    o[0].textContent = I18N[curLang].raterHonest; o[1].textContent = I18N[curLang].raterFlatter;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BLOK 3 — uvažující model: rychlý tip × mezikroky (skriptovaná ilustrace)
+  // ═══════════════════════════════════════════════════════════════
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const num = x => curLang === 'cs' ? String(x).replace('.', ',') : String(x);
+  const plCs = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4 ? few : many);
+
+  // Každá úloha: výchozí čísla, generátor jiných čísel a texty spočítané z čísel.
+  // tip = typická chyba „vyhrknuté" odpovědi (skriptovaná), steps = mezikroky skutečně spočítané tady v JS.
+  const PROBLEMS = [
+    { def: { n: 3, p: 24 }, rnd: () => ({ n: pick([3, 4]), p: pick([17, 19, 21, 23, 24]) }),
+      make: ({ n, p }) => { const tot = n * p, ch = 100 - tot, tip = 100 - p;
+        return curLang === 'cs' ? {
+          short: 'Sešity',
+          q: `Kupíš ${n} sešity po ${p} Kč a zaplatíš stokorunou. Kolik ti vrátí?`,
+          steps: [`Sešity stojí dohromady ${n} · ${p} = ${tot} Kč.`, `Platím 100 Kč, takže mi vrátí 100 − ${tot} = ${ch} Kč.`, `Kontrola: ${tot} + ${ch} = 100 ✓`],
+          ans: `${ch} Kč`, tip: `${tip} Kč`, truth: ch, tipv: tip, why: 'model odečetl cenu jen jednoho sešitu' }
+        : {
+          short: 'Notebooks',
+          q: `You buy ${n} notebooks at ${p} CZK each and pay with a 100 CZK note. How much change do you get?`,
+          steps: [`The notebooks cost ${n} · ${p} = ${tot} CZK in total.`, `I pay 100 CZK, so the change is 100 − ${tot} = ${ch} CZK.`, `Check: ${tot} + ${ch} = 100 ✓`],
+          ans: `${ch} CZK`, tip: `${tip} CZK`, truth: ch, tipv: tip, why: 'it subtracted the price of just one notebook' }; } },
+    { def: { v: 80, h: 2.5 }, rnd: () => ({ v: pick([60, 80, 90, 120]), h: pick([1.5, 2.5, 3.5]) }),
+      make: ({ v, h }) => { const d = v * h, hf = Math.floor(h), tip = v * hf;
+        const htCs = h === 1.5 ? 'hodinu a půl' : `${hf} a půl hodiny`, htEn = h === 1.5 ? 'an hour and a half' : `${hf} and a half hours`;
+        return curLang === 'cs' ? {
+          short: 'Vlak',
+          q: `Vlak jede rychlostí ${v} km/h. Jak daleko dojede za ${htCs}?`,
+          steps: [`${htCs[0].toUpperCase() + htCs.slice(1)} = ${num(h)} h.`, `Vzdálenost = rychlost · čas = ${v} · ${num(h)} = ${num(d)} km.`, `Kontrola: za ${hf} h ujede ${tip} km, za další půlhodinu ${v / 2} km → ${num(d)} km ✓`],
+          ans: `${num(d)} km`, tip: `${tip} km`, truth: d, tipv: tip, why: 'model zapomněl na půlhodinu' }
+        : {
+          short: 'Train',
+          q: `A train travels at ${v} km/h. How far does it get in ${htEn}?`,
+          steps: [`${htEn[0].toUpperCase() + htEn.slice(1)} = ${num(h)} h.`, `Distance = speed · time = ${v} · ${num(h)} = ${num(d)} km.`, `Check: in ${hf} h it covers ${tip} km, in the extra half hour ${v / 2} km → ${num(d)} km ✓`],
+          ans: `${num(d)} km`, tip: `${tip} km`, truth: d, tipv: tip, why: 'it forgot the half hour' }; } },
+    { def: { t: 12, e: 4 }, rnd: () => { let t, e; do { t = pick([12, 16, 20, 24]); e = pick([2, 4, 6]); } while (t / 2 - e < 1); return { t, e }; },
+      make: ({ t, e }) => { const rest = t - e, half = rest / 2, tip = t / 2 - e;
+        return curLang === 'cs' ? {
+          short: 'Bonbony',
+          q: `Máš ${t} bonbonů. ${e} sníš a polovinu zbytku dáš bráchovi. Kolik ti zbude?`,
+          steps: [`Po snědení mám ${t} − ${e} = ${rest} bonbonů.`, `Bráchovi dám polovinu zbytku: ${rest} : 2 = ${half}.`, `Zbude mi ${rest} − ${half} = ${half}.`],
+          ans: `${half} ${plCs(half, 'bonbon', 'bonbony', 'bonbonů')}`, tip: `${tip} ${plCs(tip, 'bonbon', 'bonbony', 'bonbonů')}`, truth: half, tipv: tip, why: 'model vzal polovinu ze všech bonbonů, ne ze zbytku' }
+        : {
+          short: 'Sweets',
+          q: `You have ${t} sweets. You eat ${e} and give half of the rest to your brother. How many are left?`,
+          steps: [`After eating I have ${t} − ${e} = ${rest} sweets.`, `I give my brother half of the rest: ${rest} : 2 = ${half}.`, `I am left with ${rest} − ${half} = ${half}.`],
+          ans: `${half} ${half === 1 ? 'sweet' : 'sweets'}`, tip: `${tip} ${tip === 1 ? 'sweet' : 'sweets'}`, truth: half, tipv: tip, why: 'it took half of all the sweets, not of the rest' }; } },
+    { def: { d: 3, y: 5, f: 14 }, rnd: () => ({ d: pick([2, 3, 4]), y: pick([3, 5, 7]), f: pick([12, 14, 16]) }),
+      make: ({ d, y, f }) => { const jane = f - y, pete = jane + d, tip = f + d;
+        const yCs = y === 3 ? '3 roky' : `${y} let`, dCs = `${d} ${plCs(d, 'rok', 'roky', 'let')}`;
+        return curLang === 'cs' ? {
+          short: 'Věk',
+          q: `Petr je o ${dCs} starší než Jana. Za ${yCs} bude Janě ${f}. Kolik je teď Petrovi?`,
+          steps: [`Teď je Janě ${f} − ${y} = ${jane}.`, `Petr je o ${dCs} starší: ${jane} + ${d} = ${pete}.`, `Kontrola: za ${yCs} bude Petrovi ${pete + y} a Janě ${f}, rozdíl ${d} ✓`],
+          ans: `${pete} let`, tip: `${tip} let`, truth: pete, tipv: tip, why: `model zapomněl, že ${f} bude Janě až za ${yCs}` }
+        : {
+          short: 'Ages',
+          q: `Peter is ${d} years older than Jane. In ${y} years Jane will be ${f}. How old is Peter now?`,
+          steps: [`Jane is now ${f} − ${y} = ${jane}.`, `Peter is ${d} years older: ${jane} + ${d} = ${pete}.`, `Check: in ${y} years Peter will be ${pete + y} and Jane ${f}, difference ${d} ✓`],
+          ans: `${pete} years`, tip: `${tip} years`, truth: pete, tipv: tip, why: `it forgot that ${f} is the age in ${y} years` }; } },
+  ];
+  let prob = 0, params = { ...PROBLEMS[0].def }, thinkTimer = null;
+  const countTok = s => tokenize(s).length;     // „tokeny" jako v bloku 1 (skutečné tokenizéry dělí text trochu jinak)
+
+  function stopThink(){
+    if (thinkTimer){ clearInterval(thinkTimer); thinkTimer = null; }
+    const b = $('btnThink'); b.classList.remove('running');
+    b.querySelector('.cs').textContent = 'Odpověz oběma způsoby';
+    b.querySelector('.en').textContent = 'Answer both ways';
+  }
+  function renderTask(){
+    const P = PROBLEMS[prob].make(params);
+    $('pre3').innerHTML = PROBLEMS.map((x, i) => `<button data-i="${i}" class="${i === prob ? 'on' : ''}">${esc(x.make(x.def).short)}</button>`).join('');
+    $('pre3').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      stopThink(); prob = +b.dataset.i; params = { ...PROBLEMS[prob].def }; renderTask(); }));
+    $('task').textContent = P.q;
+    const T = I18N[curLang];
+    $('fastAns').textContent = ''; $('fastAns').className = 'fin';
+    $('slowAns').textContent = ''; $('slowAns').className = 'fin';
+    $('thinkBox').innerHTML = `<span class="tl">${T.thinkLbl}</span>`;
+    $('fastCost').textContent = ''; $('slowCost').textContent = '';
+    $('fastBar').style.width = '0'; $('slowBar').style.width = '0';
+    $('fastV').textContent = ''; $('slowV').textContent = ''; $('fastV').className = 'verdict'; $('slowV').className = 'verdict';
+  }
+
+  function think(){
+    if (thinkTimer){ stopThink(); return; }
+    renderTask();
+    const T = I18N[curLang], P = PROBLEMS[prob].make(params);
+    // rychlý tip: hned
+    const fastTxt = P.tip, fastN = countTok(fastTxt);
+    // text přemýšlení odhalujeme po tokenech: konec i-tého tokenu = kolik znaků ukázat
+    const thinkTxt = P.steps.join('\n');
+    const ends = [...thinkTxt.matchAll(TOKRE)].filter(m => m[0] !== '\n').map(m => m.index + m[0].length);
+    const thinkN = ends.length, slowAnsN = countTok(P.ans);
+    const maxN = thinkN + slowAnsN;
+    $('fastAns').textContent = fastTxt;
+    $('fastCost').textContent = T.cost(fastN, 0);
+    $('fastBar').style.width = (fastN / maxN * 100) + '%';
+    // s přemýšlením: tokeny přemýšlení postupně
+    const b = $('btnThink'); b.classList.add('running');
+    b.querySelector('.cs').textContent = 'Stop'; b.querySelector('.en').textContent = 'Stop';
+    let i = 0;
+    thinkTimer = setInterval(() => {
+      if (i < ends.length){
+        const nT = ++i;
+        $('thinkBox').innerHTML = `<span class="tl">${T.thinkLbl}</span>` + esc(thinkTxt.slice(0, ends[i - 1])).replace(/\n/g, '<br>');
+        $('slowCost').textContent = T.cost(0, nT);
+        $('slowBar').style.width = (nT / maxN * 100) + '%';
+        return;
+      }
+      stopThink();
+      $('slowAns').textContent = P.ans; $('slowAns').className = 'fin ok';
+      $('slowCost').textContent = T.cost(slowAnsN, thinkN);
+      $('slowBar').style.width = '100%';
+      $('fastAns').className = 'fin no';
+      $('fastV').className = 'verdict bad'; $('fastV').innerHTML = T.fastBad(P.ans, P.why);
+      $('slowV').className = 'verdict good'; $('slowV').innerHTML = T.slowGood(Math.round(maxN / fastN));
+    }, 70);
+  }
+  $('btnThink').addEventListener('click', think);
+  $('btnDice').addEventListener('click', () => {
+    stopThink();
+    let np; do { np = PROBLEMS[prob].rnd(); } while (JSON.stringify(np) === JSON.stringify(params));
+    params = np; renderTask();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  texty
+  // ═══════════════════════════════════════════════════════════════
+  const I18N = {
+    cs: {
+      idle: 'Klikni na „Pošli oběma modelům" (nebo na předvolbu) — model začne psát token po tokenu.',
+      baseMore: '⚠️ Základní model <b>neodpovídá</b> — pokračuje v textu tak, jak by pokračoval dokument z internetu (další otázka, další úkol, další věta fóra). Neví, že od něj čekáš odpověď.',
+      baseEot: '⚠️ Základní model <b>neodpověděl</b> — dopsal text, jak by pokračoval dokument z internetu, a dokument ukončil. Neví, že od něj čekáš odpověď.',
+      asstOk: '✓ Asistent po <span class="sp ast">&lt;|asistent|&gt;</span> napsal odpověď a pak sám vygeneroval <span class="sp end">&lt;|konec|&gt;</span> — tím aplikace pozná, že má přestat. Naučil se to z konverzací.',
+      asstCustom: '⚠️ Asistent odpověděl <b>ve formátu</b> asistenta a skončil tokenem <span class="sp end">&lt;|konec|&gt;</span> — ale na vlastní otázku malý model obsah často jen „poskládá" z naučených konverzací. Formát se naučil, znalosti ne: klasická halucinace.',
+      asstLong: '⚠️ Asistent se tentokrát „zamotal" a nenapsal konec — malý model s vlastní otázkou si moc neví rady.',
+      stats: (nb, nc) => `Základní model: <b>${nb}</b> tokenů textu. Asistent: stejných ${nb} tokenů + <b>${nc}</b> tokenů konverzací (s váhou ${CHAT_WEIGHT}×). Pro srovnání: skutečné modely se předtrénují na bilionech tokenů.`,
+      feat: ['správnost', 'zdvořilost', 'rozvláčnost', 'vymýšlení', 'lichocení'],
+      tags: { right: 'správně', wrong: 'špatně', honest: 'poctivé „nevím"', noAns: 'bez odpovědi', polite: 'zdvořilá', rude: 'drzá', long: 'rozvláčná', fab: 'vymyšlená', flat: 'lichotí' },
+      ans: 'ODPOVĚĎ',
+      count: n => `hodnocení: ${n}`,
+      none: 'Zatím žádné hodnocení → model odměny nic neví (všechny váhy 0) a všechny odpovědi jsou stejně pravděpodobné. Klikni na lepší odpověď, nebo spusť automat.',
+      topIs: (L, p) => `Model teď nejvíc nabízí odpověď <b>${L}</b> (${p} %).`,
+      syco: '⚠️ Naučil se <b>lichotit</b> — i za cenu špatné odpovědi. To je <b>sykofancie</b> (podlézavost): model se naučí to, co odměňujeme, ne nutně pravdu. Stejný problém jako „reward hacking" v příkladu 12.',
+      fabTop: '⚠️ Nejvýš je odpověď, která si fakt vymýšlí — hodnocení ho zatím naučilo špatnou věc.',
+      goodTop: '✓ Hodnocení ho posunula ke správné, zdvořilé a stručné odpovědi — a kde odpověď neexistuje, k poctivému „nevím". Váhy platí pro vlastnosti, takže to funguje i u ostatních dotazů (přepni si nahoře).',
+      learning: 'Pořád se učí — přidej další hodnocení.',
+      wordy: '⚠️ Naučil se být <b>rozvláčný</b> — hodnotitel odměňuje délku, ne užitečnost.',
+      raterHonest: 'hodnotitel: poctivý (správnost, zdvořilost)',
+      raterFlatter: 'hodnotitel: má rád lichotky a dlouhé odpovědi',
+      thinkLbl: 'tokeny přemýšlení (uživatel je obvykle nevidí celé)',
+      cost: (a, t) => { const ta = `${a} ${plCs(a, 'token', 'tokeny', 'tokenů')} odpovědi`;
+        return t ? `${t} ${plCs(t, 'token', 'tokeny', 'tokenů')} přemýšlení${a ? ` + ${ta} = ${a + t} tokenů` : ''}` : ta; },
+      fastBad: (ans, why) => `✗ Špatně — správně je <b>${esc(ans)}</b>. Typická chyba „vyhrknuté" odpovědi: ${esc(why)}.`,
+      slowGood: k => `✓ Správně. Mezikroky stály zhruba <b>${k}× víc tokenů</b> = víc výpočtu a delší čekání. Tomu se říká <b>výpočet při odpovídání</b> (test-time compute).`,
+    },
+    en: {
+      idle: 'Click "Send to both models" (or a preset) — the model will start writing token by token.',
+      baseMore: '⚠️ The base model <b>doesn’t answer</b> — it continues the text the way a web document would go on (another question, another task, another forum sentence). It doesn’t know you expect an answer.',
+      baseEot: '⚠️ The base model <b>didn’t answer</b> — it continued the text the way a web document would go on and then ended the document. It doesn’t know you expect an answer.',
+      asstOk: '✓ After <span class="sp ast">&lt;|assistant|&gt;</span> the assistant wrote an answer and then generated <span class="sp end">&lt;|end|&gt;</span> by itself — that’s how the app knows to stop. It learned this from the conversations.',
+      asstCustom: '⚠️ The assistant answered <b>in the assistant format</b> and finished with <span class="sp end">&lt;|end|&gt;</span> — but for your own question the tiny model often just "stitches" the content together from the conversations it learned. It learned the format, not the knowledge: a classic hallucination.',
+      asstLong: '⚠️ This time the assistant "got lost" and didn’t write an end — a tiny model with your own question is out of its depth.',
+      stats: (nb, nc) => `Base model: <b>${nb}</b> tokens of text. Assistant: the same ${nb} tokens + <b>${nc}</b> tokens of conversations (weighted ${CHAT_WEIGHT}×). For comparison: real models are pre-trained on trillions of tokens.`,
+      feat: ['correctness', 'politeness', 'wordiness', 'making up', 'flattery'],
+      tags: { right: 'correct', wrong: 'wrong', honest: 'honest "I don’t know"', noAns: 'no answer', polite: 'polite', rude: 'rude', long: 'wordy', fab: 'made up', flat: 'flatters' },
+      ans: 'ANSWER',
+      count: n => `ratings: ${n}`,
+      none: 'No ratings yet → the reward model knows nothing (all weights 0) and all answers are equally likely. Click the better answer, or start the bot.',
+      topIs: (L, p) => `The model now offers answer <b>${L}</b> most often (${p} %).`,
+      syco: '⚠️ It has learned to <b>flatter</b> — even at the cost of a wrong answer. That’s <b>sycophancy</b>: the model learns what we reward, not necessarily the truth. The same problem as "reward hacking" in example 12.',
+      fabTop: '⚠️ The top answer makes up a fact — the ratings have taught it the wrong thing so far.',
+      goodTop: '✓ The ratings pushed it towards a correct, polite and concise answer — and where no answer exists, towards an honest "I don’t know". The weights belong to properties, so it works for the other prompts too (switch above).',
+      learning: 'Still learning — add more ratings.',
+      wordy: '⚠️ It has learned to be <b>wordy</b> — the rater rewards length, not usefulness.',
+      raterHonest: 'rater: honest (correctness, politeness)',
+      raterFlatter: 'rater: likes flattery and long answers',
+      thinkLbl: 'thinking tokens (users usually don’t see them in full)',
+      cost: (a, t) => t ? `${t} thinking tokens${a ? ` + ${a} answer tokens = ${a + t} tokens` : ''}` : `${a} answer tokens`,
+      fastBad: (ans, why) => `✗ Wrong — the right answer is <b>${esc(ans)}</b>. A typical "blurted" mistake: ${esc(why)}.`,
+      slowGood: k => `✓ Correct. The steps cost roughly <b>${k}× more tokens</b> = more computation and a longer wait. This is called <b>test-time compute</b>.`,
+    },
+  };
+
+  // ── start a přepnutí jazyka ──────────────────────────────────
+  function renderAll(){
+    buildModels(); renderCorpus(); renderPresets1(); drawIdle();
+    renderRaterOptions(); samplePair(); renderRL();
+    renderTask();
+  }
+  $('q1').value = PRESETS1[curLang][0].q;
+  $('q1').placeholder = curLang === 'cs' ? 'např. Jaké je hlavní město Francie?' : 'e.g. What is the capital of France?';
+
+  window.onLangChange = function(l){
+    // zvolená předvolba se přeloží, vlastní text zůstane
+    const pi = PRESETS1[curLang].findIndex(p => p.q === $('q1').value.trim());
+    stopGen(); stopAuto(); stopThink();
+    curLang = l;
+    if (pi >= 0) $('q1').value = PRESETS1[l][pi].q;
+    $('q1').placeholder = l === 'cs' ? 'např. Jaké je hlavní město Francie?' : 'e.g. What is the capital of France?';
+    renderAll();
+  };
+  renderAll();
+</script>
+</Layout>
