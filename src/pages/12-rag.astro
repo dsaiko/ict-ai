@@ -245,11 +245,12 @@ import Layout from '../layouts/Layout.astro';
   function sig(t){ return tokenize(t).filter(w => w.length > 1 && !STOP[curLang].has(w)); }
 
   // „Stejné slovo" i v jiném tvaru: ředitel ~ ředitelem, knihovna ~ knihovny, open ~ opens.
-  // Shoda = společný začátek aspoň 4 znaky a nejvýš 2 znaky rozdílu (koncovka).
+  // Shoda = společný začátek aspoň 4 znaky a u OBOU slov nejvýš 2 znaky navíc (koncovka) —
+  // jinak by „principalities" odpovídalo „principal".
   function sameWord(a, b){
     if (a === b) return true;
     let cp = 0; while (cp < a.length && cp < b.length && a[cp] === b[cp]) cp++;
-    return cp >= 4 && cp >= Math.min(a.length, b.length) - 2;
+    return cp >= 4 && a.length - cp <= 2 && b.length - cp <= 2;
   }
   const inDoc = (w, docWords) => docWords.some(d => sameWord(w, d));
 
@@ -292,7 +293,7 @@ import Layout from '../layouts/Layout.astro';
   function ask(){
     const q = $('q').value.trim();
     if (!q){ $('ansPlain').textContent=''; $('notePlain').textContent=''; $('rank').innerHTML='';
-             $('ansRag').textContent=''; $('noteRag').innerHTML = I18N[curLang].empty; return; }
+             $('ansRag').textContent=''; $('noteRag').innerHTML = I18N[curLang].empty; $('noteRag').style.color = ''; return; }
 
     // ── bez RAG: model si tipne ──
     $('ansPlain').innerHTML = I18N[curLang].guessPrefix + findGuess(q) + I18N[curLang].guessSuffix;
@@ -312,6 +313,7 @@ import Layout from '../layouts/Layout.astro';
     if (maxS <= 0){
       $('ansRag').textContent = '';
       $('noteRag').innerHTML = I18N[curLang].noneFound;
+      $('noteRag').style.color = '#b45309';
       return;
     }
     const top = scored[0];
