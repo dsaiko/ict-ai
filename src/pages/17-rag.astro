@@ -75,7 +75,7 @@ import Layout from '../layouts/Layout.astro';
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>RAG</b> (vyhledáním rozšířená generace): místo aby model odpovídal jen z paměti, nejdřív si <b>vyhledá relevantní dokument</b> a teprve pak odpoví — z něj.</span><span class="en"><b>RAG</b> (retrieval-augmented generation): instead of answering from memory alone, the model first <b>retrieves a relevant document</b> and only then answers — from it.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Níže je malá <b>znalostní báze</b> (dokumenty, které model neviděl). Napiš otázku a porovnej dvě odpovědi: <b>jen model</b> (tipuje a halucinuje) a <b>model + RAG</b> (najde nejpodobnější dokument a odpoví z něj). Vyhledávání tu pro názornost porovnává <b>společná slova</b> (s ohledem na tvar a vzácnost slova); skutečné RAG používá podobnost <b>embeddingů</b> (13).</span><span class="en">Below is a small <b>knowledge base</b> (documents the model never saw). Type a question and compare two answers: <b>the model alone</b> (it guesses and hallucinates) and <b>the model + RAG</b> (it finds the most similar document and answers from it). For clarity, retrieval here compares <b>shared words</b> (allowing for word forms and rarity); real RAG uses <b>embedding</b> similarity (13).</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tohle je <b>nejčastější reálné nasazení</b> LLM ve firmách — chatbot nad vlastními dokumenty. Dramaticky snižuje halucinace, protože model odpovídá z doloženého textu, ne z paměti.</span><span class="en">This is the <b>most common real-world use</b> of LLMs in companies — a chatbot over your own documents. It dramatically cuts hallucinations, because the model answers from sourced text, not from memory.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tohle je <b>nejčastější reálné nasazení</b> LLM ve firmách — chatbot nad vlastními dokumenty. Výrazně snižuje halucinace, protože model odpovídá z doloženého textu, ne z paměti.</span><span class="en">This is the <b>most common real-world use</b> of LLMs in companies — a chatbot over your own documents. It dramatically cuts hallucinations, because the model answers from sourced text, not from memory.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">otázka</span><span class="en">question</span></span>
       <span class="arr">→</span>
@@ -89,7 +89,7 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="panel">
     <div class="block">
-      <div class="label"><span class="cs">znalostní báze (dokumenty, které model „nezná" z tréninku)</span><span class="en">knowledge base (documents the model doesn't "know" from training)</span></div>
+      <div class="label"><span class="cs">znalostní báze (dokumenty, které model „nezná“ z tréninku)</span><span class="en">knowledge base (documents the model doesn't "know" from training)</span></div>
       <div class="docs" id="docs"></div>
     </div>
 
@@ -137,7 +137,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Vyhledání = podobnost</span><span class="en">Retrieval = similarity</span></h3>
-        <p><span class="cs">Hledá se přes <b>podobnost významu</b> (embeddingy z příkladu 13). Otázka i dokumenty se převedou na
+        <p><span class="cs">Hledá se podle <b>podobnosti významu</b> (embeddingy z příkladu 13). Otázka i dokumenty se převedou na
            čísla a vybere se text, který je otázce nejblíž.</span>
            <span class="en">It searches by <b>similarity of meaning</b> (embeddings from example 13). The question and the documents are
            turned into numbers and the text closest to the question is picked.</span></p>
@@ -171,7 +171,7 @@ import Layout from '../layouts/Layout.astro';
   let curLang = window.__lang || 'cs';
 
   // ── dvojjazyčná data ─────────────────────────────────────────
-  // dokumenty (znalostní báze) + ukázkové otázky s ilustrativním „tipem" modelu bez RAG
+  // dokumenty (znalostní báze) + ukázkové otázky s ilustrativním „tipem“ modelu bez RAG
   const DATA = {
     cs: {
       docs: [
@@ -184,7 +184,7 @@ import Layout from '../layouts/Layout.astro';
       ],
       presets: [
         { q: 'Kdy zavírá knihovna v pátek?', guess: 'Nejspíš v 16:00, jako každý všední den.' },
-        { q: 'Jaké je heslo na Wi-Fi?', guess: 'Zkus třeba „skola123" nebo „admin".' },
+        { q: 'Jaké je heslo na Wi-Fi?', guess: 'Zkus třeba „skola123“ nebo „admin“.' },
         { q: 'Kdo je ředitel školy?', guess: 'Asi pan Svoboda? Nejsem si úplně jistý.' },
         { q: 'Kdy a kde je kroužek robotiky?', guess: 'Možná ve středu odpoledne v počítačové učebně.' },
       ],
@@ -213,12 +213,12 @@ import Layout from '../layouts/Layout.astro';
     cs: {
       simLabel: 'podobnost',
       guessPrefix: '„',
-      guessSuffix: '"',
+      guessSuffix: '“',
       notePlain: '⚠️ Tyhle konkrétní informace se model nikde nenaučil, takže si je <b>vymyslí</b> — a tváří se sebejistě. To je halucinace.',
       retrieved: 'Nejpodobnější dokument se přiloží k otázce a model odpoví <b>z něj</b>:',
       grounded: '✓ Odpověď je <b>podložená</b> nalezeným dokumentem (#DOC#).',
       noneFound: 'Žádný dokument nevypadá dost podobně — RAG by tu nepomohl (a model by zase jen hádal).',
-      uncertain: others => `⚠️ Vyhledávání si <b>není jisté</b> — ${others} vypadá skoro stejně podobně. Odpověď se opírá o dokument, který možná není ten správný: RAG je jen tak dobré, jak dobré je vyhledávání. (Tady hledáme podle společných slov; skutečné embeddingy by lépe poznaly, o čem otázka je.)`,
+      uncertain: others => `⚠️ Vyhledávání si <b>není jisté</b> — ${others.includes(',') ? `dokumenty ${others} jsou` : `dokument ${others} je`} otázce skoro stejně podobný${others.includes(',') ? 'é' : ''}. Odpověď se opírá o dokument, který možná není ten správný: RAG je jen tak dobré, jak dobré je vyhledávání. (Tady hledáme podle společných slov; skutečné embeddingy by lépe poznaly, o čem otázka je.)`,
       weak: '⚠️ Podobnost je <b>nízká</b> — dokument sdílí s otázkou jen málo slov, odpověď nemusí sedět.',
       empty: 'Napiš otázku nebo klikni na předvolbu a porovnej obě odpovědi.',
     },
@@ -244,9 +244,9 @@ import Layout from '../layouts/Layout.astro';
   function tokenize(t){ return (t.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []); }
   function sig(t){ return tokenize(t).filter(w => w.length > 1 && !STOP[curLang].has(w)); }
 
-  // „Stejné slovo" i v jiném tvaru: ředitel ~ ředitelem, knihovna ~ knihovny, open ~ opens.
+  // „Stejné slovo“ i v jiném tvaru: ředitel ~ ředitelem, knihovna ~ knihovny, open ~ opens.
   // Shoda = společný začátek aspoň 4 znaky a u OBOU slov nejvýš 2 znaky navíc (koncovka) —
-  // jinak by „principalities" odpovídalo „principal".
+  // jinak by „principalities“ odpovídalo „principal“.
   function sameWord(a, b){
     if (a === b) return true;
     let cp = 0; while (cp < a.length && cp < b.length && a[cp] === b[cp]) cp++;
@@ -255,7 +255,7 @@ import Layout from '../layouts/Layout.astro';
   const inDoc = (w, docWords) => docWords.some(d => sameWord(w, d));
 
   // Podobnost otázky a dokumentu: podíl slov otázky nalezených v dokumentu, vážený
-  // „vzácností" slova (IDF) — slovo z jediného dokumentu (jídelna) váží víc než
+  // „vzácností“ slova (IDF) — slovo z jediného dokumentu (jídelna) váží víc než
   // slovo, které je skoro všude (škola). Stejná myšlenka jako u klasického vyhledávání.
   function rankDocs(q, docs){
     const qs = [...new Set(sig(q))];

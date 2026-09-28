@@ -80,7 +80,7 @@ import Layout from '../layouts/Layout.astro';
   <p class="intro">
     <span class="cs">Stejně jako u čísla z prvního příkladu i tady máme jen sadu symbolů — anglickou abecedu a mezeru.
     Ukážeme, jak se z čisté náhody postupně přidáváním <b>znalostí a pravidel</b> stává něco, co vypadá
-    (a nakonec i znamená) jako jazyk. To je v kostce cesta od „opice na klávesnici" až k jazykovým modelům.</span>
+    jako jazyk (a nakonec i něco znamená). To je v kostce cesta od „opice na klávesnici“ až k jazykovým modelům.</span>
     <span class="en">Just like the number in the first example, here too we have only a set of symbols — the English alphabet
     and a space. We'll show how, from pure randomness, adding <b>knowledge and rules</b> step by step turns into something
     that looks like (and eventually means) language. In a nutshell, it's the path from the "monkey at a keyboard" to language models.</span>
@@ -88,13 +88,13 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="whathow">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Začínáme jen s abecedou a mezerou — žádná pravidla. Čtyři kroky <b>A–D</b> ukazují, jak se z čistě náhodných písmen postupně, přidáváním znalostí, stává text, který vypadá (a nakonec i znamená) jako jazyk.</span><span class="en">We start with just the alphabet and a space — no rules. Four steps <b>A–D</b> show how purely random letters gradually turn, by adding knowledge, into text that looks (and finally means) like language.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Začínáme jen s abecedou a mezerou — žádná pravidla. Čtyři kroky <b>A–D</b> ukazují, jak se z čistě náhodných písmen postupně, přidáváním znalostí, stává text, který vypadá jako jazyk (a nakonec i něco znamená).</span><span class="en">We start with just the alphabet and a space — no rules. Four steps <b>A–D</b> show how purely random letters gradually turn, by adding knowledge, into text that looks (and finally means) like language.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Projdi kroky A → B → C → D a nech generovat text. Každý krok přidá jedno pravidlo (statistiku písmen, slabiky, slovník, gramatiku) — sleduj, jak se výstup blíží skutečné řeči.</span><span class="en">Go through steps A → B → C → D and generate text. Each step adds one rule (letter statistics, syllables, a dictionary, grammar) — watch the output get closer to real speech.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Je to mini-historie jazykových modelů „v kostce" — cesta od „opice na klávesnici" k modelům jako ChatGPT. Ukazuje hlavní myšlenku AI: čím víc znalostí o světě model má, tím smysluplnější je výstup.</span><span class="en">It is a mini-history of language models in a nutshell — the road from “a monkey at a keyboard” to models like ChatGPT. It shows AI’s core idea: the more knowledge of the world a model has, the more meaningful its output.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Je to minihistorie jazykových modelů „v kostce“ — cesta od „opice na klávesnici“ k modelům jako ChatGPT. Ukazuje hlavní myšlenku AI: čím víc znalostí o světě model má, tím smysluplnější je výstup.</span><span class="en">It is a mini-history of language models in a nutshell — the road from “a monkey at a keyboard” to models like ChatGPT. It shows AI’s core idea: the more knowledge of the world a model has, the more meaningful its output.</span></p>
   </div>
 
   <div class="alphabet">
-    <div class="label"><span class="cs">naše „abeceda" — 26 písmen + mezera (27 symbolů)</span><span class="en">our "alphabet" — 26 letters + a space (27 symbols)</span></div>
+    <div class="label"><span class="cs">naše „abeceda“ — 26 písmen + mezera (27 symbolů)</span><span class="en">our "alphabet" — 26 letters + a space (27 symbols)</span></div>
     <div class="boxes" id="alphabet"></div>
   </div>
 
@@ -102,8 +102,8 @@ import Layout from '../layouts/Layout.astro';
   <div class="card">
     <h2><span class="tag">A</span> <span class="cs">Kombinatorika — hrubá síla</span><span class="en">Combinatorics — brute force</span></h2>
     <p class="desc">
-      <span class="cs">Iterujeme všechny kombinace jako čítač z prvního příkladu, jen v <b>soustavě o základu 27</b>.
-      Začínáme od samých „A" a přičítáme +1. Vidíš, že se hýbe jen pár písmen vpravo a smysluplnou větu
+      <span class="cs">Procházíme všechny kombinace jako počítadlo z prvního příkladu, jen v <b>soustavě o základu 27</b>.
+      Začínáme od samých „A“ a přičítáme jedničku. Vidíš, že se hýbe jen pár písmen vpravo a smysluplnou větu
       bys takhle nikdy nesložil — možností je 27<sup>N</sup>.</span>
       <span class="en">We iterate through every combination like the counter in the first example, just in <b>base 27</b>.
       We start from all "A"s and add +1. You can see only a few letters on the right move, and you'd never compose
@@ -118,10 +118,10 @@ import Layout from '../layouts/Layout.astro';
 
   <!-- ── Příklad B ── -->
   <div class="card">
-    <h2><span class="tag">B</span> <span class="cs">Statistika písmen — „neznámý jazyk"</span><span class="en">Letter statistics — an "unknown language"</span></h2>
+    <h2><span class="tag">B</span> <span class="cs">Statistika písmen — „neznámý jazyk“</span><span class="en">Letter statistics — an "unknown language"</span></h2>
     <p class="desc">
       <span class="cs">Přidáme jednoduchou <b>statistiku a pravidla</b>: střídáme samohlásky a souhlásky (slabiky),
-      zakážeme nesmysly jako „QQ", omezíme délku slov a vět. Výsledek už není šum — vypadá to jako
+      zakážeme nesmysly jako „QQ“, omezíme délku slov a vět. Výsledek už není šum — vypadá to jako
       slova nějakého <b>neznámého jazyka</b>.</span>
       <span class="en">We add simple <b>statistics and rules</b>: we alternate vowels and consonants (syllables),
       forbid nonsense like "QQ", and limit word and sentence length. The result is no longer noise — it looks like
@@ -154,10 +154,10 @@ import Layout from '../layouts/Layout.astro';
   <div class="card">
     <h2><span class="tag">D</span> <span class="cs">Gramatika — smysluplné věty</span><span class="en">Grammar — meaningful sentences</span></h2>
     <p class="desc">
-      <span class="cs">Nakonec přidáme <b>gramatická pravidla</b> (větné vzory, shoda, pádové tvary). Teprve teď
-      vznikají věty, které <b>dávají smysl</b>. Takhle — ručně psanými pravidly — stavěla AI
-      desítky let první systémy („symbolická AI", expertní systémy). Dnešní jazykové modely se ovšem
-      pravidla i statistiku neučí ručně, ale z obrovského množství textu (od příkladu 5).</span>
+      <span class="cs">Nakonec přidáme <b>gramatická pravidla</b> (větné vzory, shodu, pádové tvary). Teprve teď
+      vznikají věty, které <b>dávají smysl</b>. Takhle — ručně psanými pravidly — se po desítky let
+      stavěly první systémy AI („symbolická AI“, expertní systémy). Dnešní jazykové modely ovšem
+      pravidla ani statistiku nedostávají ručně, ale učí se je z obrovského množství textu (od příkladu 5).</span>
       <span class="en">Finally we add <b>grammatical rules</b> (sentence patterns, word order, word forms). Only now do
       sentences that <b>make sense</b> appear. This is how AI built its first systems for decades — with
       hand-written rules (“symbolic AI”, expert systems). Today's language models, however, don't learn rules

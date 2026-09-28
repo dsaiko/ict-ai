@@ -83,9 +83,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Mini-model, který se z krátkého textu naučil, <b>jak často po kterém slově následuje které</b> (jako Markov z příkladu 5) — a podle toho předpovídá další slovo.</span><span class="en">A mini-model that learned from a short text <b>how often each word is followed by which</b> (like the Markov chain in example 5) — and predicts the next word from that.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš začátek věty; model se podívá na poslední slovo a nabídne <b>pravděpodobnosti</b> dalšího (sloupečky dole). <b>Další token</b> jedno losuje a přidá, <b>Generuj</b> opakuje. Posuvníky (teplota, top-k/top-p) mění, <i>jak odvážně</i> losuje.</span><span class="en">Type the start of a sentence; the model looks at the last word and offers <b>probabilities</b> for the next one (the bars below). <b>Next token</b> samples and appends one, <b>Generate</b> repeats it. The sliders (temperature, top-k/top-p) change <i>how boldly</i> it samples.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Skutečné LLM (jako ChatGPT) píšou <b>úplně stejně</b> — token po tokenu — jen koukají na celou větu (attention, 14) a na tokeny (13). Vidíš tu i, <b>proč halucinují</b>: i když si nejsou jisté, stejně sebevědomě něco vyberou.</span><span class="en">Real LLMs (like ChatGPT) write <b>exactly the same way</b> — token by token — they just look at the whole sentence (attention, 14) and at tokens (13). You also see <b>why they hallucinate</b>: even when unsure, they still confidently pick something.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Mini-model, který se z krátkého textu naučil, <b>jak často po kterém slově následuje které</b> (jako Markovův řetězec z příkladu 5) — a podle toho předpovídá další slovo.</span><span class="en">A mini-model that learned from a short text <b>how often each word is followed by which</b> (like the Markov chain in example 5) — and predicts the next word from that.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš začátek věty; model se podívá na poslední slovo a nabídne <b>pravděpodobnosti</b> dalšího (sloupečky dole). <b>Další token</b> jedno losuje a přidá, <b>Generuj</b> to opakuje. Posuvníky (teplota, top-k/top-p) mění, <i>jak odvážně</i> losuje.</span><span class="en">Type the start of a sentence; the model looks at the last word and offers <b>probabilities</b> for the next one (the bars below). <b>Next token</b> samples and appends one, <b>Generate</b> repeats it. The sliders (temperature, top-k/top-p) change <i>how boldly</i> it samples.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Skutečné LLM (jako ChatGPT) píšou <b>úplně stejně</b> — token po tokenu — jen se dívají na celou větu (attention, 14) a pracují s tokeny (13). Vidíš tu i, <b>proč halucinují</b>: i když si nejsou jisté, stejně sebevědomě něco vyberou.</span><span class="en">Real LLMs (like ChatGPT) write <b>exactly the same way</b> — token by token — they just look at the whole sentence (attention, 14) and at tokens (13). You also see <b>why they hallucinate</b>: even when unsure, they still confidently pick something.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">kontext (co bylo dosud)</span><span class="en">context (so far)</span></span>
       <span class="arr">→</span>
@@ -155,10 +155,10 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <section class="theory">
-    <div class="head"><span class="cs">Jak vzniká text — a proč modely občas „kecají"</span><span class="en">How text is generated — and why models sometimes "make things up"</span></div>
+    <div class="head"><span class="cs">Jak vzniká text — a proč modely občas „kecají“</span><span class="en">How text is generated — and why models sometimes "make things up"</span></div>
     <p class="lead">
       <span class="cs">Tady je srdce každého jazykového modelu: text vzniká <b>po jednom tokenu</b>. V každém kroku model spočítá,
-      jak je které další slovo pravděpodobné, podle nastavení trochu „zatřese" pravděpodobnostmi a jedno slovo
+      jak je které další slovo pravděpodobné, podle nastavení trochu „zatřese“ pravděpodobnostmi a jedno slovo
       <b>losuje</b>. To se přidá na konec — a celé se to opakuje.</span>
       <span class="en">This is the heart of every language model: text is generated <b>one token at a time</b>. At each step the model
       computes how likely each next word is, "shakes" the probabilities a little according to the settings, and
@@ -167,7 +167,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="tcards">
       <div class="tcard" style="--c:#7c3aed">
         <h3><span class="dot"></span><span class="cs">Generování = losování</span><span class="en">Generation = sampling</span></h3>
-        <p><span class="cs">Model nevybere „to správné" slovo — pro každé možné má pravděpodobnost a jedno z nich losuje.
+        <p><span class="cs">Model nevybere „to správné“ slovo — pro každé možné má pravděpodobnost a jedno z nich losuje.
            Proto stejný začátek může pokaždé pokračovat jinak.</span>
            <span class="en">The model doesn't pick "the right" word — it has a probability for each and samples one of them.
            That's why the same beginning can continue differently each time.</span></p>
@@ -189,10 +189,10 @@ import Layout from '../layouts/Layout.astro';
            total nonsense from the long tail being picked.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
-        <h3><span class="dot"></span><span class="cs">Proč model „kecá"</span><span class="en">Why the model "makes things up"</span></h3>
+        <h3><span class="dot"></span><span class="cs">Proč model „kecá“</span><span class="en">Why the model "makes things up"</span></h3>
         <p><span class="cs">I když si <b>není jistý</b> (ploché rozdělení nebo neznámý kontext), stejně něco vybere — a tváří se
-           sebevědomě. Halucinace = <b>sebevědomý odhad bez opory v datech</b>. Sám od sebe „nevím" neřekne, protože
-           pořád jen losuje další token — přiznat nejistotu se ho musí naučit až další trénink (příklad 16), a ani to není spolehlivé.</span>
+           sebevědomě. Halucinace = <b>sebevědomý odhad bez opory v datech</b>. Sám od sebe „nevím“ neřekne, protože
+           pořád jen losuje další token — přiznat nejistotu ho musí naučit až další trénink (příklad 16), a ani to není spolehlivé.</span>
            <span class="en">Even when it's <b>not sure</b> (a flat distribution or unfamiliar context) it still picks something — and
            sounds confident. A hallucination = <b>a confident guess with no support in the data</b>. On its own it never says
            "I don't know", because all it ever does is sample the next token — admitting uncertainty has to be taught by further training (example 16), and even that isn't reliable.</span></p>
@@ -207,9 +207,9 @@ import Layout from '../layouts/Layout.astro';
            (trillions of words for large models).</span></p>
       </div>
       <div class="tcard" style="--c:#ec4899">
-        <h3><span class="dot"></span><span class="cs">Vztah ke „skutečným" LLM</span><span class="en">Relation to "real" LLMs</span></h3>
-        <p><span class="cs">Princip je totožný, jen větší: místo posledního slova se model dívá na <b>celou větu</b> (attention,
-           příklad 14), místo slov má <b>tokeny</b> (příklad 13) a pravděpodobnosti počítá <b>neuronová síť</b>
+        <h3><span class="dot"></span><span class="cs">Vztah ke „skutečným“ LLM</span><span class="en">Relation to "real" LLMs</span></h3>
+        <p><span class="cs">Princip je totožný, jen ve větším měřítku: místo posledního slova se model dívá na <b>celou větu</b> (attention,
+           příklad 14), místo slov pracuje s <b>tokeny</b> (příklad 13) a pravděpodobnosti počítá <b>neuronová síť</b>
            (příklady 6–8) naučená z bilionů slov textu.</span>
            <span class="en">The principle is identical, just bigger: instead of the last word the model looks at the <b>whole sentence</b>
            (attention, example 14), instead of words it has <b>tokens</b> (example 13), and the probabilities are computed by a
@@ -217,7 +217,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </div>
     <p class="lead" style="margin-top:16px">
-      <span class="cs"><b>Pointa:</b> model nikdy nezná „správnou odpověď" — jen <b>pravděpodobné pokračování</b>. Teplota a top-k/top-p
+      <span class="cs"><b>Pointa:</b> model nikdy nezná „správnou odpověď“ — jen <b>pravděpodobné pokračování</b>. Teplota a top-k/top-p
       rozhodují, jak odvážně losuje. A protože vždycky <b>něco</b> vybrat musí, umí i sebevědomě plácnout nesmysl.</span>
       <span class="en"><b>The point:</b> the model never knows "the right answer" — only a <b>likely continuation</b>. Temperature and
       top-k/top-p decide how boldly it gambles. And because it always has to pick <b>something</b>, it can confidently blurt
@@ -306,9 +306,9 @@ On the table stands a vase with flowers.`,
     cs: {
       off: 'vyp',
       empty: 'Napiš nahoře pár slov (nebo klikni na předvolbu) a model nabídne, co by mohlo následovat.',
-      conf: (w, p) => `Po slově „<b>${w}</b>" je model na <b>${p} %</b> jistý nejlepší volbou.`,
+      conf: (w, p) => `Po slově „<b>${w}</b>“ si je model na <b>${p} %</b> jistý nejlepší volbou.`,
       lowConf: ' Rozdělení je ploché → model si moc nevěří, ale stejně losuje.',
-      halluc: w => `⚠️ Slovo „<b>${w}</b>" model v trénovacím textu nezná — hádá z celkové četnosti slov. Přesně takhle vzniká <b>halucinace</b>: sebevědomý odhad bez opory v datech.`,
+      halluc: w => `⚠️ Slovo „<b>${w}</b>“ model v trénovacím textu nezná — hádá z celkové četnosti slov. Přesně takhle vzniká <b>halucinace</b>: sebevědomý odhad bez opory v datech.`,
     },
     en: {
       off: 'off',
@@ -403,9 +403,11 @@ On the table stands a vase with flowers.`,
   }
 
   // ── ovládání ─────────────────────────────────────────────────
-  function setTempLabel(){ $('tempVal').textContent = temp.toFixed(1); }
+  // desetinná čárka v češtině, tečka v angličtině
+  const dec = s => curLang === 'cs' ? s.replace('.', ',') : s;
+  function setTempLabel(){ $('tempVal').textContent = dec(temp.toFixed(1)); }
   function setTopkLabel(){ $('topkVal').textContent = topk === 0 ? I18N[curLang].off : String(topk); }
-  function setToppLabel(){ $('toppVal').textContent = topp >= 1 ? '1.00 ('+I18N[curLang].off+')' : topp.toFixed(2); }
+  function setToppLabel(){ $('toppVal').textContent = topp >= 1 ? dec('1.00') + ' ('+I18N[curLang].off+')' : dec(topp.toFixed(2)); }
 
   $('temp').addEventListener('input', e => { temp = +e.target.value; setTempLabel(); render(); });
   $('topk').addEventListener('input', e => { topk = +e.target.value; setTopkLabel(); render(); });
@@ -446,7 +448,7 @@ On the table stands a vase with flowers.`,
     curLang = l;
     buildModel();
     if (wasDefault) $('text').value = SEED[l];
-    setTopkLabel(); setToppLabel();
+    setTempLabel(); setTopkLabel(); setToppLabel();
     render();
   };
 </script>

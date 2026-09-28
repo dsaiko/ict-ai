@@ -89,8 +89,8 @@ import Layout from '../layouts/Layout.astro';
       <span class="op">=</span><span class="term res">agent</span>
     </div>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Agent</b> = model + paměť + nástroje + plánování. Samotné LLM umí jen <b>generovat text</b> (15); agent kolem něj přidá <b>nástroje</b> a <b>smyčku</b>, takže může i jednat.</span><span class="en">An <b>agent</b> = model + memory + tools + planning. A language model alone can only <b>generate text</b> (15); an agent adds <b>tools</b> and a <b>loop</b> around it, so it can also act.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš úkol (nebo klikni na předvolbu) a spusť agenta. On si rozmyslí, který <b>nástroj</b> použít (vyhledávání, kalkulačku, e-mail…), <b>zavolá</b> ho, výsledek si <b>zapamatuje</b> a podle něj plánuje další krok — klidně několik za sebou. <i>Poctivě: nástroje opravdu běží, ale „úvaha“ je tu jednoduchý plánovač podle klíčových slov — skutečný agent se rozhoduje jazykovým modelem.</i></span><span class="en">Type a task (or click a preset) and run the agent. It decides which <b>tool</b> to use (search, a calculator, email…), <b>calls</b> it, <b>remembers</b> the result and plans the next step from it — possibly several in a row. <i>Honestly: the tools really run, but the “reasoning” here is a simple keyword planner — a real agent decides with a language model.</i></span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tím model přestává být „chytrý textový automat" a stává se něčím, co <b>samostatně řeší úkoly</b>. To je směr, kterým se AI vydala v roce 2026 — vyvrcholení celé série.</span><span class="en">This turns the model from a “clever text machine” into something that <b>solves tasks on its own</b>. It’s the direction AI took in 2026 — the culmination of the whole series.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš úkol (nebo klikni na předvolbu) a spusť agenta. Agent si rozmyslí, který <b>nástroj</b> použít (vyhledávání, kalkulačku, e-mail…), <b>zavolá</b> ho, výsledek si <b>zapamatuje</b> a podle něj plánuje další krok — klidně několik za sebou. <i>Poctivě: nástroje opravdu běží, ale „úvaha“ je tu jednoduchý plánovač podle klíčových slov — skutečný agent se rozhoduje jazykovým modelem.</i></span><span class="en">Type a task (or click a preset) and run the agent. It decides which <b>tool</b> to use (search, a calculator, email…), <b>calls</b> it, <b>remembers</b> the result and plans the next step from it — possibly several in a row. <i>Honestly: the tools really run, but the “reasoning” here is a simple keyword planner — a real agent decides with a language model.</i></span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tím model přestává být „chytrý textový automat“ a stává se něčím, co <b>samostatně řeší úkoly</b>. To je směr, kterým se AI vydala v roce 2026 — vyvrcholení linky o jazykových modelech.</span><span class="en">This turns the model from a “clever text machine” into something that <b>solves tasks on its own</b>. It’s the direction AI took in 2026 — the culmination of the language-model line.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">úkol</span><span class="en">task</span></span>
       <span class="arr">→</span>
@@ -136,9 +136,9 @@ import Layout from '../layouts/Layout.astro';
   <section class="theory">
     <div class="head"><span class="cs">Z modelu agent — a proč je to téma roku 2026</span><span class="en">From model to agent — and why it's the topic of 2026</span></div>
     <p class="lead">
-      <span class="cs">Jazykový model je <b>mozek</b>, který umí jen mluvit. Agent je ten mozek <b>obklopený rukama</b> —
-      nástroji, kterými může něco udělat, pamětí, kam si píše mezivýsledky, a smyčkou, ve které <b>plánuje</b> krok za
-      krokem. Většina dnešních „AI aplikací" jsou ve skutečnosti agenti.</span>
+      <span class="cs">Jazykový model je <b>mozek</b>, který umí jen mluvit. Agent je ten mozek, který dostal <b>ruce</b> —
+      nástroje, kterými může něco udělat, paměť, kam si píše mezivýsledky, a smyčku, ve které <b>plánuje</b> krok za
+      krokem. Většina dnešních „AI aplikací“ jsou ve skutečnosti agenti.</span>
       <span class="en">A language model is a <b>brain</b> that can only talk. An agent is that brain <b>given hands</b> — tools it can act
       with, a memory it jots intermediate results into, and a loop in which it <b>plans</b> step by step. Most of today's "AI
       apps" are in fact agents.</span>
@@ -146,15 +146,15 @@ import Layout from '../layouts/Layout.astro';
     <div class="tcards">
       <div class="tcard" style="--c:#7c3aed">
         <h3><span class="dot"></span><span class="cs">Nástroje (tools)</span><span class="en">Tools</span></h3>
-        <p><span class="cs">Model dostane „tlačítka", která může zmáčknout: vyhledání, kalkulačka, e-mail, kód, databáze…
-           Model jen <b>řekne, co zavolat</b>; samotnou akci udělá nástroj.</span>
+        <p><span class="cs">Model dostane „tlačítka“, která může zmáčknout: vyhledání, kalkulačka, e-mail, kód, databáze…
+           Model jen <b>řekne, co zavolat</b>; samotnou akci provede nástroj.</span>
            <span class="en">The model gets "buttons" it can press: search, a calculator, email, code, databases… The model only <b>says
            what to call</b>; the tool does the actual action.</span></p>
       </div>
       <div class="tcard" style="--c:#2563eb">
         <h3><span class="dot"></span><span class="cs">Smyčka úvaha–akce–pozorování</span><span class="en">The reason–act–observe loop</span></h3>
-        <p><span class="cs">Agent neodpoví jednou ranou. <b>Rozmyslí</b> krok, <b>zavolá</b> nástroj, <b>podívá se</b> na výsledek a
-           podle něj volí další krok. Opakuje, dokud úkol nesplní.</span>
+        <p><span class="cs">Agent neodpoví naráz. <b>Rozmyslí</b> krok, <b>zavolá</b> nástroj, <b>podívá se</b> na výsledek a
+           podle něj volí další krok. Opakuje to, dokud úkol nesplní.</span>
            <span class="en">An agent doesn't answer in one shot. It <b>reasons</b> about a step, <b>calls</b> a tool, <b>looks</b> at the result and
            chooses the next step from it. It repeats until the task is done.</span></p>
       </div>
@@ -168,21 +168,21 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#dc2626">
         <h3><span class="dot"></span><span class="cs">Rizika a dohled</span><span class="en">Risks and oversight</span></h3>
         <p><span class="cs">Agent <b>opravdu jedná</b> ve světě (odešle e-mail, zaplatí, smaže soubor). Když se splete nebo
-           halucinuje (příklad 15), může nadělat škodu — proto potřebuje <b>limity a člověka u kontroly</b>.</span>
+           halucinuje (příklad 15), může nadělat škodu — proto potřebuje <b>limity a lidský dohled</b>.</span>
            <span class="en">An agent <b>really acts</b> in the world (sends an email, pays, deletes a file). If it errs or hallucinates
            (example 15), it can do damage — which is why it needs <b>limits and a human in the loop</b>.</span></p>
       </div>
       <div class="tcard" style="--c:#0ea5e9">
         <h3><span class="dot"></span><span class="cs">Celá série v jednom</span><span class="en">The whole series in one</span></h3>
-        <p><span class="cs">Agent spojuje vše: model generuje krok (15), vyhledávání je vlastně RAG (17), plánování trasy úkolů
+        <p><span class="cs">Agent spojuje vše: model generuje krok (15), vyhledávání je vlastně RAG (17), plánování postupu
            připomíná hledání (3) i optimalizaci. Mozek + nástroje + cíl.</span>
            <span class="en">An agent ties it all together: the model generates a step (15), search is basically RAG (17), planning a path of
            subtasks echoes search (3) and optimization. Brain + tools + a goal.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
         <h3><span class="dot"></span><span class="cs">Jak to vypadá v praxi</span><span class="en">What it looks like in practice</span></h3>
-        <p><span class="cs">Asistent, který si sám projde e-maily a odpoví, „vibe-coding" nástroj, který píše a spouští kód, nebo
-           agent, co zařídí rezervaci. Standard se ustaluje kolem <b>protokolu MCP</b> pro připojování nástrojů.</span>
+        <p><span class="cs">Asistent, který si sám projde e-maily a odpoví, „vibe-coding“ nástroj, který píše a spouští kód, nebo
+           agent, který zařídí rezervaci. Jako standard pro připojování nástrojů se prosazuje <b>protokol MCP</b>.</span>
            <span class="en">An assistant that goes through your email and replies, a "vibe-coding" tool that writes and runs code, or an
            agent that books a reservation. A standard is settling around the <b>MCP protocol</b> for connecting tools.</span></p>
       </div>
@@ -250,12 +250,12 @@ import Layout from '../layouts/Layout.astro';
   const I18N = {
     cs: {
       toolName: { calc:'kalkulačka', search:'vyhledávání', date:'kalendář', email:'odeslat_email' },
-      thought: { calc:'Tohle je výpočet → použiju kalkulačku.', search:'Tuhle informaci neznám z hlavy → vyhledám ji.', date:'Potřebuju aktuální datum a čas → kouknu do kalendáře.', email:'Mám co poslat → odešlu e-mail.' },
+      thought: { calc:'Tohle je výpočet → použiju kalkulačku.', search:'Tuhle informaci neznám z hlavy → vyhledám ji.', date:'Potřebuju aktuální datum a čas → podívám se do kalendáře.', email:'Mám co poslat → odešlu e-mail.' },
       lThought:'Úvaha', lAction:'Akce', lObs:'Pozorování', lAnswer:'Hotovo',
       obsNone:'nic relevantního nenalezeno',
       obsCalcFail:'kalkulačka výrazu nerozuměla',
       finalCalcFail: 'Výpočet se mi z úkolu nepodařilo přečíst — zkus ho zapsat třeba jako <b>17 % z 240</b> nebo <b>12 * 7</b>.',
-      finalEmailNoInfo: 'Požadovanou informaci jsem <b>nenašel</b>, takže e-mail jsem odeslal bez ní.',
+      finalEmailNoInfo: 'Požadovanou informaci jsem <b>nenašel</b>, takže jsem e-mail odeslal bez ní.',
       obsEmail: to => 'e-mail odeslán na: ' + to,
       finalCalc: r => 'Výsledek je <b>' + r + '</b>.',
       finalSearch: s => s,
@@ -263,7 +263,7 @@ import Layout from '../layouts/Layout.astro';
       finalEmail: 'Hotovo — <b>e-mail jsem odeslal</b>.',
       finalEmailWith: c => 'Našel jsem požadovanou informaci a <b>odeslal ji e-mailem</b> (' + c + ').',
       finalGuess: 'Na tohle nemám žádný nástroj — samotný model by si musel jen <b>tipnout</b>.',
-      contrast: '<b>Samotné LLM</b> by e-mail nepřečetlo ani neodeslalo a výpočet by jen „tiplo". <b>Agent</b> díky nástrojům a smyčce <b>opravdu jedná</b> — a kroky si plánuje sám.',
+      contrast: '<b>Samotné LLM</b> by e-mail nepřečetlo ani neodeslalo a výpočet by jen „tiplo“. <b>Agent</b> díky nástrojům a smyčce <b>opravdu jedná</b> — a kroky si plánuje sám.',
       empty:'Zadej úkol nebo klikni na předvolbu a spusť agenta.',
     },
     en: {
@@ -312,7 +312,7 @@ import Layout from '../layouts/Layout.astro';
     m = t.match(/(\d+(?:\.\d+)?)\s*([-+*/×])\s*(\d+(?:\.\d+)?)/);
     if(m){ const a=+m[1], b=+m[3], op=m[2];
       const r = op==='+'?a+b: op==='-'?a-b: (op==='*'||op==='×')?a*b: a/b;
-      return Number.isFinite(r) ? fmtNum(r) : null; }     // dělení nulou → nevím, ne „Nekonečno"
+      return Number.isFinite(r) ? fmtNum(r) : null; }     // dělení nulou → nevím, ne „Nekonečno“
     return null;                                          // výraz se nepodařilo přečíst
   }
   function nowStr(){

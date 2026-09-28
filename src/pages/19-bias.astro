@@ -99,9 +99,9 @@ import Layout from '../layouts/Layout.astro';
   <section class="theory">
     <div class="head"><span class="cs">Proč na datech tak záleží</span><span class="en">Why the data matters so much</span></div>
     <p class="lead">
-      <span class="cs">Model nehledá „spravedlnost" — hledá <b>vzor v datech</b> a co nejvěrněji ho zopakuje. Když lidé v minulosti
-      rozhodovali zaujatě, je ta zaujatost v datech — a model ji <b>převezme</b>, aniž by „chtěl". Nebezpečné je, že výsledek pak
-      vypadá objektivně: „rozhodl počítač".</span>
+      <span class="cs">Model nehledá „spravedlnost“ — hledá <b>vzor v datech</b> a co nejvěrněji ho zopakuje. Když lidé v minulosti
+      rozhodovali zaujatě, je ta zaujatost v datech — a model ji <b>převezme</b>, aniž by „chtěl“. Nebezpečné je, že výsledek pak
+      vypadá objektivně: „rozhodl počítač“.</span>
       <span class="en">The model isn't looking for "fairness" — it's looking for a <b>pattern in the data</b> and reproducing it as faithfully as it
       can. If people decided in a biased way in the past, that bias is in the data — and the model <b>inherits</b> it without "meaning to". The
       danger is that the result then looks objective: "the computer decided".</span>
@@ -109,7 +109,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="tcards">
       <div class="tcard" style="--c:#dc2626">
         <h3><span class="dot"></span><span class="cs">Model = zrcadlo dat</span><span class="en">The model mirrors the data</span></h3>
-        <p><span class="cs">Model nezná „spravedlnost" — jen kopíruje vzory z trénovacích dat. Co bylo v datech, to bude i ve
+        <p><span class="cs">Model nezná „spravedlnost“ — jen kopíruje vzory z trénovacích dat. Co bylo v datech, to bude i ve
            výstupu.</span>
            <span class="en">The model has no notion of "fairness" — it just copies patterns from the training data. Whatever was in the data
            shows up in the output.</span></p>
@@ -123,7 +123,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#2563eb">
         <h3><span class="dot"></span><span class="cs">Tváří se objektivně</span><span class="en">It looks objective</span></h3>
-        <p><span class="cs">„Rozhodl počítač" zní neutrálně, ale model jen zopakoval <b>lidskou zaujatost</b> schovanou za čísla. Proto je
+        <p><span class="cs">„Rozhodl počítač“ zní neutrálně, ale model jen zopakoval <b>lidskou zaujatost</b> schovanou za čísly. Proto je
            dobré výsledky kontrolovat podle skupin — jako tady.</span>
            <span class="en">"The computer decided" sounds neutral, but the model only repeated <b>human bias</b> hidden behind numbers. That's why
            it's good to check outcomes by group — like here.</span></p>
@@ -131,7 +131,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Týká se i LLM</span><span class="en">It applies to LLMs too</span></h3>
         <p><span class="cs">Stejně jako tenhle klasifikátor (příklady 6–8) se i velké jazykové modely učí z dat — a přebírají jejich
-           zaujatost a stereotypy. Větší model problém nevyřeší, jen schová.</span>
+           zaujatost a stereotypy. Větší model problém nevyřeší, jen ho schová.</span>
            <span class="en">Just like this classifier (examples 6–8), large language models also learn from data — and pick up its biases and
            stereotypes. A bigger model doesn't solve the problem, it just hides it.</span></p>
       </div>
@@ -149,7 +149,7 @@ import Layout from '../layouts/Layout.astro';
       bandA: 'Skupina A', bandB: 'Skupina B',
       qual: 'kvalifikace →', threshold: 'hranice kvalifikace',
       verdictOk: 'Férové: při stejné kvalifikaci mají obě skupiny <b>podobnou šanci</b>. Hranice je svislá — rozhoduje jen kvalifikace.',
-      verdictBad: g => `Nespravedlivé: stejně kvalifikovaní lidé ze <b>skupiny B</b> jsou přijímáni o <b>${g} bodů</b> méně. Model převzal zaujatost z dat — hranice se naklonila a začala trestat skupinu.`,
+      verdictBad: g => `Nespravedlivé: stejně kvalifikovaní lidé ze <b>skupiny B</b> jsou přijímáni o <b>${g} bodů</b> méně. Model převzal zaujatost z dat — hranice se naklonila a začala znevýhodňovat jednu skupinu.`,
     },
     en: {
       bandA: 'Group A', bandB: 'Group B',

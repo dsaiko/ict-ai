@@ -68,9 +68,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="whathow">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Ukázka, jak model „vidí" text. Nejdřív ho rozseká na <b>tokeny</b> (kousky slov) a každému přiřadí <b>embedding</b> — sadu čísel zachycující význam. Podobná slova mají podobná čísla, a tak leží na mapě blízko sebe.</span><span class="en">A demo of how a model “sees” text. First it chops it into <b>tokens</b> (word pieces) and gives each an <b>embedding</b> — a set of numbers that captures meaning. Similar words get similar numbers, so they sit close together on the map.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš text a sleduj, jak se rozdělí na tokeny a rozmístí na 2D mapě významů. Pak zkus „počítání s významem" — slavné analogie jako <b>král − muž + žena = královna</b>.</span><span class="en">Type some text and watch it split into tokens and spread out on a 2D map of meaning. Then try “computing with meaning” — famous analogies like <b>king − man + woman = queen</b>.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tohle je první krok každého jazykového modelu: převést slova na čísla, se kterými umí počítat. „Mapa významů" je důvod, proč modely chápou, že <i>pes</i> a <i>štěně</i> spolu souvisejí.</span><span class="en">This is the first step of every language model: turning words into numbers it can compute with. The “map of meaning” is why models understand that <i>dog</i> and <i>puppy</i> are related.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Ukázka, jak model „vidí“ text. Nejdřív ho rozseká na <b>tokeny</b> (kousky slov) a každému přiřadí <b>embedding</b> — sadu čísel zachycující význam. Podobná slova mají podobná čísla, a tak leží na mapě blízko sebe.</span><span class="en">A demo of how a model “sees” text. First it chops it into <b>tokens</b> (word pieces) and gives each an <b>embedding</b> — a set of numbers that captures meaning. Similar words get similar numbers, so they sit close together on the map.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš text a sleduj, jak se rozdělí na tokeny a rozmístí na 2D mapě významů. Pak zkus „počítání s významem“ — slavné analogie jako <b>král − muž + žena = královna</b>.</span><span class="en">Type some text and watch it split into tokens and spread out on a 2D map of meaning. Then try “computing with meaning” — famous analogies like <b>king − man + woman = queen</b>.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tohle je první krok každého jazykového modelu: převést slova na čísla, se kterými umí počítat. „Mapa významů“ je důvod, proč modely chápou, že <i>pes</i> a <i>štěně</i> spolu souvisejí.</span><span class="en">This is the first step of every language model: turning words into numbers it can compute with. The “map of meaning” is why models understand that <i>dog</i> and <i>puppy</i> are related.</span></p>
   </div>
 
   <div class="panel">
@@ -90,8 +90,8 @@ import Layout from '../layouts/Layout.astro';
         menší kousky</b> (tzv. subword tokeny) — díky tomu model zvládne i slovo, které nikdy neviděl,
         poskládáním z částí. V angličtině je <b>1 token ≈ 4 znaky</b> (zhruba ¾ slova).
         Čeština se kvůli skloňování a diakritice rozpadá na kratší kousky, takže stejný text zabere
-        <b>víc tokenů</b> — a je tedy pro model „dražší" i pomalejší.
-        <em>&nbsp;ID je tu jen ilustrativní, dopočítané z textu tokenu — skutečné modely mají pevný slovník desítek až stovek tisíc tokenů.</em></span>
+        <b>víc tokenů</b> — a je tedy pro model „dražší“ i pomalejší.
+        <em>&nbsp;ID je tu jen ilustrativní, vypočítané z textu tokenu — skutečné modely mají pevný slovník desítek až stovek tisíc tokenů.</em></span>
         <span class="en"><b>What do those numbers mean?</b> Under each token is its <b>ID</b> (e.g. <b>#22040</b>) —
         the index of that piece in the model's <b>vocabulary</b>. The model doesn't work with letters or
         words, but with these numbers: <b>text → tokens → IDs</b>, and only then does it compute with the IDs.
@@ -109,7 +109,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="block">
       <div class="label"><span class="cs">2 · embeddingy — mapa významů (klikni na slovo)</span><span class="en">2 · embeddings — a map of meaning (click a word)</span></div>
       <div class="map" id="map"><svg id="lines" viewBox="0 0 718 498" preserveAspectRatio="none"></svg></div>
-      <div class="sublabel"><span class="cs">Analogie — počítání s významy (klikni a sleduj šipky):</span><span class="en">Analogies — computing with meaning (click and watch the arrows):</span></div>
+      <div class="sublabel"><span class="cs">Analogie — počítání s významem (klikni a sleduj šipky):</span><span class="en">Analogies — computing with meaning (click and watch the arrows):</span></div>
       <div class="controls" id="analogies">
         <button class="go small cs" data-a="král" data-b="muž" data-c="žena">král − muž + žena</button>
         <button class="go small cs" data-a="princ" data-b="muž" data-c="žena">princ − muž + žena</button>
@@ -129,7 +129,7 @@ import Layout from '../layouts/Layout.astro';
         <br><br>
         Slova, která se v textech objevují v <b>podobných souvislostech</b>, skončí <b>blízko sebe</b> —
         proto vznikají shluky (zvířata, barvy, doprava…). <b>Vzdálenost</b> mezi body měří podobnost
-        významu a <b>směr</b> nese vztah: posun „muž → žena" je stejný jako „král → královna",
+        významu a <b>směr</b> nese vztah: posun „muž → žena“ je stejný jako „král → královna“,
         takže <b>král − muž + žena</b> dopadne u <b>královny</b>. Vyzkoušej tlačítka výše.</span>
         <span class="en">Each token (word) also gets an <b>embedding</b> — a list of numbers (a vector) that captures its
         meaning. Real models have <b>hundreds to thousands</b> of them per word; here, for clarity, we
@@ -142,15 +142,15 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="blocknote">
         <span class="cs"><b>Jak ta analogie funguje?</b> Embeddingy dovolují se slovy <b>počítat jako s čísly</b>.
-        Klíčové je, že některé <b>směry</b> v prostoru mají stálý význam. Směr „muž&nbsp;→&nbsp;žena"
+        Klíčové je, že některé <b>směry</b> v prostoru mají stálý význam. Směr „muž&nbsp;→&nbsp;žena“
         (změna pohlaví) je skoro <b>stejný</b>, ať vyjdeš od kohokoli — od muže, od krále i od prince.
         <br><br>
-        Takže když vezmeš <b>král</b>, <b>odečteš „muž"</b> (zbude „panovník bez pohlaví") a
-        <b>přičteš „žena"</b>, posuneš se přesně na ženský protějšek → <b>královna</b>. Stejně to platí
-        pro <b>princ → princezna</b>. A funguje to i jinde: u čísel je „o jedna víc" taky pevný posun,
+        Takže když vezmeš slovo <b>král</b>, <b>odečteš „muž“</b> (zbude „panovník bez pohlaví“) a
+        <b>přičteš „žena“</b>, posuneš se přesně na ženský protějšek → <b>královna</b>. Stejně to platí
+        pro <b>princ → princezna</b>. A funguje to i jinde: u čísel je „o jednu víc“ taky pevný posun,
         proto <b>dva − jedna + tři = čtyři</b>.
         <br><br>
-        Na mapě: <b style="color:#2563eb">modrá šipka</b> je rozdíl A&nbsp;−&nbsp;B (ten „směr významu"),
+        Na mapě: <b style="color:#2563eb">modrá šipka</b> je rozdíl A&nbsp;−&nbsp;B (ten „směr významu“),
         <b style="color:#f59e0b">oranžová</b> je úplně stejný posun přiložený k C — a kam dopadne, tam
         leží <b>výsledek</b> 🎯. Skutečné modely tohle zvládají v <b>mnoha rozměrech</b> najednou
         (pohlaví, množné číslo, čas, země↔hlavní město…).</span>
@@ -173,7 +173,7 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <section class="theory">
-    <div class="head"><span class="cs">Co je „význam" pro počítač</span><span class="en">What "meaning" is for a computer</span></div>
+    <div class="head"><span class="cs">Co je „význam“ pro počítač</span><span class="en">What "meaning" is for a computer</span></div>
     <p class="lead">
       <span class="cs">Slovo samo o sobě je pro stroj jen řetězec znaků. Embedding ho převede na <b>bod v prostoru</b>
       (ve skutečnosti o stovkách rozměrů, tady promítnutý do 2D). Model se ho naučí tak, že slova
@@ -192,21 +192,21 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#22c55e">
         <h3><span class="dot"></span><span class="cs">Blízkost = podobnost</span><span class="en">Closeness = similarity</span></h3>
-        <p><span class="cs">Pes a kočka leží blízko, auto a vlak taky. Vzdálenost mezi vektory měří, jak <b>významově
+        <p><span class="cs">Pes a kočka leží blízko sebe, auto a vlak taky. Vzdálenost mezi vektory měří, jak <b>významově
            podobná</b> slova jsou.</span>
            <span class="en">Dog and cat lie close together, so do car and train. The distance between vectors measures how
            <b>similar in meaning</b> words are.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
         <h3><span class="dot"></span><span class="cs">Směry mají smysl</span><span class="en">Directions have meaning</span></h3>
-        <p><span class="cs">Nejde jen o blízkost — i <b>směry</b> něco znamenají. Posun „muž → žena" je stejný jako
-           „král → královna". Proto vyjde <b>král − muž + žena ≈ královna</b>.</span>
+        <p><span class="cs">Nejde jen o blízkost — i <b>směry</b> něco znamenají. Posun „muž → žena“ je stejný jako
+           „král → královna“. Proto vyjde <b>král − muž + žena ≈ královna</b>.</span>
            <span class="en">It's not just about closeness — <b>directions</b> mean something too. The shift "man → woman" is the
            same as "king → queen". That's why <b>king − man + woman ≈ queen</b>.</span></p>
       </div>
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Základ dnešních LLM</span><span class="en">The foundation of today's LLMs</span></h3>
-        <p><span class="cs">Každé slovo na vstupu modelu je takový vektor. Celé „porozumění" jazyku stojí na tom,
+        <p><span class="cs">Každé slovo na vstupu modelu je takový vektor. Celé „porozumění“ jazyku stojí na tom,
            že podobné věci mají podobná čísla.</span>
            <span class="en">Every word on a model's input is such a vector. All "understanding" of language rests on
            similar things having similar numbers.</span></p>
@@ -226,9 +226,9 @@ import Layout from '../layouts/Layout.astro';
   const I18N = {
     cs: {
       tokstat: (chars, toks, ratio) =>
-        `znaků: <b>${chars}</b> &nbsp;·&nbsp; tokenů: <b>${toks}</b> &nbsp;·&nbsp; ≈ <b>${ratio}</b> znaku na token`,
+        `znaků: <b>${chars}</b> &nbsp;·&nbsp; tokenů: <b>${toks}</b> &nbsp;·&nbsp; ≈ <b>${ratio.replace('.', ',')}</b> znaku na token`,
       nearest: (w, list) => `Nejbližší k <b>${w}</b>: ${list}`,
-      analogy: (a, b, c, best) => `<b>${a} − ${b} + ${c}</b> vyšlo nejblíž k slovu <b>${best}</b> 🎯 — stejný posun jako „${b} → ${a}".`,
+      analogy: (a, b, c, best) => `<b>${a} − ${b} + ${c}</b> vyšlo nejblíž ke slovu <b>${best}</b> 🎯 — stejný posun jako „${b} → ${a}“.`,
       clickHint: 'Klikni na libovolné slovo a uvidíš jeho <b>nejbližší sousedy</b> (významově nejpodobnější).',
     },
     en: {

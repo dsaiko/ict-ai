@@ -76,7 +76,7 @@ import Layout from '../layouts/Layout.astro';
   .verdict b { color: inherit; }
   .hint { font-size: 12px; color: #9ca3af; margin-top: 10px; text-align: center; line-height: 1.5; }
 
-  /* graf „loket" */
+  /* graf „loket“ */
   #elbow { width: 100%; height: 250px; display: block; }
   .enote { font-size: 13px; color: #4b5563; line-height: 1.5; margin-top: 8px; }
   .enote b { color: #374151; }
@@ -105,7 +105,7 @@ import Layout from '../layouts/Layout.astro';
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Shlukování</b> (clustering) = rozdělení dat do skupin podobných bodů, bez jakýchkoli štítků — <b>učení bez učitele</b>. <b>k-means</b> hledá <b>k</b> skupin a každou zastupuje jejím <b>středem</b> (průměrem jejích bodů, anglicky <i>centroid</i>).</span><span class="en"><b>Clustering</b> = splitting data into groups of similar points, with no labels at all — <b>learning without a teacher</b> (unsupervised learning). <b>k-means</b> looks for <b>k</b> groups and represents each one by its <b>center</b> (the average of its points, the <i>centroid</i>).</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Mačkej <b>Jeden krok</b> a sleduj dvě fáze, které se střídají: body se obarví podle nejbližšího středu, pak se středy přesunou doprostřed svých bodů. Pak <b>Spusť do konce</b>. Zkus „5 skupin" několikrát za sebou (různý start → různý výsledek), „dva měsíce" (k-means selže) a „rovnoměrný šum" (skupiny „najde", i když žádné nejsou). Kliknutím do plochy přidáš bod.</span><span class="en">Press <b>One step</b> repeatedly and watch the two alternating phases: the points take the color of the nearest center, then the centers move into the middle of their points. Then press <b>Run to the end</b>. Try “5 groups” several times in a row (different start → different result), “two moons” (k-means fails) and “uniform noise” (it “finds” groups even though there are none). Click into the canvas to add a point.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Mačkej <b>Jeden krok</b> a sleduj dvě fáze, které se střídají: body se obarví podle nejbližšího středu, pak se středy přesunou doprostřed svých bodů. Potom stiskni <b>Spusť do konce</b>. Zkus „5 skupin“ několikrát za sebou (různý start → různý výsledek), „dva měsíce“ (k-means selže) a „rovnoměrný šum“ (skupiny „najde“, i když žádné nejsou). Kliknutím do plochy přidáš bod.</span><span class="en">Press <b>One step</b> repeatedly and watch the two alternating phases: the points take the color of the nearest center, then the centers move into the middle of their points. Then press <b>Run to the end</b>. Try “5 groups” several times in a row (different start → different result), “two moons” (k-means fails) and “uniform noise” (it “finds” groups even though there are none). Click into the canvas to add a point.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Většina dat na světě <b>štítky nemá</b> — nikdo je ručně neoznačil. Shlukování v nich najde strukturu: skupiny podobných zákazníků, podobné dokumenty nebo shluky slov s podobným významem v embeddinzích (13).</span><span class="en">Most of the world’s data <b>has no labels</b> — nobody marked it by hand. Clustering finds structure in it: groups of similar customers, similar documents, or clusters of words with similar meaning in embeddings (13).</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">náhodné středy</span><span class="en">random centers</span></span>
@@ -114,7 +114,7 @@ import Layout from '../layouts/Layout.astro';
       <span class="arr">→</span>
       <span class="stepc"><span class="n">3</span> <span class="cs">posuň středy do průměru</span><span class="en">move centers to the average</span></span>
       <span class="arr">↺</span>
-      <span class="repeat"><span class="cs">(2 a 3 dokola), dokud se nic nemění</span><span class="en">(2 and 3 again) until nothing changes</span></span>
+      <span class="repeat"><span class="cs">(2 a 3 dokola), dokud se něco mění</span><span class="en">(2 and 3 again) until nothing changes</span></span>
     </div>
   </div>
 
@@ -177,7 +177,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <div class="block">
-      <div class="label"><span class="cs">3 · jak zvolit k? graf „loket" (pro každé k 10 startů, bere se nejlepší)</span><span class="en">3 · how to choose k? the “elbow” chart (10 starts for each k, the best one counts)</span></div>
+      <div class="label"><span class="cs">3 · jak zvolit k? graf „loket“ (pro každé k 10 startů, bere se nejlepší)</span><span class="en">3 · how to choose k? the “elbow” chart (10 starts for each k, the best one counts)</span></div>
       <canvas id="elbow"></canvas>
       <div class="enote" id="enote"></div>
     </div>
@@ -187,8 +187,8 @@ import Layout from '../layouts/Layout.astro';
     <div class="head"><span class="cs">Jak k-means hledá skupiny a kde má hranice</span><span class="en">How k-means finds groups and where its limits are</span></div>
     <p class="lead">
       <span class="cs">k-means nic neví o tom, co body znamenají. Má jen jedno měřítko — <b>vzdálenost</b> — a jeden cíl:
-      aby body byly co nejblíž středu svého shluku (malá <b>inertia</b>). Dva jednoduché kroky dokola ten cíl
-      postupně zlepšují, podobně jako gradientní sestup v příkladu 7 zmenšuje chybu.</span>
+      aby body byly co nejblíž středu svého shluku (malá <b>inertia</b>). Dva jednoduché kroky opakované dokola se k tomu cíli
+      postupně přibližují, podobně jako gradientní sestup v příkladu 7 zmenšuje chybu.</span>
       <span class="en">k-means knows nothing about what the points mean. It has only one measure — <b>distance</b> — and one goal:
       points should be as close as possible to the center of their cluster (small <b>inertia</b>). Two simple steps repeated
       over and over improve that goal little by little, much like gradient descent in example 7 shrinks the error.</span>
@@ -200,25 +200,25 @@ import Layout from '../layouts/Layout.astro';
            <b>Bez učitele</b> (tady): odpovědi nemáme vůbec, model hledá <b>strukturu</b> — co k sobě patří.</span>
            <span class="en"><b>With a teacher</b> (examples 6 and 8): we know the right answer for every point and the model learns to predict it.
            <b>Without a teacher</b> (here): there are no answers at all, the model looks for <b>structure</b> — what belongs together.</span></p>
-        <p><span class="cs">Výsledek tu nemá „správné řešení" k porovnání — proto je těžší ho posoudit.</span>
+        <p><span class="cs">Výsledek tu nemá „správné řešení“ k porovnání — proto je těžší ho posoudit.</span>
            <span class="en">There is no “correct answer” to compare the result with — which makes it harder to judge.</span></p>
       </div>
       <div class="tcard" style="--c:#db2777">
         <h3><span class="dot"></span><span class="cs">Dva kroky dokola</span><span class="en">Two steps, over and over</span></h3>
         <p><span class="cs"><b>Přiřaď:</b> každý bod patří nejbližšímu středu. <b>Posuň:</b> každý střed se přesune do průměru
-           svých bodů. Ani jeden krok nemůže inertii zvětšit, takže algoritmus se vždy zastaví — ve chvíli, kdy
+           svých bodů. Ani jeden krok nemůže inertii zvětšit, takže se algoritmus vždy zastaví — ve chvíli, kdy
            žádný bod nezmění shluk.</span>
            <span class="en"><b>Assign:</b> every point belongs to the nearest center. <b>Move:</b> every center moves to the average
            of its points. Neither step can increase the inertia, so the algorithm always stops — at the moment when
            no point changes its cluster.</span></p>
-        <p><span class="cs">Zastaví se ale v <b>lokálním minimu</b>: z jiného startu může skončit jinde (zkus „5 skupin").
+        <p><span class="cs">Zastaví se ale v <b>lokálním minimu</b>: z jiného startu může skončit jinde (zkus „5 skupin“).
            Proto se v praxi spouští víckrát a bere se nejlepší výsledek; chytřejší start <b>k-means++</b> volí středy daleko od sebe.</span>
            <span class="en">But it stops in a <b>local minimum</b>: from a different start it can end elsewhere (try “5 groups”).
            That’s why in practice it’s run several times and the best result is kept; the smarter <b>k-means++</b> start picks centers far apart.</span></p>
       </div>
       <div class="tcard" style="--c:#7c3aed">
         <h3><span class="dot"></span><span class="cs">Jak zvolit k?</span><span class="en">How to choose k?</span></h3>
-        <p><span class="cs">Víc shluků znamená vždy menší inertii (při k = počet bodů je nulová), takže „nejmenší inertia" nepomůže.
+        <p><span class="cs">Víc shluků znamená vždy menší inertii (při k = počet bodů je nulová), takže „nejmenší inertia“ nepomůže.
            Hledá se <b>loket</b> — místo, kde přidání dalšího shluku už skoro nic nepřinese.</span>
            <span class="en">More clusters always means smaller inertia (with k = number of points it is zero), so “smallest inertia” doesn’t help.
            You look for the <b>elbow</b> — the point where adding another cluster barely helps any more.</span></p>
@@ -230,7 +230,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#dc2626">
         <h3><span class="dot"></span><span class="cs">Hranice metody</span><span class="en">Limits of the method</span></h3>
         <p><span class="cs">k-means předpokládá <b>kulaté shluky podobné velikosti</b>. Hranice mezi dvěma středy je vždy <b>rovná čára</b>,
-           takže zahnuté „měsíce" nebo kruh v kruhu rozřízne napříč. Na takové tvary jsou jiné metody, např. <b>DBSCAN</b>
+           takže zahnuté „měsíce“ nebo kruh v kruhu rozřízne napříč. Na takové tvary jsou jiné metody, např. <b>DBSCAN</b>
            (hledá husté oblasti).</span>
            <span class="en">k-means assumes <b>round clusters of similar size</b>. The border between two centers is always a <b>straight line</b>,
            so curved “moons” or a circle in a circle get cut straight across. Such shapes need other methods, e.g. <b>DBSCAN</b>
@@ -257,7 +257,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
     <p class="lead" style="margin-top:16px">
       <span class="cs"><b>Pointa:</b> i bez odpovědí se dá z dat něco naučit — jejich <b>strukturu</b>. Ale k-means vidí jen vzdálenosti:
-      najde kulaté skupiny, i když tam žádné nejsou, a zahnuté tvary nepozná. Stejná myšlenka „blízko = podobné" se vrátí
+      najde kulaté skupiny, i když tam žádné nejsou, a zahnuté tvary nepozná. Stejná myšlenka „blízko = podobné“ se vrátí
       u embeddingů (13), kde slova s podobným významem tvoří shluky.</span>
       <span class="en"><b>The point:</b> even without answers you can learn something from data — its <b>structure</b>. But k-means only sees distances:
       it finds round groups even where there are none, and it can’t recognize curved shapes. The same idea “close = similar” comes back
@@ -274,7 +274,7 @@ import Layout from '../layouts/Layout.astro';
   const U = 80;                    // 1 jednotka vzdálenosti = 80 px (ať jsou čísla inertie čitelná)
   const COLORS = ['#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#7c3aed', '#0891b2', '#db2777', '#a16207'];
   const MAXIT = 100;               // pojistka: víc iterací k-means nikdy nepotřebuje (tady ~2–20)
-  const RESTARTS = 10;             // kolik startů pro každé k v grafu „loket"
+  const RESTARTS = 10;             // kolik startů pro každé k v grafu „loket“
   const ANIM = 400;                // délka animace posunu středů (ms)
   const SUGGESTED_K = { blobs3: 3, blobs5: 5, moons: 2, rings: 2, noise: 4 };
 
@@ -282,11 +282,11 @@ import Layout from '../layouts/Layout.astro';
   const I18N = {
     cs: {
       hint: {
-        blobs3: 'Tři zřetelné skupiny. Mačkej <b>Jeden krok</b> a sleduj, jak se středy „stěhují" do skupin. Pak se podívej na loket: zlom je u <b>k = 3</b>.',
-        blobs5: 'Pět skupin, dvě vlevo nahoře jsou blízko sebe. S náhodným startem to často skončí špatně (dva středy v jedné skupině, jeden střed pro dvě) — stiskni <b>Spusť do konce</b> několikrát za sebou a pak zkus <b>k-means++</b> (pomáhá, i když ne vždy).',
-        moons: 'Dva zahnuté „měsíce". Oko vidí dvě skupiny, ale k-means s <b>k = 2</b> je rozřízne <b>rovnou čarou</b> napříč — hranice mezi dvěma středy je vždy přímka. To je hranice metody.',
-        rings: 'Malý kruh uvnitř velkého prstence. k-means s <b>k = 2</b> nerozdělí vnitřek a prstenec — rozpůlí oboje rovnou čarou. Na takové tvary jsou jiné metody.',
-        noise: 'Tady <b>žádné skupiny nejsou</b> — body jsou rozházené rovnoměrně. k-means přesto vrátí přesně k „shluků" (zkus jakékoli k). Křivka v lokti klesá plynule — žádné k z ní nevyčnívá tak jako u „3 skupin". Jestli skupiny dávají smysl, musí posoudit člověk.',
+        blobs3: 'Tři zřetelné skupiny. Mačkej <b>Jeden krok</b> a sleduj, jak se středy „stěhují“ do skupin. Pak se podívej na loket: zlom je u <b>k = 3</b>.',
+        blobs5: 'Pět skupin, z nichž dvě vlevo nahoře leží blízko sebe. S náhodným startem to často skončí špatně (dva středy v jedné skupině, jeden střed pro dvě) — stiskni <b>Spusť do konce</b> několikrát za sebou a pak zkus <b>k-means++</b> (pomáhá, i když ne vždy).',
+        moons: 'Dva zahnuté „měsíce“. Oko vidí dvě skupiny, ale k-means s <b>k = 2</b> je rozřízne <b>rovnou čarou</b> napříč — hranice mezi dvěma středy je vždy přímka. To je omezení metody.',
+        rings: 'Malý kruh uvnitř velkého prstence. k-means s <b>k = 2</b> neoddělí vnitřek od prstence — rozpůlí obojí rovnou čarou. Na takové tvary jsou jiné metody.',
+        noise: 'Tady <b>žádné skupiny nejsou</b> — body jsou rozházené rovnoměrně. k-means přesto vrátí přesně k „shluků“ (zkus jakékoli k). Křivka v grafu „loket“ klesá plynule — žádné k z ní nevyčnívá tak jako u „3 skupin“. Jestli skupiny dávají smysl, musí posoudit člověk.',
         empty: 'Prázdná plocha — naklikej vlastní body (aspoň k) a stiskni <b>Jeden krok</b>.',
       },
       stepInit: 'Jeden krok ▸ středy',
@@ -295,11 +295,11 @@ import Layout from '../layouts/Layout.astro';
       stepDone: 'Jeden krok ✓',
       initName: { random: 'náhodně vybrané body z dat', pp: 'k-means++ (další střed nejspíš daleko od předchozích)' },
       msg: {
-        ready: (m, k) => `① Rozmístěno <b>${k}</b> středů (${m}). Body jsou zatím šedé — nevíme, kam patří. Další krok je přiřadí.`,
+        ready: (m, k) => `① Počet rozmístěných středů: <b>${k}</b> (${m}). Body jsou zatím šedé — nevíme, kam patří. Další krok je přiřadí.`,
         assigned: ch => `② <b>Přiřazení:</b> každý bod dostal barvu <b>nejbližšího středu</b>. Počet bodů, které změnily shluk: <b>${ch}</b>. Další krok posune středy.`,
         moved: s => `③ <b>Posun:</b> každý střed se přesunul do <b>průměru (těžiště) svých bodů</b> — stopa ukazuje, kudy šel. Celkový posun: <b>${s}</b>. Další krok znovu přiřadí body.`,
         converged: it => `✓ <b>Hotovo:</b> v posledním přiřazení nezměnil shluk <b>žádný bod</b>, takže se středy už nepohnou. Algoritmus konvergoval (iterací: <b>${it}</b>).`,
-        few: k => `Málo bodů: pro k = ${k} potřebuješ aspoň ${k} bodů. Naklikej je do plochy.`,
+        few: k => `Málo bodů: pro k = ${k} jich musí být aspoň ${k}. Naklikej je do plochy.`,
         empty: 'Plocha je prázdná — naklikej body (aspoň k) a stiskni <b>Jeden krok</b>.',
         enough: 'Bodů je dost. Stiskni <b>Jeden krok</b> — nejdřív se rozmístí středy.',
         added: 'Přidán bod (šedý = zatím nepřiřazený). Další krok ho zařadí k nejbližšímu středu.',
@@ -382,7 +382,7 @@ import Layout from '../layouts/Layout.astro';
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
   // ── generování dat ───────────────────────────────────────────
-  // g = „skutečná" skupina, ze které bod vznikl. Algoritmus ji NEVIDÍ —
+  // g = „skutečná“ skupina, ze které bod vznikl. Algoritmus ji NEVIDÍ —
   // slouží jen ke kontrole v testu (jak moc se k-means trefil).
   function makeData(name) {
     const rng = mulberry32({ blobs3: 11, blobs5: 21, moons: 31, rings: 41, noise: 51 }[name] || 1);
@@ -474,7 +474,7 @@ import Layout from '../layouts/Layout.astro';
     return s;
   }
 
-  // celý běh najednou (pro graf „loket"): ② a ③ dokola, dokud se přiřazení mění
+  // celý běh najednou (pro graf „loket“): ② a ③ dokola, dokud se přiřazení mění
   function kmeans(P, k, mode, rng) {
     let C = initCenters(P, k, mode, rng);
     const asg = new Array(P.length).fill(-1);
@@ -565,7 +565,7 @@ import Layout from '../layouts/Layout.astro';
     return C.map((c, j) => ({ x: anim.from[j].x + (c.x - anim.from[j].x) * e, y: anim.from[j].y + (c.y - anim.from[j].y) * e }));
   }
 
-  // „Spusť do konce": kroky s pauzou, dokud nic nezmění shluk
+  // „Spusť do konce“: kroky s pauzou, dokud nic nezmění shluk
   function runToEnd() {
     if (running) return;
     if (converged || !C.length) newCenters();
@@ -588,7 +588,7 @@ import Layout from '../layouts/Layout.astro';
     $('btnStop').disabled = !running;
   }
 
-  // ── graf „loket" ─────────────────────────────────────────────
+  // ── graf „loket“ ─────────────────────────────────────────────
   // pro k = 1..8 spustí k-means 10× (se zvoleným startem) a zapamatuje si nejlepší
   // i všechny jednotlivé výsledky; semínko je pevné, aby se graf při překreslení nehýbal
   function computeElbow() {
@@ -616,7 +616,7 @@ import Layout from '../layouts/Layout.astro';
     }
     const L = 52, R = 14, TOP = 30, B = 44, pw = w - L - R, ph = h - TOP - B;
     const vals = elbow.all.flat();
-    // „hezký" krok osy y (1, 2, 5 × 10^n), ať jsou popisky kulatá čísla
+    // „hezký“ krok osy y (1, 2, 5 × 10^n), ať jsou popisky kulatá čísla
     const raw = Math.max(...vals, 1e-9) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
     const step = [1, 2, 5, 10].map(m => m * mag).find(v => v >= raw);
     const nt = Math.ceil(Math.max(...vals, 1e-9) / step), ymax = nt * step;
@@ -760,13 +760,13 @@ import Layout from '../layouts/Layout.astro';
     st.textContent = !C.length ? T.stNone : converged ? T.stConv : running ? T.stRun : (lastPhase === 0 ? T.stReady : T.stMid);
     $('hist').textContent = hist.length ? T.histLabel + (hist.length > 10 ? '… → ' : '') + hist.slice(-10).map(fmt).join(' → ') : '';
 
-    // lokální minimum? porovnání s nejlepším řešením z grafu „loket"
+    // lokální minimum? porovnání s nejlepším řešením z grafu „loket“
     const v = $('verdict');
     const best = elbow && elbow.best[K - 1];
     if (converged && C.length && best !== null && best !== undefined) {
       const own = inertia(pts, C, asg);
       const worse = best > 1e-9 ? (own / best - 1) * 100 : 0;
-      if (worse > 3) {   // do 3 % bereme jako „stejně dobré" (symetrická data mají víc skoro stejných řešení)
+      if (worse > 3) {   // do 3 % bereme jako „stejně dobré“ (symetrická data mají víc skoro stejných řešení)
         v.className = 'verdict show bad'; v.innerHTML = T.verdictBad(Math.round(worse), fmt(best)); }
       else { v.className = 'verdict show good'; v.innerHTML = T.verdictGood(fmt(best)); }
     } else { v.className = 'verdict'; v.innerHTML = ''; }

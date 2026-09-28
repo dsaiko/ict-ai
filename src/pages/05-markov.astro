@@ -62,8 +62,8 @@ import Layout from '../layouts/Layout.astro';
   <p class="intro">
     <span class="cs">V příkladu 2 jsme pravidla psali <b>ručně</b>. Tady se model <b>učí sám z textu</b>:
     spočítá, co po čem nejčastěji následuje, a podle těch pravděpodobností generuje nový text.
-    Je to princip „malého jazykového modelu" — a <b>posuvníkem kontextu</b> uvidíš,
-    jak víc paměti = víc smyslu.</span>
+    Je to princip „malého jazykového modelu“ — a <b>posuvníkem kontextu</b> uvidíš,
+    že víc paměti = víc smyslu.</span>
     <span class="en">In example 2 we wrote the rules <b>by hand</b>. Here the model <b>learns by itself from text</b>:
     it counts what most often follows what, and generates new text according to those probabilities.
     It's the principle of a "small language model" — and with the <b>context slider</b> you'll see
@@ -73,8 +73,8 @@ import Layout from '../layouts/Layout.astro';
   <div class="whathow">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Markovův řetězec</b> — jednoduchý model, který se sám naučí z libovolného textu, jaké slovo nejčastěji následuje po jiném, a podle těch pravděpodobností pak skládá text nový.</span><span class="en">A <b>Markov chain</b> — a simple model that learns by itself, from any text, which word most often follows another, and then builds new text from those probabilities.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Vlož vlastní text (nebo nech ukázkový) a generuj. Posuvníkem <b>kontextu</b> měň, kolik předchozích slov si model pamatuje — uvidíš, jak z blábolu vzniká skoro smysluplná čeština.</span><span class="en">Paste your own text (or keep the sample) and generate. Use the <b>context</b> slider to change how many previous words the model remembers — watch gibberish turn into almost-meaningful language.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">V příkladu 2 jsme pravidla psali ručně — tak fungovala „symbolická" AI po desítky let. Tady se model učí <b>sám z dat</b>, a to je druhá tradice, která nakonec zvítězila. To je princip „malého jazykového modelu" — a víc kontextu (paměti) = víc smyslu, přesně jako u dnešních velkých modelů.</span><span class="en">In example 2 we wrote the rules by hand — that is how “symbolic” AI worked for decades. Here the model learns <b>by itself from data</b>, the other tradition, which eventually won. This is the principle of a “small language model” — and more context (memory) = more meaning, exactly like in today’s large models.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Vlož vlastní text (nebo nech ukázkový) a generuj. Posuvníkem <b>kontextu</b> měň, kolik předchozích znaků (nebo slov) si model pamatuje — uvidíš, jak z blábolu vzniká skoro smysluplná čeština.</span><span class="en">Paste your own text (or keep the sample) and generate. Use the <b>context</b> slider to change how many previous characters (or words) the model remembers — watch gibberish turn into almost-meaningful language.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">V příkladu 2 jsme pravidla psali ručně — tak fungovala „symbolická“ AI po desítky let. Tady se model učí <b>sám z dat</b>, a to je druhá tradice, která nakonec zvítězila. To je princip „malého jazykového modelu“ — a víc kontextu (paměti) = víc smyslu, přesně jako u dnešních velkých modelů.</span><span class="en">In example 2 we wrote the rules by hand — that is how “symbolic” AI worked for decades. Here the model learns <b>by itself from data</b>, the other tradition, which eventually won. This is the principle of a “small language model” — and more context (memory) = more meaning, exactly like in today’s large models.</span></p>
   </div>
 
   <div class="panel">
@@ -105,7 +105,7 @@ import Layout from '../layouts/Layout.astro';
 
     <div class="block">
       <div class="label"><span class="cs">3 · vygenerovaný text</span><span class="en">3 · generated text</span></div>
-      <div class="output" id="output"><span class="placeholder"><span class="cs">stiskni „Generuj"…</span><span class="en">press "Generate"…</span></span></div>
+      <div class="output" id="output"><span class="placeholder"><span class="cs">stiskni „Generuj“…</span><span class="en">press "Generate"…</span></span></div>
       <div class="actions" style="margin-top:14px">
         <button class="go" id="btnGen"><span class="cs">Generuj</span><span class="en">Generate</span></button>
         <span class="stat" id="stat"></span>
@@ -119,7 +119,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="head"><span class="cs">Jak to funguje a kde jsou hranice</span><span class="en">How it works and where the limits are</span></div>
     <p class="lead">
       <span class="cs">Markovův řetězec je <b>nejjednodušší jazykový model</b>. Nerozumí významu — jen si z textu
-      <b>spočítá statistiku</b>: „po této kombinaci nejčastěji následuje tohle". Pak generuje tak,
+      <b>spočítá statistiku</b>: „po této kombinaci nejčastěji následuje tohle“. Pak generuje tak,
       že podle těch četností <b>náhodně losuje</b> další znak nebo slovo. Čím delší trénovací text,
       tím bohatší a věrohodnější výsledek.</span>
       <span class="en">A Markov chain is the <b>simplest language model</b>. It doesn't understand meaning — it just
@@ -131,7 +131,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="tcards">
 
       <div class="tcard" style="--c:#06b6d4">
-        <h3><span class="dot"></span><span class="cs">Jak se model „učí"</span><span class="en">How the model "learns"</span></h3>
+        <h3><span class="dot"></span><span class="cs">Jak se model „učí“</span><span class="en">How the model "learns"</span></h3>
         <p><span class="cs">Projde text a u každého kousku si zapíše, co po něm následovalo. Z toho vznikne tabulka
            pravděpodobností — třeba že po <code>"ko"</code> bývá nejčastěji <code>"č"</code>,
            <code>"u"</code> nebo <code>"s"</code>.</span>
@@ -147,7 +147,7 @@ import Layout from '../layouts/Layout.astro';
         <p><span class="cs">Řád určuje, kolik předchozích jednotek model bere v potaz. To je celé kouzlo posuvníku:</span>
            <span class="en">The order sets how many previous units the model takes into account. That's the whole magic of the slider:</span></p>
         <div class="pm">
-          <div><span class="minus">–</span> <span class="cs"><b>nízký řád</b> (1–2): málo kontextu → blábol, ale „kreativní"</span><span class="en"><b>low order</b> (1–2): little context → gibberish, but "creative"</span></div>
+          <div><span class="minus">–</span> <span class="cs"><b>nízký řád</b> (1–2): málo kontextu → blábol, ale „kreativní“</span><span class="en"><b>low order</b> (1–2): little context → gibberish, but "creative"</span></div>
           <div><span class="plus">+</span> <span class="cs"><b>vyšší řád</b> (3–5): víc kontextu → skoro čeština</span><span class="en"><b>higher order</b> (3–5): more context → almost-real language</span></div>
           <div><span class="minus">–</span> <span class="cs"><b>moc vysoký</b>: jen opisuje věty z předlohy</span><span class="en"><b>too high</b>: it just copies sentences from the source</span></div>
         </div>
@@ -168,18 +168,18 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#ec4899">
         <h3><span class="dot"></span><span class="cs">Vztah k dnešním LLM</span><span class="en">Relation to today's LLMs</span></h3>
         <p><span class="cs">Princip je <b>stejný</b>: předpovědět další kousek textu z předchozího kontextu.
-           Velké modely (ChatGPT, Claude, Gemini) to ale dělají <b>neuronovou sítí</b>, s kontextem
-           statisíců slov a naučené z bilionů slov textu.</span>
+           Velké modely (ChatGPT, Claude, Gemini) to ale dělají <b>neuronovou sítí</b>, mají kontext
+           statisíců slov a učily se z bilionů slov textu.</span>
            <span class="en">The principle is the <b>same</b>: predict the next piece of text from the previous context.
            But large models (ChatGPT, Claude, Gemini) do it with a <b>neural network</b>, with a context
            of hundreds of thousands of words, trained on trillions of words of text.</span></p>
-        <p><span class="cs">Proto „rozumí" mnohem víc — ale jádro myšlenky vidíš právě tady.</span>
+        <p><span class="cs">Proto „rozumí“ mnohem víc — ale jádro myšlenky vidíš právě tady.</span>
            <span class="en">That's why they "understand" much more — but you can see the core idea right here.</span></p>
       </div>
 
     </div>
     <p class="lead" style="margin-top:16px">
-      <span class="cs"><b>Pointa:</b> i tahle pár řádků dlouhá „inteligence" dokáže napodobit jazyk překvapivě dobře —
+      <span class="cs"><b>Pointa:</b> i tahle pár řádků dlouhá „inteligence“ dokáže napodobit jazyk překvapivě dobře —
       a přitom vůbec nechápe, o čem text je. Je to čistá statistika nad daty. Velké jazykové modely
       jsou v principu totéž, jen <b>nesrovnatelně větší</b>.</span>
       <span class="en"><b>The point:</b> even this few-lines-long "intelligence" can mimic language surprisingly well —
@@ -248,8 +248,8 @@ The land slept, and only the quiet river flowed tirelessly on toward the grey da
   const I18N = {
     cs: {
       note: (mode, order) => mode === 'char'
-        ? `Model se dívá na <b>${order} předchozích znaků</b> a hádá další znak. Malý řád = blábol, vyšší řád = skoro česká slova (ale opisuje víc z předlohy).`
-        : `Model se dívá na <b>${order} předchozích slov</b> a hádá další slovo. Vyšší řád dává plynulejší věty, ale potřebuje delší trénovací text.`,
+        ? `Model se dívá na <b>${order} ${order === 1 ? 'předchozí znak' : order < 5 ? 'předchozí znaky' : 'předchozích znaků'}</b> a hádá další znak. Nízký řád = blábol, vyšší řád = skoro česká slova (ale opisuje víc z předlohy).`
+        : `Model se dívá na <b>${order} ${order === 1 ? 'předchozí slovo' : order < 5 ? 'předchozí slova' : 'předchozích slov'}</b> a hádá další slovo. Vyšší řád dává plynulejší věty, ale potřebuje delší trénovací text.`,
       tooShort: 'Trénovací text je příliš krátký.',
       stat: (states, count, mode) => `naučeno ${states} stavů · ${count} ${mode === 'char' ? 'znaků' : 'slov'} v textu`,
       locale: 'cs-CZ',
@@ -299,9 +299,9 @@ The land slept, and only the quiet river flowed tirelessly on toward the grey da
 
   // ── Sestavení Markovova modelu ───────────────────────────────
   // Oddělovač klíče: znak, který se v textu nevyskytuje. Bez něj by se
-  // v režimu „po slovech" slova v klíči spojila bez mezery a kontext by
+  // v režimu „po slovech“ slova v klíči spojila bez mezery a kontext by
   // pak nešel rozdělit zpět na slova (proto generování po slovech selhávalo
-  // pro řád ≥ 2). V režimu „po znacích" je výstup beze změny.
+  // pro řád ≥ 2). V režimu „po znacích“ je výstup beze změny.
   const SEP = '\u0001';
   // mapa: prefix (n jednotek) → seznam možných následníků (s opakováním = četností)
   function buildModel(units, n) {

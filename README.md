@@ -19,7 +19,7 @@ The demos are plain HTML/CSS/JS, assembled into self-contained static pages with
 
 - The series grew from 15 to **20 chapters**. New ones: **07** gradient descent and overfitting, **09** clustering, **11** diffusion (how AI draws pictures), **12** learning from reward and **16** from text predictor to assistant.
 - The genetic algorithm moved to **04** (it belongs with search), and the other chapters were **renumbered**. Old links still work — they redirect to the new address.
-- Attention (**14**) was reworked: pairs of sentences where one word changes where the model looks.
+- Attention (**14**) was reworked: pairs of sentences where a small change moves where the model looks.
 - Every chapter now ends with **a bit of history**, **"What's next?"** and **two questions for discussion**, plus previous/next buttons. The version and the date of the last update are at the bottom of every page.
 
 ---
@@ -176,7 +176,7 @@ How an LLM "sees" text: chopping it into **tokens** (with IDs from a vocabulary)
 
 ![Attention](images/14.png)
 
-Pairs of sentences that differ by a single word — and the attention of the key word jumps elsewhere: in *"the cat did not jump on the table because **it** was tired / too high"* "it" looks at the cat or at the table; *"river bank / bank account"* resolves which bank is meant; a verb at the end agrees with its subject far back at the start. Percentages, color saturation and the full attention map (matrix). The patterns for the prepared sentences are set by hand to match relations real models learn (stated on the page); for your own sentence only a rough closeness-based guess is shown. The mechanism behind today's transformers.
+Pairs of sentences with just a small change — and the attention of the key word jumps elsewhere: in *"the cat did not jump on the table because **it** was tired / too high"* "it" looks at the cat or at the table; *"river bank / bank account"* resolves which bank is meant; a verb at the end agrees with its subject far back at the start. Percentages, color saturation and the full attention map (matrix). The patterns for the prepared sentences are set by hand to match relations real models learn (stated on the page); for your own sentence only a rough closeness-based guess is shown. The mechanism behind today's transformers.
 
 ---
 
@@ -270,11 +270,11 @@ make deploy-s3-dryrun   # deploy dry run
 
 🇨🇿 **Česky** &nbsp;·&nbsp; 🇬🇧 **[English ↑](#english)**
 
-Sada interaktivních demonstrací v čistém HTML/JavaScriptu, které **krok po kroku odhalují principy za AI** — ve 20 kapitolách, od holé kombinatoriky a hranic hrubé síly přes učení z dat, obrázky a odměnu až k tomu, jak fungují dnešní jazykové modely, RAG a agenti. Jsou dělané pro živý výklad ve třídě: každá kapitola končí kouskem historie, „Co dál?“ a otázkami do diskuse.
+Sada interaktivních demonstrací v čistém HTML/JavaScriptu, které **krok po kroku odhalují principy, na kterých AI stojí** — ve 20 kapitolách, od holé kombinatoriky a hranic hrubé síly přes učení z dat, obrázky a odměnu až k tomu, jak fungují dnešní jazykové modely, RAG a agenti. Jsou určené pro živý výklad ve třídě: každá kapitola končí kouskem historie, „Co dál?“ a otázkami do diskuse.
 
-Dema jsou čisté HTML/CSS/JS, poskládaná do soběstačných statických stránek pomocí **[Astro](https://astro.build)**. Otevři **[živou verzi](https://www.saiko.cz/ai/)**, nebo si web sestav ze zdrojů (níže).
+Dema jsou čisté HTML/CSS/JS, poskládaná do samostatných statických stránek pomocí **[Astro](https://astro.build)**. Otevři **[živou verzi](https://www.saiko.cz/ai/)**, nebo si web sestav ze zdrojů (níže).
 
-> 🌐 **Dvojjazyčné:** web je **výchozí v češtině**; na **angličtinu** přepneš vlajkami v pravém horním rohu každé stránky (volba se pamatuje, případně ji nastaví `?lang=en`).
+> 🌐 **Dvojjazyčné:** web se **ve výchozím stavu zobrazuje česky**; na **angličtinu** přepneš vlajkami v pravém horním rohu každé stránky (volba se zapamatuje, případně ji nastaví parametr `?lang=en`).
 
 ### 🌐 Živá verze: **[www.saiko.cz/ai](https://www.saiko.cz/ai/)**
 
@@ -287,7 +287,7 @@ Dema jsou čisté HTML/CSS/JS, poskládaná do soběstačných statických strá
 - Série se rozrostla z 15 na **20 kapitol**. Nové jsou: **07** gradientní sestup a přeučení, **09** shlukování, **11** difúze (jak AI kreslí obrázky), **12** učení odměnou a **16** od doplňovače textu k asistentovi.
 - Genetický algoritmus se přesunul na **04** (patří k hledání) a ostatní kapitoly se **přečíslovaly**. Staré odkazy dál fungují — přesměrují na novou adresu.
 - Attention (**14**) je přepracovaná: dvojice vět, ve kterých jedno slovo změní, kam se model dívá.
-- Každá kapitola má teď na konci **kousek historie**, **„Co dál?“** a **dvě otázky do diskuse** a tlačítka předchozí/další. Dole na každé stránce je verze a datum poslední aktualizace.
+- Každá kapitola má teď na konci **kousek historie**, **„Co dál?“**, **dvě otázky do diskuse** a tlačítka předchozí/další. Dole na každé stránce je verze a datum poslední aktualizace.
 
 ---
 
@@ -299,13 +299,13 @@ Dema jsou čisté HTML/CSS/JS, poskládaná do soběstačných statických strá
   2. `make setup` (nainstaluje Astro), pak `make preview` — spustí lokální kopii na http://localhost:8080.
   3. Klikej v rozcestníku na jednotlivé příklady. Každý má vlevo nahoře tlačítko **← ZPĚT** a vpravo nahoře přepínač jazyka 🇨🇿/🇬🇧.
 
-> Vše běží lokálně v prohlížeči. Pro statistiku návštěvnosti web používá **[GoatCounter](https://www.goatcounter.com)** — jen anonymní, bezcookie zobrazení stránek: žádné cookies, žádná osobní data, žádné sledování napříč weby (proto bez lišty na souhlas).
+> Vše běží lokálně v prohlížeči. Pro statistiku návštěvnosti web používá **[GoatCounter](https://www.goatcounter.com)** — počítá jen anonymní zobrazení stránek: žádné cookies, žádná osobní data, žádné sledování napříč weby (proto tu není lišta se souhlasem).
 
 ---
 
 ## Jak série postupuje
 
-Kapitoly na sebe navazují — každá vyřeší hranici té předchozí. Série sleduje dvě tradice AI: **ručně psaná pravidla** (01–04) a **učení z dat** (od 05) — a proč nakonec vyhrála ta druhá:
+Kapitoly na sebe navazují — každá překonává omezení té předchozí. Série sleduje dvě tradice AI — **ručně psaná pravidla** (01–04) a **učení z dat** (od 05) — a ukazuje, proč nakonec vyhrála ta druhá:
 
 | Etapa | Kapitoly | O čem to je |
 |------|----------|-------------|
@@ -326,7 +326,7 @@ Kapitoly na sebe navazují — každá vyřeší hranici té předchozí. Série
 
 ![Binární počítadlo](images/01.png)
 
-Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tlačítkem RUN je necháš přičítat. Graf zbývajícího času ukazuje, proč „projít všechny kombinace" hrubou silou **nikdy nedoběhne** — tempem dema přes 35 miliard let (víc než stáří vesmíru) a i při miliardě kroků za sekundu by to pro pouhou mřížku 8×8 trvalo skoro 600 let. Ideální motivace, proč v AI hrubou silu nepoužíváme.
+Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tlačítkem RUN spustíš přičítání. Graf zbývajícího času ukazuje, proč „projít všechny kombinace“ hrubou silou **nikdy nedoběhne** — tempem dema by to trvalo přes 35 miliard let (víc než stáří vesmíru) a i při miliardě kroků za sekundu by pouhá mřížka 8×8 zabrala skoro 600 let. Názorně ukazuje, proč v AI hrubou sílu nepoužíváme.
 
 ---
 
@@ -335,7 +335,7 @@ Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tl
 
 ![Od náhody k jazyku](images/02.png)
 
-Čtyři kroky **A–D** jako mini-historie jazykových modelů: od kombinatoricky iterovaných náhodných písmen, přes statistiku (pseudojazyk se slabikami) a slovník (skutečná slova bez smyslu) až po gramaticky správné, smysluplné věty. Postupným přidáváním pravidel se z šumu stává jazyk.
+Čtyři kroky **A–D** jako minihistorie jazykových modelů: od kombinatoricky iterovaných náhodných písmen přes statistiku (pseudojazyk se slabikami) a slovník (skutečná slova bez smyslu) až po gramaticky správné, smysluplné věty. Postupným přidáváním pravidel se ze šumu stává jazyk.
 
 ---
 
@@ -344,7 +344,7 @@ Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tl
 
 ![Hledání cesty](images/03.png)
 
-Bludiště na mřížce (zdi kreslíš myší) a souboj postupů: **náhodné tápání, hladový, BFS a A\***. Vidíš na vlastní oči, kolik políček každý prozkoumá — a srovnávací tabulka ukáže, proč se hrubá síla nahrazuje chytrým prohledáváním (A\* najde stejně krátkou cestu jako BFS, ale prozkoumá výrazně méně — na volné ploše i řádově).
+Bludiště na mřížce (zdi kreslíš myší) a souboj postupů: **náhodné tápání, hladové hledání, BFS a A\***. Vidíš na vlastní oči, kolik políček každý prozkoumá — a srovnávací tabulka ukáže, proč se hrubá síla nahrazuje chytrým prohledáváním (A\* najde stejně krátkou cestu jako BFS, ale prozkoumá výrazně méně políček — na volné ploše i řádově méně).
 
 ---
 
@@ -362,7 +362,7 @@ Populace náhodných vět se křížením a mutací generaci po generaci **vyví
 
 ![Markovův řetězec](images/05.png)
 
-První ukázka **skutečného učení z dat**: model si z vloženého textu spočítá, co po čem nejčastěji následuje, a podle těch pravděpodobností generuje nový text. Posuvníkem řádu kontextu uvidíš, jak z blábolu vzniká skoro čeština — princip „malého jazykového modelu".
+První ukázka **skutečného učení z dat**: model si z vloženého textu spočítá, co po čem nejčastěji následuje, a podle těch pravděpodobností generuje nový text. Posuvníkem řádu kontextu uvidíš, jak z blábolu vzniká skoro čeština — princip „malého jazykového modelu“.
 
 ---
 
@@ -371,7 +371,7 @@ První ukázka **skutečného učení z dat**: model si z vloženého textu spo�
 
 ![Perceptron](images/06.png)
 
-Naklikáš dvě barvy bodů a perceptron sám hledá **dělicí přímku**. Schéma neuronu nad plochou ukazuje živě se měnící váhy během učení. Demonstruje rozdíl mezi „naprogramovat pravidlo" a „nechat ho najít z dat" — i hranici lineárního modelu (na kříž/XOR nestačí).
+Naklikáš body dvou barev a perceptron sám hledá **dělicí přímku**. Schéma neuronu nad plochou ukazuje, jak se během učení živě mění váhy. Ukazuje rozdíl mezi „naprogramovat pravidlo“ a „nechat ho najít z dat“ — i omezení lineárního modelu (na kříž/XOR nestačí).
 
 ---
 
@@ -380,7 +380,7 @@ Naklikáš dvě barvy bodů a perceptron sám hledá **dělicí přímku**. Sch�
 
 ![Gradientní sestup a přeučení](images/07.png)
 
-Jak se model doopravdy učí. **Část A:** proložení bodů přímkou — vpravo je chyba (MSE) nakreslená jako **krajina** nad dvěma vahami a model po ní krok za krokem sestupuje z kopce; předvolby učící rychlosti ukážou plazení (moc malá), rychlé dojití do minima (tak akorát) a rozletění (moc velká). **Část B:** polynom rostoucího stupně na zašuměných bodech — trénovací chyba pořád klesá, ale chyba na **testovacích bodech, které model neviděl**, začne růst: to je **přeučení**, naučit se nazpaměť místo pochopení. Most k neuronové síti (08): backpropagation je jen efektivní výpočet tohohle gradientu pro všechny váhy.
+Jak se model doopravdy učí. **Část A:** proložení bodů přímkou — vpravo je chyba (MSE) nakreslená jako **krajina** nad dvěma vahami a model po ní krok za krokem sestupuje z kopce; předvolby učící rychlosti ukážou plazení (moc malá), rychlé dojití do minima (tak akorát) a rozletění (moc velká). **Část B:** polynom rostoucího stupně na zašuměných bodech — trénovací chyba pořád klesá, ale chyba na **testovacích bodech, které model neviděl**, začne růst: to je **přeučení**, učení nazpaměť místo pochopení. Most k neuronové síti (08): backpropagation je jen efektivní výpočet tohoto gradientu pro všechny váhy.
 
 ---
 
@@ -389,7 +389,7 @@ Jak se model doopravdy učí. **Část A:** proložení bodů přímkou — vpra
 
 ![Neuronová síť](images/08.png)
 
-Pokračování perceptronu (06): síť neuronů (2 → 12 → 12 → 1) zvládne i **zakřivenou** hranici — kruh, kříž, spirálu. Schéma sítě barví spoje podle aktuálních vah (modrá +, červená −), takže vidíš, jak se síť během tréninku „přepojuje". Vlastní data si naklikáš sám.
+Pokračování perceptronu (06): síť neuronů (2 → 12 → 12 → 1) zvládne i **zakřivenou** hranici — kruh, kříž, spirálu. Schéma sítě barví spoje podle aktuálních vah (modrá +, červená −), takže vidíš, jak se síť během tréninku „přepojuje“. Vlastní data si naklikáš sám.
 
 ---
 
@@ -398,7 +398,7 @@ Pokračování perceptronu (06): síť neuronů (2 → 12 → 12 → 1) zvládne
 
 ![Shlukování (k-means)](images/09.png)
 
-Klasifikátory v 06 a 08 se učily z bodů se správnou odpovědí. Tady body **žádné štítky nemají** a k-means musí skupiny najít sám — krok po kroku: přiřaď body nejbližšímu středu, posuň středy do průměru jejich bodů, opakuj. Graf „loket“ pomůže zvolit počet skupin; předvolba „dva měsíce“ ukáže, kde k-means selže, a rovnoměrný šum, že skupiny „najde“ i tam, kde žádné nejsou — výklad je na člověku.
+Klasifikátory v 06 a 08 se učily z bodů se správnou odpovědí. Tady body **žádné štítky nemají** a k-means musí skupiny najít sám — krok po kroku: přiřaď body nejbližšímu středu, posuň středy do průměru jejich bodů, opakuj. Graf „loket“ pomůže zvolit počet skupin; předvolba „dva měsíce“ ukáže, kde k-means selže, a rovnoměrný šum, že skupiny „najde“ i tam, kde žádné nejsou — jejich výklad je na člověku.
 
 ---
 
@@ -407,7 +407,7 @@ Klasifikátory v 06 a 08 se učily z bodů se správnou odpovědí. Tady body **
 
 ![Jak počítač vidí](images/10.png)
 
-AI není jen o textu — zvládá i obrázky, zvuk a video. Jak? Pro počítač je **obrázek jen mřížka čísel** (jas pixelu 0–255). Nakresli něco do mřížky (nebo zvol předlohu) a sleduj, jak po ní přejíždí malý **filtr 3×3 (konvoluce)**: pro každý pixel spočítá vážený součet okolí a vytáhne tak určitý **rys** — hrany, rozmazání, zaostření. Navrstvením tisíců takových filtrů, jejichž hodnoty se síť **naučí z dat**, vznikne **konvoluční neuronová síť** — neuronka z příkladu 8 rozšířená na obrázky. A moderní **multimodální** modely převedou obrázek na stejné vektory jako slova (příklad 13), takže ho jazykový model „vidí".
+AI nepracuje jen s textem — zvládá i obrázky, zvuk a video. Jak? Pro počítač je **obrázek jen mřížka čísel** (jas pixelu 0–255). Nakresli něco do mřížky (nebo zvol předlohu) a sleduj, jak po ní přejíždí malý **filtr 3×3 (konvoluce)**: pro každý pixel spočítá vážený součet okolí a zvýrazní tak určitý **rys** — hrany, rozmazání, zaostření. Navrstvením tisíců takových filtrů, jejichž hodnoty se síť **naučí z dat**, vznikne **konvoluční neuronová síť** — neuronka z příkladu 8 rozšířená na obrázky. A moderní **multimodální** modely převedou obrázek na stejný druh vektorů jako slova (příklad 13), takže ho jazykový model „vidí“.
 
 ---
 
@@ -416,7 +416,7 @@ AI není jen o textu — zvládá i obrázky, zvuk a video. Jak? Pro počítač 
 
 ![Difúze](images/11.png)
 
-Po rozpoznávání obrázků (10) jejich tvorba — princip za Stable Diffusion a DALL·E. Tvar z teček (srdce, spirála, „AI“, smajlík) se postupně **rozpustí v šumu**; pak model z čistého šumu **krok za krokem šum odebírá**, až se tvar znovu objeví. Odšumovač tu pro názornost počítáme přesně z trénovacích teček — proto výsledek jen kopíruje trénovací data: zapamatování (07) v čisté podobě a důvod sporů o autorská práva. Skutečné modely se odšumování učí neuronovou sítí z miliard obrázků.
+Po rozpoznávání obrázků (10) jejich tvorba — princip, na kterém stojí Stable Diffusion a DALL·E. Tvar z teček (srdce, spirála, „AI“, smajlík) se postupně **rozpustí v šumu**; pak model z čistého šumu **krok za krokem šum odebírá**, až se tvar znovu objeví. Odšumovač tu pro názornost počítáme přesně z trénovacích teček — proto výsledek jen kopíruje trénovací data: zapamatování (07) v čisté podobě a důvod sporů o autorská práva. Skutečné modely se odšumování učí neuronovou sítí z miliard obrázků.
 
 ---
 
@@ -434,7 +434,7 @@ V 03 jsme mapu znali a cestu hledali. Tady agent **nezná nic** — dostává je
 
 ![Tokenizace a embeddingy](images/13.png)
 
-Jak LLM „vidí" text: rozsekání na **tokeny** (s ID ze slovníku) a 2D **mapa významů**, kde podobná slova leží blízko. Včetně počítání s významy — analogie jako **král − muž + žena = královna** nebo **dva − jedna + tři = čtyři**, vykreslené jako vektory na mapě.
+Jak LLM „vidí“ text: rozsekání na **tokeny** (s ID ze slovníku) a 2D **mapa významů**, kde podobná slova leží blízko sebe. Nechybí ani počítání s významy — analogie jako **král − muž + žena = královna** nebo **dva − jedna + tři = čtyři**, vykreslené jako vektory na mapě.
 
 ---
 
@@ -443,7 +443,7 @@ Jak LLM „vidí" text: rozsekání na **tokeny** (s ID ze slovníku) a 2D **map
 
 ![Attention](images/14.png)
 
-Dvojice vět, které se liší jediným slovem — a pozornost klíčového slova přeskočí jinam: ve *„Kočka nevyskočila na stůl, protože **byla** unavená / **byl** moc vysoký“* se tvar slovesa dívá na kočku, nebo na stůl; *„zámek s věží / klíč v zámku“* rozhodne, který zámek je myšlen; sloveso na konci se shoduje s podmětem daleko na začátku. Procenta, sytost barvy a celá mapa pozornosti (matice). Vzory u připravených vět jsou nastavené ručně podle vztahů, které se skutečné modely učí (na stránce je to přiznané); u vlastní věty je jen hrubý odhad podle blízkosti. Mechanismus za dnešními transformery.
+Dvojice vět, které se liší jen malou změnou — a pozornost klíčového slova přeskočí jinam: ve větě *„Kočka nevyskočila na stůl, protože **byla** unavená / **byl** moc vysoký“* se tvar slovesa dívá buď na kočku, nebo na stůl; u dvojice *„zámek s věží / klíč v zámku“* rozhodne okolí, o který zámek jde; sloveso na konci se shoduje s podmětem daleko na začátku. Procenta, sytost barvy a celá mapa pozornosti (matice). Vzory u připravených vět jsou nastavené ručně podle vztahů, které se skutečné modely učí (stránka to otevřeně přiznává); u vlastní věty jde jen o hrubý odhad podle blízkosti. Mechanismus, na kterém stojí dnešní transformery.
 
 ---
 
@@ -452,7 +452,7 @@ Dvojice vět, které se liší jediným slovem — a pozornost klíčového slov
 
 ![Jak LLM píše](images/15.png)
 
-Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token po tokenu**. V každém kroku spočítají pravděpodobnost pro každé možné další slovo a jedno **losují**. Ukázka to zobrazí naživo: sloupcový graf pravděpodobností, editovatelný začátek věty a ovládání **teploty / top-k / top-p**, které mění, jak odvážně model losuje — pod kapotou běží malý slovní model (jako Markov ve 5). Zároveň ukazuje, **proč modely halucinují**: i když si není jistý (ploché rozdělení nebo neznámý kontext), model stejně sebevědomě něco vybere. Vyvrcholení linie o LLM — význam (13) + kontext (14) → generování.
+Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token po tokenu**. V každém kroku spočítají pravděpodobnost pro každé možné další slovo a jedno **vylosují**. Ukázka to zobrazí naživo: sloupcový graf pravděpodobností, editovatelný začátek věty a ovládání **teploty / top-k / top-p**, které mění, jak odvážně model losuje — pod kapotou běží malý slovní model (jako Markovův řetězec v 05). Zároveň ukazuje, **proč modely halucinují**: i když si není jistý (ploché rozdělení nebo neznámý kontext), model stejně sebevědomě něco vybere. Vyvrcholení linie o LLM — význam (13) + kontext (14) → generování.
 
 ---
 
@@ -461,7 +461,7 @@ Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token 
 
 ![Od doplňovače k asistentovi](images/16.png)
 
-Kapitola 15 ukázala, že model jen losuje další token. Proč tedy ChatGPT na otázku odpoví, místo aby jen pokračoval v textu? Tři fáze: **předtrénink** (základní model doplňuje text — za kvízovou otázku přidá další otázky), **doladění na konverzacích** (chat šablona s rolemi; model odpovídá) a **učení z lidského hodnocení (RLHF)** — vybíráš lepší ze dvou odpovědí a pravděpodobnosti modelu se posouvají (a když hodnotitelé odměňují lichotky, naučí se lichotit). Navíc „uvažující“ modely, které před odpovědí přemýšlejí krok za krokem, a proč to celé přišlo až teď (měřítko).
+Kapitola 15 ukázala, že model jen losuje další token. Proč tedy ChatGPT na otázku odpoví, místo aby jen pokračoval v textu? Tři fáze: **předtrénink** (základní model doplňuje text — za kvízovou otázku přidá další otázky), **doladění na konverzacích** (šablona chatu s rolemi; model odpovídá) a **učení z lidského hodnocení (RLHF)** — vybíráš lepší ze dvou odpovědí a pravděpodobnosti modelu se posouvají (a když hodnotitelé odměňují lichotky, naučí se lichotit). Navíc ukáže „uvažující“ modely, které před odpovědí přemýšlejí krok za krokem, a vysvětlí, proč to celé přišlo až teď (měřítko).
 
 ---
 
@@ -470,7 +470,7 @@ Kapitola 15 ukázala, že model jen losuje další token. Proč tedy ChatGPT na 
 
 ![RAG — model se zdroji](images/17.png)
 
-Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví. **RAG** (vyhledáním rozšířená generace) to řeší: na otázku model nejdřív **vyhledá** nejrelevantnější dokument ze znalostní báze (podle podobnosti — princip embeddingů z 13) a teprve pak odpoví **z něj**. Ukázka staví obě odpovědi vedle sebe: **jen model** (tipne si a vymyšlené údaje halucinuje) vs **model + RAG** (seřadí dokumenty podle podobnosti, ten nejlepší přiloží a dá odpověď podloženou zdrojem). RAG je dnes zdaleka nejčastější způsob, jak nasadit LLM nad vlastní data.
+Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví. **RAG** (vyhledáním rozšířená generace) to řeší: k otázce model nejdřív **vyhledá** nejrelevantnější dokument ze znalostní báze (podle podobnosti — princip embeddingů z 13) a teprve pak odpoví **z něj**. Ukázka staví obě odpovědi vedle sebe: **jen model** (tipne si a údaje si vymyslí) vs. **model + RAG** (seřadí dokumenty podle podobnosti, ten nejlepší přiloží a dá odpověď podloženou zdrojem). RAG je dnes zdaleka nejčastější způsob, jak nasadit LLM nad vlastními daty.
 
 ---
 
@@ -479,7 +479,7 @@ Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebe
 
 ![Agenti — model, který jedná](images/18.png)
 
-Dosud model jen **psal text**. **Agent** je rovnice **model + paměť + nástroje + plánování**: dostane úkol a běží ve smyčce **úvaha → akce → pozorování** — sám se rozhodne, který nástroj zavolat (kalkulačka, vyhledávání ve znalostní bázi, kalendář, odeslání e-mailu), zavolá ho, výsledek si zapamatuje a naplánuje další krok, dokud úkol nesplní. Ukázka zobrazí celou trasu a obsahuje i **vícekrokový** úkol („zjisti heslo na Wi-Fi a pošli ho e-mailem"), kde agent zřetězí *vyhledání → e-mail* a mezivýsledek si nese v paměti. Nástroje opravdu běží a smyčka je reálná; „uvažování" je ukázkový plánovač podle klíčových slov. Spojuje celou sérii dohromady — a je to směr, kterým se AI vydala v roce 2026 (tool use / MCP). S autonomií roste i potřeba limitů a lidského dohledu.
+Dosud model jen **psal text**. **Agent** je spojení **model + paměť + nástroje + plánování**: dostane úkol a běží ve smyčce **úvaha → akce → pozorování** — sám se rozhodne, který nástroj zavolat (kalkulačka, vyhledávání ve znalostní bázi, kalendář, odeslání e-mailu), zavolá ho, výsledek si zapamatuje a naplánuje další krok, dokud úkol nesplní. Ukázka zobrazí celý průběh a obsahuje i **vícekrokový** úkol („zjisti heslo na Wi-Fi a pošli ho e-mailem“), kde agent zřetězí *vyhledání → e-mail* a mezivýsledek si nese v paměti. Nástroje opravdu běží a smyčka je reálná; „uvažování“ je ukázkový plánovač podle klíčových slov. Spojuje celou sérii dohromady — a je to směr, kterým se AI vydala v roce 2026 (tool use / MCP). S autonomií roste i potřeba limitů a lidského dohledu.
 
 ---
 
@@ -488,7 +488,7 @@ Dosud model jen **psal text**. **Agent** je rovnice **model + paměť + nástroj
 
 ![Zaujatá data, zaujatý model](images/19.png)
 
-Klasifikátory z 06–08 se učí z dat — a **co když jsou data zaujatá?** Stejný perceptron se natrénuje buď na férových, nebo na zaujatých historických rozhodnutích. U férových dat je dělicí hranice svislá (rozhoduje jen kvalifikace); u zaujatých — kde jedna skupina musela historicky splnit víc — se hranice **nakloní** a stejně kvalifikovaní lidé z té skupiny neprojdou. Míra přijetí po skupinách dělá nespravedlnost viditelnou. Model nikdy „nechtěl" diskriminovat; jen věrně zopakoval vzor z dat — a právě proto se zaujatost v AI tak snadno přehlédne. Týká se i LLM.
+Klasifikátory z 06–08 se učí z dat — a **co když jsou data zaujatá?** Stejný perceptron se natrénuje buď na férových, nebo na zaujatých historických rozhodnutích. U férových dat je dělicí hranice svislá (rozhoduje jen kvalifikace); u zaujatých — kde jedna skupina musela historicky splnit víc — se hranice **nakloní** a stejně kvalifikovaní lidé z té skupiny neprojdou. Míra přijetí po skupinách nespravedlnost zviditelní. Model nikdy „nechtěl“ diskriminovat; jen věrně zopakoval vzor z dat — a právě proto se zaujatost v AI tak snadno přehlédne. Totéž platí i pro LLM.
 
 ---
 
@@ -497,16 +497,16 @@ Klasifikátory z 06–08 se učí z dat — a **co když jsou data zaujatá?** S
 
 ![Problém obchodního cestujícího](images/20.png)
 
-Bonusová karta s vloženým starším projektem: **vizualizér TSP řešící nejkratší trasu přes všechna města genetickým algoritmem** přímo v prohlížeči. Spojuje dva principy z této série — **kombinatorickou explozi** (tras je `(n−1)!/2`, projít všechny nejde) a **evoluci** (populace tras se kříží a mutuje k lepšímu), doplněnou o heuristiku **2-opt** (odkřížení hran). Postaveno v TypeScriptu + Canvas + Web Workers, 12 map včetně reálných českých měst. Je to modernizovaný přepis původní Java aplikace z roku 2006.
+Bonusová karta s vloženým starším projektem: **vizualizér TSP hledající nejkratší trasu přes všechna města genetickým algoritmem** přímo v prohlížeči. Spojuje dva principy z této série — **kombinatorickou explozi** (tras je `(n−1)!/2`, projít všechny nejde) a **evoluci** (populace tras se kříží a mutuje k lepšímu), doplněnou o heuristiku **2-opt** (odkřížení hran). Postaveno na TypeScriptu, Canvasu a Web Workers, 12 map včetně reálných českých měst. Je to modernizovaný přepis původní aplikace v Javě z roku 2006.
 
 ---
 
 ## Poznámky k implementaci
 
-- **Soběstačný výstup** — generováno [Astrem](https://astro.build) ze zdrojů `.astro` v `src/pages/`; každá vygenerovaná stránka je jeden `.html` s **inline CSS i JS a bez externích assetů**, takže funguje pod libovolnou pod-cestou i přes `file://`. Sdílený chrome (přepínač jazyka, tlačítko zpět, společné styly dem, patička kapitoly s historií, „Co dál?“, otázkami do diskuse a navigací předchozí/další a řádek s verzí) žije jednou v `src/layouts/Layout.astro`. Vše o kapitolách je v jednom datovém souboru `src/data/chapters.js` — generuje se z něj rozcestník i patička každé kapitoly; přidání kapitoly je jeden záznam plus jeden soubor `.astro`. Staré adresy z doby před přečíslováním přesměrovává `src/pages/[stara].astro`.
-- **Dvojjazyčné v jednom souboru** — česká i anglická verze jsou vedle sebe; přepínač s vlajkami (vpravo nahoře) je přepne okamžitě bez načítání stránky a volba se uloží do `localStorage`. Jazyk lze předvolit i přes `?lang=en` / `?lang=cs`.
+- **Samostatný výstup** — generováno [Astrem](https://astro.build) ze zdrojů `.astro` v `src/pages/`; každá vygenerovaná stránka je jeden `.html` s **inline CSS i JS a bez externích assetů**, takže funguje v libovolném podadresáři i přes `file://`. Sdílený rámec stránky (přepínač jazyka, tlačítko zpět, společné styly dem, patička kapitoly s historií, „Co dál?“, otázkami do diskuse a navigací předchozí/další a řádek s verzí) je definovaný jen jednou v `src/layouts/Layout.astro`. Všechny údaje o kapitolách jsou v jednom datovém souboru `src/data/chapters.js` — generuje se z něj rozcestník i patička každé kapitoly; k přidání kapitoly stačí jeden záznam a jeden soubor `.astro`. Staré adresy z doby před přečíslováním přesměrovává `src/pages/[stara].astro`.
+- **Dvojjazyčné v jednom souboru** — česká i anglická verze jsou vedle sebe; přepínač s vlajkami (vpravo nahoře) mezi nimi přepne okamžitě bez znovunačtení stránky a volba se uloží do `localStorage`. Jazyk lze předvolit i přes `?lang=en` / `?lang=cs`.
 - **Přesná aritmetika** — počítadlo v příkladu 1 používá `BigInt`, protože běžné JS číslo je přesné jen do 53 bitů.
-- **Vlastní implementace** — neuronová síť (vč. backpropagation), gradientní sestup a nejmenší čtverce, Markovův řetězec, A\*/BFS, genetický algoritmus, k-means, konvoluce, difúze, Q-learning i attention jsou napsané od základu, bez ML knihoven, aby šel princip vidět v kódu.
+- **Vlastní implementace** — neuronová síť (vč. backpropagation), gradientní sestup a nejmenší čtverce, Markovův řetězec, A\*/BFS, genetický algoritmus, k-means, konvoluce, difúze, Q-learning i attention jsou napsané od základu, bez ML knihoven, aby byl princip vidět přímo v kódu.
 - Některá dema jsou **zjednodušené ilustrace**, ne natrénované modely — mapa embeddingů (13), ručně nastavené vzory pozornosti (14), vyhledávání podle společných slov (17) a plánovač agenta podle klíčových slov (18). Každá stránka to výslovně uvádí.
 
 ---
@@ -521,10 +521,10 @@ make build              # astro build: src/pages/*.astro → dist/
 make test               # build + smoke test v Chromu (chyby JS, přetečení na mobilu, regrese)
 make preview            # lokální náhled na http://localhost:8080
 make deploy             # build → test → sync na S3 → invalidace CloudFront
-make deploy-s3-dryrun   # zkouška deploye nanečisto
+make deploy-s3-dryrun   # nasazení nanečisto
 ```
 
-`make test` používá lokálně nainstalovaný Google Chrome (jiný přes `CHROME_PATH=…`); před přednáškou zhruba za minutu ověří, že se všechna dema načtou a fungují v obou jazycích na desktopu i mobilu.
+`make test` používá lokálně nainstalovaný Google Chrome (jiný prohlížeč lze zadat přes `CHROME_PATH=…`); před přednáškou zhruba za minutu ověří, že se všechna dema načtou a fungují v obou jazycích na desktopu i mobilu.
 
 ---
 

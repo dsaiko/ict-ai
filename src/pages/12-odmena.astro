@@ -113,8 +113,8 @@ import Layout from '../layouts/Layout.astro';
 <div class="explain">
   <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
   <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Učení odměnou</b> (reinforcement learning): <b>agent</b> (oranžové kolečko) chodí po mřížce. Za dojití do cíle dostane <b>+10</b>, za pád do lávy <b>−10</b> a každý krok ho stojí <b>−0,1</b> (náraz do zdi nebo okraje <b>−1</b>). Algoritmus <b>Q-learning</b> si pro každé políčko a každý směr pamatuje jedno číslo — <b>Q-hodnotu</b>: „kolik mi tenhle krok nakonec přinese“.</span><span class="en"><b>Reinforcement learning</b>: an <b>agent</b> (the orange dot) walks around a grid. Reaching the goal earns <b>+10</b>, falling into lava <b>−10</b>, and every step costs <b>−0.1</b> (bumping into a wall or the edge <b>−1</b>). The <b>Q-learning</b> algorithm remembers one number for every cell and every direction — the <b>Q-value</b>: “how much will this move pay off in the end”.</span></p>
-  <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Klikni párkrát na <b>1 epizoda</b> — agent zpočátku bloudí naslepo. Pak dej <b>100 epizod</b> a sleduj, jak se mapa zbarví (zelená = odtud to vede k odměně) a šipky ukážou cestu. <b>Ukaž naučenou cestu</b> projde mapu bez náhodných pokusů. Na mapě <b>Útes</b> porovnej Q-learning a opatrnější SARSA, na mapě <b>Mince</b> uvidíš, jak agent „ošálí“ odměnu. Klikáním do mapy kreslíš zdi a lávu.</span><span class="en">Click <b>1 episode</b> a few times — at first the agent wanders blindly. Then run <b>100 episodes</b> and watch the map change color (green = from here it leads to a reward) while the arrows reveal the path. <b>Show learned path</b> walks the map without random tries. On the <b>Cliff</b> map compare Q-learning with the more cautious SARSA; on the <b>Coin</b> map you'll see the agent “game” its reward. Click into the map to draw walls and lava.</span></p>
-  <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Nikdo agentovi neřekne, jaký krok je správný — dostane jen <b>zpožděnou odměnu</b> na konci. Přesně takhle se AlphaGo naučilo hrát go a takhle se dolaďují jazykové modely podle lidského hodnocení (příklad 16). Zároveň je vidět, proč je <b>zadat správnou odměnu</b> těžké.</span><span class="en">Nobody tells the agent which move is correct — it only gets a <b>delayed reward</b> at the end. This is exactly how AlphaGo learned to play Go, and how language models are fine-tuned from human feedback (example 16). It also shows why <b>specifying the right reward</b> is hard.</span></p>
+  <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Klikni párkrát na <b>1 epizoda</b> — agent zpočátku bloudí naslepo. Pak pusť <b>100 epizod</b> a sleduj, jak se mapa zbarví (zelená = odtud to vede k odměně) a šipky ukážou cestu. <b>Ukaž naučenou cestu</b> projde mapu bez náhodných pokusů. Na mapě <b>Útes</b> porovnej Q-learning a opatrnější SARSA, na mapě <b>Mince</b> uvidíš, jak agent „ošálí“ odměnu. Klikáním do mapy kreslíš zdi a lávu.</span><span class="en">Click <b>1 episode</b> a few times — at first the agent wanders blindly. Then run <b>100 episodes</b> and watch the map change color (green = from here it leads to a reward) while the arrows reveal the path. <b>Show learned path</b> walks the map without random tries. On the <b>Cliff</b> map compare Q-learning with the more cautious SARSA; on the <b>Coin</b> map you'll see the agent “game” its reward. Click into the map to draw walls and lava.</span></p>
+  <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Nikdo agentovi neřekne, jaký krok je správný — dostane jen <b>zpožděnou odměnu</b> na konci. Přesně takhle se AlphaGo naučil hrát go a takhle se dolaďují jazykové modely podle lidského hodnocení (příklad 16). Zároveň je vidět, proč je <b>zadat správnou odměnu</b> těžké.</span><span class="en">Nobody tells the agent which move is correct — it only gets a <b>delayed reward</b> at the end. This is exactly how AlphaGo learned to play Go, and how language models are fine-tuned from human feedback (example 16). It also shows why <b>specifying the right reward</b> is hard.</span></p>
   <div class="flow">
     <span class="stepc"><span class="n">1</span> <span class="cs">stav (kde jsem)</span><span class="en">state (where I am)</span></span>
     <span class="arr">→</span>
@@ -214,7 +214,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </div>
     <div class="hint">
-      <span class="cs"><b>Poctivě:</b> je to malá učebnicová úloha — Q-hodnoty jsou obyčejná tabulka (4 čísla na políčko) a agent se učí opravdu, bez předpřipravených výsledků. Skutečné úlohy (go, roboti, jazykové modely) mají stavů nepředstavitelně víc, takže místo tabulky odhaduje hodnoty neuronová síť (příklad 8) a používají se složitější algoritmy — princip odměny je ale stejný. Kreslení do mapy agentovi paměť nesmaže: uvidíš, jak se přeučí.</span>
+      <span class="cs"><b>Poctivě:</b> je to malá učebnicová úloha — Q-hodnoty jsou obyčejná tabulka (4 čísla na políčko) a agent se učí opravdu, bez předpřipravených výsledků. Skutečné úlohy (go, roboti, jazykové modely) mají stavů nepředstavitelně víc, takže místo tabulky odhaduje hodnoty neuronová síť (příklad 8) a používají se složitější algoritmy — princip odměny je ale stejný. Kreslení do mapy agentovi paměť nesmaže: uvidíš, jak se učí nanovo.</span>
       <span class="en"><b>To be fair:</b> this is a small textbook task — the Q-values are a plain table (4 numbers per cell) and the agent really learns, with no pre-made results. Real tasks (Go, robots, language models) have unimaginably more states, so a neural network (example 8) estimates the values instead of a table and more complex algorithms are used — but the reward principle is the same. Drawing on the map doesn't erase the agent's memory: you'll see it re-learn.</span>
     </div>
   </div>
@@ -224,8 +224,8 @@ import Layout from '../layouts/Layout.astro';
   <div class="head"><span class="cs">Jak se agent učí z odměny</span><span class="en">How an agent learns from reward</span></div>
   <p class="lead">
     <span class="cs">V příkladech 6 a 8 měl model u <b>každého</b> příkladu správnou odpověď (učení s učitelem). Tady žádná správná
-    odpověď není — agent jen jedná a občas dostane odměnu nebo trest, často až <b>mnoho kroků po</b> rozhodnutí, které ho
-    způsobilo. Musí sám přijít na to, který z dřívějších kroků za výsledek „může“.</span>
+    odpověď není — agent jen jedná a občas dostane odměnu nebo trest, často až <b>mnoho kroků po</b> rozhodnutí, které k nim
+    vedlo. Musí sám přijít na to, který z dřívějších kroků za výsledek „může“.</span>
     <span class="en">In examples 6 and 8 the model had the correct answer for <b>every</b> example (supervised learning). Here there is no
     correct answer — the agent just acts and now and then gets a reward or a penalty, often <b>many steps after</b> the decision
     that caused it. It has to work out on its own which of its earlier moves “deserves” the result.</span>
@@ -242,7 +242,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
     <div class="tcard" style="--c:#f59e0b">
       <h3><span class="dot"></span><span class="cs">Průzkum × využití (ε)</span><span class="en">Explore vs. exploit (ε)</span></h3>
-      <p><span class="cs">Když agent chodí jen po nejlepší <b>známé</b> cestě, nikdy nenajde lepší. Když jen zkouší náhodně, nic nevyužije.
+      <p><span class="cs">Když agent chodí jen po nejlepší <b>známé</b> cestě, nikdy nenajde lepší. Když jen zkouší náhodně, nevyužije, co se naučil.
          Proto s pravděpodobností <b>ε</b> zkusí náhodný směr (průzkum) a jinak jde tím nejlepším, co zná (využití).
          Průzkum má ale cenu: na mapě <b>Útes</b> náhodný krok u okraje znamená pád. Pravidlo <b>SARSA</b>, které s vlastními
          náhodnými kroky počítá, se proto naučí <b>bezpečnou cestu</b> (okliku dál od lávy); Q-learning tu krátkou a riskantní.</span>
@@ -255,8 +255,8 @@ import Layout from '../layouts/Layout.astro';
     <div class="tcard" style="--c:#2563eb">
       <h3><span class="dot"></span><span class="cs">Q-hodnota: kolik mi to nakonec přinese</span><span class="en">Q-value: what it pays off in the end</span></h3>
       <p><span class="cs">Q(stav, akce) je odhad celkové odměny, kterou krok přinese <b>včetně všeho, co přijde potom</b>.
-         Bellmanova myšlenka v jedné větě: <b>hodnota kroku = odměna hned + trochu zlevněná (γ) hodnota nejlepšího kroku
-         z místa, kam jsem došel</b>. Po každém kroku agent posune Q o kousek (α) k tomuhle cíli — a odměna z cíle se tak
+         Bellmanova myšlenka v jedné větě: <b>hodnota kroku = odměna hned + trochu snížená (γ) hodnota nejlepšího kroku
+         z místa, kam jsem došel</b>. Po každém kroku agent posune Q o kousek (α) k tomuhle cíli — a odměna z cíle tak
          krok po kroku „prosakuje“ zpátky až ke startu. Proto se zelená šíří od cíle.</span>
          <span class="en">Q(state, action) estimates the total reward a move brings <b>including everything that comes after</b>.
          Bellman's idea in one sentence: <b>the value of a move = the reward now + the slightly discounted (γ) value of the best move
@@ -266,7 +266,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="tcard" style="--c:#16a34a">
       <h3><span class="dot"></span><span class="cs">Bez mapy, bez správných odpovědí</span><span class="en">No map, no correct answers</span></h3>
       <p><span class="cs"><b>A* z příkladu 3</b> potřebuje mapu předem — pak cestu spočítá hned. Agent tady mapu nemá a cestu
-         si <b>vyšlape zkušeností</b>; zato ho nemusí nikdo naprogramovat pro každý svět zvlášť. Oproti <b>6 a 8</b> nedostává
+         si <b>vyšlape zkušeností</b>; zato ho nemusí nikdo naprogramovat pro každý svět zvlášť. Oproti <b>příkladům 6 a 8</b> nedostává
          ke každému kroku správnou odpověď, jen <b>zpožděnou odměnu</b>. Proto potřebuje stovky epizod i na malou mřížku.</span>
          <span class="en"><b>A* from example 3</b> needs the map up front — then it computes the path at once. The agent here has no map and
          <b>treads out the path by experience</b>; in return, nobody has to program it for each world separately. Unlike <b>6 and 8</b> it
@@ -285,9 +285,9 @@ import Layout from '../layouts/Layout.astro';
     </div>
     <div class="tcard" style="--c:#dc2626">
       <h3><span class="dot"></span><span class="cs">Reward hacking: agent ošálí odměnu</span><span class="en">Reward hacking: gaming the reward</span></h3>
-      <p><span class="cs">Agent maximalizuje <b>číslo</b>, ne to, co autor myslel. Na mapě <b>Mince</b> měl být bonus +1 jen drobnost po cestě —
+      <p><span class="cs">Agent maximalizuje <b>číslo</b>, ne to, co autor myslel. Na mapě <b>Mince</b> měl být bonus +1 jen drobností po cestě —
          agent ale zjistí, že víc „vydělá“ chozením tam a zpět přes minci, a do cíle už nejde. Graf odměn přitom
-         vypadá skvěle. Ve skutečných hrách se stalo totéž (závodní loďka kroužila kolem bonusů místo dojetí do cíle).
+         vypadá skvěle. Ve skutečných hrách se stalo totéž (závodní loďka kroužila kolem bonusů, místo aby dojela do cíle).
          Proto je <b>správně zadat odměnu</b> těžké — a u jazykových modelů a agentů (příklady 16 a 18) je to jedna z otázek
          bezpečnosti.</span>
          <span class="en">The agent maximises the <b>number</b>, not what the author meant. On the <b>Coin</b> map the +1 bonus was meant as a small
@@ -317,11 +317,11 @@ import Layout from '../layouts/Layout.astro';
       dec: ',',
       explore: 'průzkum (náhodně)', greedy: 'nejlepší známá',
       stepLog: 'Stav <b>#S#</b> → akce <b>#A#</b> (#K#) → odměna <b>#R#</b> → Q(stav, #A#): #OLD# → <b>#NEW#</b>',
-      epEnd: { goal: '<span class="ok">✓ cíl</span>', lava: '<span class="bad">✗ láva</span>', cap: '<span class="bad">došel limit #M# kroků</span>' },
+      epEnd: { goal: '<span class="ok">✓ cíl</span>', lava: '<span class="bad">✗ láva</span>', cap: '<span class="bad">dosažen limit #M# kroků</span>' },
       epLog: 'Epizoda #N# skončila: #END# · kroků #K# · součet odměn <b>#R#</b>',
       fastLog: '⏩ Odehráno #N# epizod bez animace (celkem #T#). Šipky ukazují, co se agent zatím naučil.',
       start: 'Agent zatím nic neví: všechny Q-hodnoty jsou 0. Klikni na „1 krok“ nebo „1 epizoda“.',
-      edited: 'Mapa se změnila — agent si ale pamatuje staré Q-hodnoty. Uč dál a sleduj, jak se přeučí.',
+      edited: 'Mapa se změnila — agent si ale pamatuje staré Q-hodnoty. Uč dál a sleduj, jak se učí nanovo.',
       greedyRun: 'Naučená cesta: agent jde vždy po šipce (ε = 0, bez průzkumu a bez učení)…',
       resGoal: '✓ Naučená cesta dojde do cíle za <b>#K#</b> kroků (součet odměn #R#).',
       resShortest: ' Je to <b>nejkratší možná</b> cesta — stejně dlouhá jako z BFS.',

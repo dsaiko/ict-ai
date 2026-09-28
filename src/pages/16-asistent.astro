@@ -140,7 +140,7 @@ import Layout from '../layouts/Layout.astro';
     <span class="cs">V příkladu 15 jsme viděli, že jazykový model jen <b>losuje další token</b>. Proč tedy ChatGPT nebo Claude
     na otázku <b>odpoví</b>, místo aby prostě pokračoval v textu? Protože po předtréninku přijdou ještě dvě fáze:
     <b>doladění na konverzacích</b> a <b>učení z lidského hodnocení</b>. A nejnovější modely si navíc umí před odpovědí
-    <b>„promyslet" mezikroky</b>.</span>
+    <b>„promyslet“ mezikroky</b>.</span>
     <span class="en">In example 15 we saw that a language model only <b>samples the next token</b>. So why do ChatGPT or Claude
     <b>answer</b> a question instead of simply continuing the text? Because pre-training is followed by two more phases:
     <b>fine-tuning on conversations</b> and <b>learning from human feedback</b>. And the newest models can also
@@ -150,8 +150,8 @@ import Layout from '../layouts/Layout.astro';
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Cesta od <b>základního modelu</b>, který jen doplňuje text, k <b>asistentovi</b>, který odpovídá: stejný princip predikce dalšího tokenu, jen jiná trénovací data a jiná odměna.</span><span class="en">The path from a <b>base model</b> that only continues text to an <b>assistant</b> that answers: the same next-token principle, just different training data and a different reward.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs"><b>(1)</b> Pošli stejnou otázku základnímu modelu i asistentovi a podívej se, co model <i>skutečně</i> dostane na vstup. <b>(2)</b> Hodnoť dvojice odpovědí (nebo nech hodnotit automat) a sleduj, jak se model posouvá — a co se stane, když hodnotitel miluje lichotky. <b>(3)</b> Porovnej rychlý tip a odpověď „po přemýšlení".</span><span class="en"><b>(1)</b> Send the same question to the base model and to the assistant and look at what the model <i>really</i> gets as input. <b>(2)</b> Rate pairs of answers (or let a bot rate) and watch the model shift — and what happens when the rater loves flattery. <b>(3)</b> Compare a quick guess with an answer "after thinking".</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Právě tyhle kroky udělaly z doplňovače textu užitečný nástroj (ChatGPT, listopad 2022). Když víš, jak vznikly, chápeš i jejich slabiny: model se naučí to, <b>co odměňujeme</b>, a pořád jen předpovídá další token — takže umí i sebevědomě kecat.</span><span class="en">These very steps turned a text predictor into a useful tool (ChatGPT, November 2022). Knowing how they came about also explains their weaknesses: the model learns <b>what we reward</b>, and it still only predicts the next token — so it can confidently make things up.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs"><b>(1)</b> Pošli stejnou otázku základnímu modelu i asistentovi a podívej se, co model <i>skutečně</i> dostane na vstup. <b>(2)</b> Hodnoť dvojice odpovědí (nebo nech hodnotit automat) a sleduj, jak se model posouvá — a co se stane, když hodnotitel miluje lichotky. <b>(3)</b> Porovnej rychlý tip a odpověď „po přemýšlení“.</span><span class="en"><b>(1)</b> Send the same question to the base model and to the assistant and look at what the model <i>really</i> gets as input. <b>(2)</b> Rate pairs of answers (or let a bot rate) and watch the model shift — and what happens when the rater loves flattery. <b>(3)</b> Compare a quick guess with an answer "after thinking".</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Právě tyhle kroky udělaly z doplňovače textu užitečný nástroj (ChatGPT, listopad 2022). Když víš, jak vznikly, chápeš i jejich slabiny: model se naučí to, <b>co odměňujeme</b>, a pořád jen předpovídá další token — takže si umí i sebevědomě vymýšlet.</span><span class="en">These very steps turned a text predictor into a useful tool (ChatGPT, November 2022). Knowing how they came about also explains their weaknesses: the model learns <b>what we reward</b>, and it still only predicts the next token — so it can confidently make things up.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">předtrénink (doplňuj text)</span><span class="en">pre-training (continue text)</span></span>
       <span class="arr">→</span>
@@ -167,7 +167,7 @@ import Layout from '../layouts/Layout.astro';
     <!-- ══════════ BLOK 1: základní model × asistent ══════════ -->
     <div class="block">
       <h2><span class="num">1</span><span class="cs">Základní model × asistent</span><span class="en">Base model × assistant</span></h2>
-      <p class="sub"><span class="cs">Dva malé slovní modely (jako v příkladu 15, počítají, co po čem následuje). <b>Základní</b> se učil jen z „internetového" textu.
+      <p class="sub"><span class="cs">Dva malé slovní modely (jako v příkladu 15, počítají, co po čem následuje). <b>Základní</b> se učil jen z „internetového“ textu.
         <b>Asistent</b> je tentýž model <b>doučený na konverzacích</b> v chatové šabloně. Stejná otázka — dvě úplně jiná chování.</span><span class="en">Two small word models (like in example 15, they count what follows what). The <b>base</b> one learned only from "internet" text.
         The <b>assistant</b> is the same model <b>further trained on conversations</b> in a chat template. Same question — two completely different behaviours.</span></p>
       <div class="label"><span class="cs">tvoje otázka</span><span class="en">your question</span></div>
@@ -202,12 +202,12 @@ import Layout from '../layouts/Layout.astro';
         <div class="inner">
           <div id="corpStats"></div>
           <div class="corpcols">
-            <div><h4><span class="cs">Předtrénink: „internetový text"</span><span class="en">Pre-training: "internet text"</span></h4><div id="corpBase"></div></div>
+            <div><h4><span class="cs">Předtrénink: „internetový text“</span><span class="en">Pre-training: "internet text"</span></h4><div id="corpBase"></div></div>
             <div><h4><span class="cs">Doladění: konverzace v šabloně</span><span class="en">Fine-tuning: conversations in the template</span></h4><div id="corpChat"></div></div>
           </div>
         </div>
       </details>
-      <p class="honest"><span class="cs"><b>Poctivě:</b> oba modely jsou malinké — pár desítek vět a dívají se nejvýš <b>8 tokenů zpět</b> (v příkladu 15 jen na poslední slovo;
+      <p class="honest"><span class="cs"><b>Poctivě:</b> oba modely jsou malinké — učily se z pár desítek vět a dívají se nejvýš <b>8 tokenů zpět</b> (v příkladu 15 jen na poslední slovo;
         bez delšího kontextu by asistent po <span class="sp ast">&lt;|asistent|&gt;</span> nevěděl, na co se ptáš — skutečné modely to řeší pomocí attention, příklad 14).
         Na předvolby odpovídají spolehlivě. Na <b>vlastní otázku</b> asistent odpoví ve správném formátu, ale obsah bude často mimo: zná jen pár konverzací, takže si klidně něco vymyslí.</span><span class="en"><b>Honestly:</b> both models are tiny — a few dozen sentences, and they look at most <b>8 tokens back</b> (example 15 looked only at the last word;
         without a longer context the assistant wouldn't know after <span class="sp ast">&lt;|assistant|&gt;</span> what you asked — real models solve this with attention, example 14).
@@ -217,9 +217,9 @@ import Layout from '../layouts/Layout.astro';
     <!-- ══════════ BLOK 2: RLHF ══════════ -->
     <div class="block">
       <h2><span class="num">2</span><span class="cs">Učení z lidského hodnocení (RLHF), zjednodušeně</span><span class="en">Learning from human feedback (RLHF), simplified</span></h2>
-      <p class="sub"><span class="cs">Model nabídne <b>dvě odpovědi</b> a ty klikni na tu <b>lepší</b>. Z porovnání se učí <b>model odměny</b> — pro každou vlastnost odpovědi
+      <p class="sub"><span class="cs">Model nabídne <b>dvě odpovědi</b> a ty klikneš na tu <b>lepší</b>. Z porovnání se učí <b>model odměny</b> — pro každou vlastnost odpovědi
         (správnost, zdvořilost…) jednu váhu, posouvanou gradientem jako v příkladu 7. Podle odměny se pak přeskládají pravděpodobnosti odpovědí — to je
-        „politika" modelu, stejný pojem jako v učení odměnou (příklad 12).</span><span class="en">The model offers <b>two answers</b> and you click the <b>better</b> one. From the comparisons it learns a <b>reward model</b> — one weight per property of an answer
+        „politika“ modelu, stejný pojem jako v učení odměnou (příklad 12).</span><span class="en">The model offers <b>two answers</b> and you click the <b>better</b> one. From the comparisons it learns a <b>reward model</b> — one weight per property of an answer
         (correctness, politeness…), nudged by the gradient just like in example 7. The answer probabilities are then reshuffled by the reward — that's the model's
         "policy", the same idea as in reinforcement learning (example 12).</span></p>
       <div class="label"><span class="cs">dotaz</span><span class="en">prompt</span></div>
@@ -251,8 +251,8 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
       <div class="rlmeta" id="rlMeta"></div>
-      <p class="honest"><span class="cs"><b>Zjednodušení:</b> tady model jen volí z pevné sady šesti odpovědí a vlastnosti má každá ručně označené. Ve skutečnosti model odměny je
-        velká neuronová síť, která vlastnosti sama „vidí" v textu, a jazykový model se učením odměnou (příklad 12) doladí tak, aby <b>psal</b> odpovědi s vysokou odměnou.
+      <p class="honest"><span class="cs"><b>Zjednodušení:</b> tady model jen volí z pevné sady šesti odpovědí a vlastnosti má každá ručně označené. Ve skutečnosti je model odměny
+        velká neuronová síť, která vlastnosti sama „vidí“ v textu, a jazykový model se učením odměnou (příklad 12) doladí tak, aby <b>psal</b> odpovědi s vysokou odměnou.
         Princip porovnávání dvojic (model Bradley–Terry) je ale stejný.</span><span class="en"><b>Simplification:</b> here the model only chooses from a fixed set of six answers, each with hand-labelled properties. In reality the reward model is
         a large neural network that "sees" the properties in the text itself, and the language model is tuned with reinforcement learning (example 12) to <b>write</b> answers with a high reward.
         The principle of comparing pairs (the Bradley–Terry model) is the same, though.</span></p>
@@ -260,7 +260,7 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- ══════════ BLOK 3: uvažující model ══════════ -->
     <div class="block">
-      <h2><span class="num">3</span><span class="cs">Uvažující model: „přemýšlej krok za krokem"</span><span class="en">Reasoning model: "think step by step"</span></h2>
+      <h2><span class="num">3</span><span class="cs">Uvažující model: „přemýšlej krok za krokem“</span><span class="en">Reasoning model: "think step by step"</span></h2>
       <p class="sub"><span class="cs">Model píše po jednom tokenu. Když musí odpověď <b>vyhrknout hned</b>, na složitější úloze se snadno splete. Když si nejdřív
         <b>vypíše mezikroky</b>, každý další token se opírá o už spočítané mezivýsledky — za cenu mnohem víc tokenů, tedy víc výpočtu.</span><span class="en">The model writes one token at a time. When it has to <b>blurt out</b> the answer right away, it easily gets a harder task wrong. When it first
         <b>writes out the intermediate steps</b>, each next token can lean on results already computed — at the cost of many more tokens, i.e. more computation.</span></p>
@@ -281,7 +281,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div class="mcol asst">
           <h3>🧠 <span class="cs">S přemýšlením</span><span class="en">With thinking</span></h3>
-          <p class="what"><span class="cs">Nejdřív mezikroky („tokeny přemýšlení"), pak odpověď.</span><span class="en">First the intermediate steps ("thinking tokens"), then the answer.</span></p>
+          <p class="what"><span class="cs">Nejdřív mezikroky („tokeny přemýšlení“), pak odpověď.</span><span class="en">First the intermediate steps ("thinking tokens"), then the answer.</span></p>
           <div class="think" id="thinkBox"></div>
           <div class="fin" id="slowAns"></div>
           <div class="cost"><span id="slowCost"></span><div class="costbar"><span id="slowBar"></span></div></div>
@@ -306,7 +306,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#64748b">
         <h3><span class="dot"></span><span class="cs">1 · Předtrénink</span><span class="en">1 · Pre-training</span></h3>
         <p><span class="cs">Model se učí <b>doplňovat text</b> na obrovském množství textu z internetu, knih a kódu — u dnešních velkých modelů řádově
-           <b>biliony tokenů</b>. Učení = zmenšování chyby předpovědi (příklad 7). Výsledek „zná svět", ale neví, že má <b>odpovídat</b>:
+           <b>biliony tokenů</b>. Učení = zmenšování chyby předpovědi (příklad 7). Výsledek „zná svět“, ale neví, že má <b>odpovídat</b>:
            na otázku klidně naváže další otázkou.</span>
            <span class="en">The model learns to <b>continue text</b> on a huge amount of text from the web, books and code — for today's large models on the order of
            <b>trillions of tokens</b>. Learning = shrinking the prediction error (example 7). The result "knows the world" but doesn't know it should <b>answer</b>:
@@ -323,7 +323,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#4f46e5">
         <h3><span class="dot"></span><span class="cs">3 · RLHF: lidé hodnotí</span><span class="en">3 · RLHF: people rate</span></h3>
-        <p><span class="cs">Lidé porovnávají dvojice odpovědí („která je lepší?"). Z toho se naučí <b>model odměny</b>, který umí odhadnout, jak by
+        <p><span class="cs">Lidé porovnávají dvojice odpovědí („která je lepší?“). Z toho se naučí <b>model odměny</b>, který umí odhadnout, jak by
            odpověď člověk ohodnotil. Jazykový model se pak <b>učením odměnou</b> (příklad 12) posouvá k odpovědím s vyšší odměnou.
            Riziko: když hodnotitelé mají rádi lichotky, model se naučí lichotit (<b>sykofancie</b>).</span>
            <span class="en">People compare pairs of answers ("which is better?"). From that a <b>reward model</b> is learned that can estimate how a person
@@ -334,7 +334,7 @@ import Layout from '../layouts/Layout.astro';
         <h3><span class="dot"></span><span class="cs">4 · Uvažující modely</span><span class="en">4 · Reasoning models</span></h3>
         <p><span class="cs">Od roku 2024 se objevují modely, které před odpovědí vygenerují dlouhý <b>řetězec přemýšlení</b> — víc výpočtu
            <b>při odpovídání</b>, ne jen při tréninku. Podle zveřejněných popisů se to učí mimo jiné učením odměnou na úlohách,
-           kde jde výsledek <b>automaticky ověřit</b> (matematika, programování). Cena: víc tokenů, delší čekání.</span>
+           kde lze výsledek <b>automaticky ověřit</b> (matematika, programování). Cena: víc tokenů, delší čekání.</span>
            <span class="en">Since 2024, models have appeared that generate a long <b>chain of thought</b> before answering — more computation
            <b>at answer time</b>, not only during training. According to published descriptions they learn this, among other things, by reinforcement learning on tasks
            whose result can be <b>checked automatically</b> (maths, programming). The price: more tokens, longer waiting.</span></p>
@@ -351,14 +351,14 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#dc2626">
         <h3><span class="dot"></span><span class="cs">Co zůstává stejné</span><span class="en">What stays the same</span></h3>
         <p><span class="cs">Asistent je pořád jen <b>predikce dalšího tokenu</b>. Halucinace z příkladu 15 proto nezmizely — model zní sebejistě, i když
-           si fakt „domýšlí". Proto se mu v praxi přikládají dokumenty (<b>RAG</b>, příklad 17) a dávají nástroje (<b>agenti</b>, příklad 18).</span>
+           si fakt „domýšlí“. Proto se mu v praxi přikládají dokumenty (<b>RAG</b>, příklad 17) a dávají nástroje (<b>agenti</b>, příklad 18).</span>
            <span class="en">The assistant is still just <b>next-token prediction</b>. The hallucinations from example 15 therefore haven't gone away — the model sounds confident even
            when it is "filling in" a fact. That's why in practice it's given documents (<b>RAG</b>, example 17) and tools (<b>agents</b>, example 18).</span></p>
       </div>
     </div>
     <p class="lead" style="margin-top:16px">
       <span class="cs"><b>Pointa:</b> asistent je tentýž doplňovač textu, jen naučený, že po <span class="sp ast">&lt;|asistent|&gt;</span> má přijít
-      užitečná odpověď. A co je „užitečné", určili lidé svým hodnocením — model se naučí to, <b>co odměňujeme</b>, ne nutně pravdu.</span>
+      užitečná odpověď. A co je „užitečné“, určili lidé svým hodnocením — model se naučí to, <b>co odměňujeme</b>, ne nutně pravdu.</span>
       <span class="en"><b>The point:</b> an assistant is the same text predictor, just taught that <span class="sp ast">&lt;|assistant|&gt;</span> should be followed by
       a helpful answer. And what counts as "helpful" was decided by people's ratings — the model learns <b>what we reward</b>, not necessarily the truth.</span>
     </p>
@@ -380,8 +380,8 @@ import Layout from '../layouts/Layout.astro';
   };
   const EOT = '<|eot|>';      // konec dokumentu v trénovacích datech (neviditelný)
 
-  // Předtrénink: „internetový text" — kvízy, fóra, pracovní listy, články.
-  // Model odsud „zná svět" (Paříž, 12 · 7 = 84…), ale otázky tu nikdo neodpovídá hned pod nimi.
+  // Předtrénink: „internetový text“ — kvízy, fóra, pracovní listy, články.
+  // Model odsud „zná svět“ (Paříž, 12 · 7 = 84…), ale otázky tu nikdo neodpovídá hned pod nimi.
   const BASE = {
     cs: [
       'Zeměpisný kvíz pro 6. třídu. Jaké je hlavní město Francie? Jaké je hlavní město Německa? Jaké je hlavní město Itálie? Jaké je hlavní město Španělska? Odpovědi najdete na další straně.',
@@ -438,7 +438,7 @@ import Layout from '../layouts/Layout.astro';
       ['How do you say cat in Czech?', 'Cat is kočka in Czech.'],
     ],
   };
-  // předvolby: otázka + co musí asistent obsahovat, aby šlo o „správnou" odpověď (pro verdikt)
+  // předvolby: otázka + co musí asistent obsahovat, aby šlo o „správnou“ odpověď (pro verdikt)
   const PRESETS1 = {
     cs: [ { q: 'Jaké je hlavní město Francie?', key: 'Paříž' },
           { q: 'Napiš krátkou báseň o kočce.', key: 'Kočka spí' },
@@ -635,8 +635,8 @@ import Layout from '../layouts/Layout.astro';
         ['Sydney. To snad ví každý, ne?', [-1,-1,0,1,0]],
         ['Skvělá otázka! Jsi opravdu bystrý, že se ptáš. Hlavním městem Austrálie je samozřejmě Sydney.', [-1,1,0,1,1]],
         ['Austrálie je rozlehlá země s mnoha městy, jako jsou Sydney, Melbourne, Brisbane nebo Perth, a každé z nich má bohatou historii… Hlavním městem je ale Canberra.', [1,0,1,0,0]],
-        ['Tím si nejsem jistý a nechci ti napsat nesmysl. Doporučuji ověřit v atlase.', [0,1,0,0,0]],
-        ['Hlavním městem Austrálie je Canberra. Kdyžtak se klidně zeptej na další.', [1,1,0,0,0]],
+        ['Tím si nejsem jistý a nechci ti napsat nesmysl. Doporučuji to ověřit v atlase.', [0,1,0,0,0]],
+        ['Hlavním městem Austrálie je Canberra. Klidně se zeptej i na něco dalšího.', [1,1,0,0,0]],
       ]},
       { q: 'Kolik nohou má pavouk?', c: [
         ['Pavouk má osm nohou.', [1,0,0,0,0]],
@@ -649,7 +649,7 @@ import Layout from '../layouts/Layout.astro';
       { q: 'Kolik obyvatel měla vesnice Horní Lhota v roce 1850?', c: [
         ['Horní Lhota měla v roce 1850 přesně 1 243 obyvatel.', [-1,0,0,1,0]],
         ['To nevím a nechci si vymýšlet. Přesné číslo najdeš spíš v obecní kronice nebo v archivu.', [0,1,0,0,0]],
-        ['Výborná otázka, máš skvělý zájem o historii! Horní Lhota měla tehdy asi 2 000 obyvatel.', [-1,1,0,1,1]],
+        ['Výborná otázka, je skvělé, že tě zajímá historie! Horní Lhota měla tehdy asi 2 000 obyvatel.', [-1,1,0,1,1]],
         ['Tohle si najdi sám, na to nemám čas.', [0,-1,0,0,0]],
         ['V polovině 19. století byla většina českých vesnic malá a lidé žili hlavně ze zemědělství… Horní Lhota tehdy měla podle záznamů kolem 800 obyvatel, převážně sedláků a řemeslníků.', [-1,0,1,1,0]],
         ['To nevím.', [0,0,0,0,0]],
@@ -682,7 +682,7 @@ import Layout from '../layouts/Layout.astro';
       ]},
     ],
   };
-  // simulovaní hodnotitelé: kolik jim která vlastnost „stojí za to" (skutečný užitek, který model nezná)
+  // simulovaní hodnotitelé: kolik jim která vlastnost „stojí za to“ (skutečný užitek, který model nezná)
   const RATERS = {
     honest:  [3, 1, -1, -2, 0],      // chce správně, zdvořile, stručně, bez vymýšlení; lichotky ho nechávají chladným
     flatter: [0.2, 0.5, 1.5, 0, 3],  // má rád lichotky a dlouhé odpovědi, na pravdě mu skoro nezáleží
@@ -826,13 +826,13 @@ import Layout from '../layouts/Layout.astro';
   const plCs = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4 ? few : many);
 
   // Každá úloha: výchozí čísla, generátor jiných čísel a texty spočítané z čísel.
-  // tip = typická chyba „vyhrknuté" odpovědi (skriptovaná), steps = mezikroky skutečně spočítané tady v JS.
+  // tip = typická chyba „vyhrknuté“ odpovědi (skriptovaná), steps = mezikroky skutečně spočítané tady v JS.
   const PROBLEMS = [
     { def: { n: 3, p: 24 }, rnd: () => ({ n: pick([3, 4]), p: pick([17, 19, 21, 23, 24]) }),
       make: ({ n, p }) => { const tot = n * p, ch = 100 - tot, tip = 100 - p;
         return curLang === 'cs' ? {
           short: 'Sešity',
-          q: `Kupíš ${n} sešity po ${p} Kč a zaplatíš stokorunou. Kolik ti vrátí?`,
+          q: `Koupíš ${n} ${plCs(n, 'sešit', 'sešity', 'sešitů')} po ${p} Kč a zaplatíš stokorunou. Kolik ti vrátí?`,
           steps: [`Sešity stojí dohromady ${n} · ${p} = ${tot} Kč.`, `Platím 100 Kč, takže mi vrátí 100 − ${tot} = ${ch} Kč.`, `Kontrola: ${tot} + ${ch} = 100 ✓`],
           ans: `${ch} Kč`, tip: `${tip} Kč`, truth: ch, tipv: tip, why: 'model odečetl cenu jen jednoho sešitu' }
         : {
@@ -858,7 +858,7 @@ import Layout from '../layouts/Layout.astro';
         return curLang === 'cs' ? {
           short: 'Bonbony',
           q: `Máš ${t} bonbonů. ${e} sníš a polovinu zbytku dáš bráchovi. Kolik ti zbude?`,
-          steps: [`Po snědení mám ${t} − ${e} = ${rest} bonbonů.`, `Bráchovi dám polovinu zbytku: ${rest} : 2 = ${half}.`, `Zbude mi ${rest} − ${half} = ${half}.`],
+          steps: [`Když ${e} sním, mám ${t} − ${e} = ${rest} bonbonů.`, `Bráchovi dám polovinu zbytku: ${rest} : 2 = ${half}.`, `Zbude mi ${rest} − ${half} = ${half}.`],
           ans: `${half} ${plCs(half, 'bonbon', 'bonbony', 'bonbonů')}`, tip: `${tip} ${plCs(tip, 'bonbon', 'bonbony', 'bonbonů')}`, truth: half, tipv: tip, why: 'model vzal polovinu ze všech bonbonů, ne ze zbytku' }
         : {
           short: 'Sweets',
@@ -872,7 +872,7 @@ import Layout from '../layouts/Layout.astro';
           short: 'Věk',
           q: `Petr je o ${dCs} starší než Jana. Za ${yCs} bude Janě ${f}. Kolik je teď Petrovi?`,
           steps: [`Teď je Janě ${f} − ${y} = ${jane}.`, `Petr je o ${dCs} starší: ${jane} + ${d} = ${pete}.`, `Kontrola: za ${yCs} bude Petrovi ${pete + y} a Janě ${f}, rozdíl ${d} ✓`],
-          ans: `${pete} let`, tip: `${tip} let`, truth: pete, tipv: tip, why: `model zapomněl, že ${f} bude Janě až za ${yCs}` }
+          ans: `${pete} ${plCs(pete, 'rok', 'roky', 'let')}`, tip: `${tip} ${plCs(tip, 'rok', 'roky', 'let')}`, truth: pete, tipv: tip, why: `model zapomněl, že ${f} bude Janě až za ${yCs}` }
         : {
           short: 'Ages',
           q: `Peter is ${d} years older than Jane. In ${y} years Jane will be ${f}. How old is Peter now?`,
@@ -880,7 +880,7 @@ import Layout from '../layouts/Layout.astro';
           ans: `${pete} years`, tip: `${tip} years`, truth: pete, tipv: tip, why: `it forgot that ${f} is the age in ${y} years` }; } },
   ];
   let prob = 0, params = { ...PROBLEMS[0].def }, thinkTimer = null;
-  const countTok = s => tokenize(s).length;     // „tokeny" jako v bloku 1 (skutečné tokenizéry dělí text trochu jinak)
+  const countTok = s => tokenize(s).length;     // „tokeny“ jako v bloku 1 (skutečné tokenizéry dělí text trochu jinak)
 
   function stopThink(){
     if (thinkTimer){ clearInterval(thinkTimer); thinkTimer = null; }
@@ -950,22 +950,22 @@ import Layout from '../layouts/Layout.astro';
   // ═══════════════════════════════════════════════════════════════
   const I18N = {
     cs: {
-      idle: 'Klikni na „Pošli oběma modelům" (nebo na předvolbu) — model začne psát token po tokenu.',
-      baseMore: '⚠️ Základní model <b>neodpovídá</b> — pokračuje v textu tak, jak by pokračoval dokument z internetu (další otázka, další úkol, další věta fóra). Neví, že od něj čekáš odpověď.',
+      idle: 'Klikni na „Pošli oběma modelům“ (nebo na předvolbu) — model začne psát token po tokenu.',
+      baseMore: '⚠️ Základní model <b>neodpovídá</b> — pokračuje v textu tak, jak by pokračoval dokument z internetu (další otázka, další úkol, další věta z fóra). Neví, že od něj čekáš odpověď.',
       baseEot: '⚠️ Základní model <b>neodpověděl</b> — dopsal text, jak by pokračoval dokument z internetu, a dokument ukončil. Neví, že od něj čekáš odpověď.',
       asstOk: '✓ Asistent po <span class="sp ast">&lt;|asistent|&gt;</span> napsal odpověď a pak sám vygeneroval <span class="sp end">&lt;|konec|&gt;</span> — tím aplikace pozná, že má přestat. Naučil se to z konverzací.',
-      asstCustom: '⚠️ Asistent odpověděl <b>ve formátu</b> asistenta a skončil tokenem <span class="sp end">&lt;|konec|&gt;</span> — ale na vlastní otázku malý model obsah často jen „poskládá" z naučených konverzací. Formát se naučil, znalosti ne: klasická halucinace.',
-      asstLong: '⚠️ Asistent se tentokrát „zamotal" a nenapsal konec — malý model s vlastní otázkou si moc neví rady.',
+      asstCustom: '⚠️ Asistent odpověděl <b>ve formátu</b> asistenta a skončil tokenem <span class="sp end">&lt;|konec|&gt;</span> — ale na vlastní otázku malý model obsah často jen „poskládá“ z naučených konverzací. Formát se naučil, znalosti ne: klasická halucinace.',
+      asstLong: '⚠️ Asistent se tentokrát „zamotal“ a nenapsal konec — malý model si s vlastní otázkou moc neví rady.',
       stats: (nb, nc) => `Základní model: <b>${nb}</b> tokenů textu. Asistent: stejných ${nb} tokenů + <b>${nc}</b> tokenů konverzací (s váhou ${CHAT_WEIGHT}×). Pro srovnání: skutečné modely se předtrénují na bilionech tokenů.`,
       feat: ['správnost', 'zdvořilost', 'rozvláčnost', 'vymýšlení', 'lichocení'],
-      tags: { right: 'správně', wrong: 'špatně', honest: 'poctivé „nevím"', noAns: 'bez odpovědi', polite: 'zdvořilá', rude: 'drzá', long: 'rozvláčná', fab: 'vymyšlená', flat: 'lichotí' },
+      tags: { right: 'správně', wrong: 'špatně', honest: 'poctivé „nevím“', noAns: 'bez odpovědi', polite: 'zdvořilá', rude: 'drzá', long: 'rozvláčná', fab: 'vymyšlená', flat: 'lichotí' },
       ans: 'ODPOVĚĎ',
       count: n => `hodnocení: ${n}`,
       none: 'Zatím žádné hodnocení → model odměny nic neví (všechny váhy 0) a všechny odpovědi jsou stejně pravděpodobné. Klikni na lepší odpověď, nebo spusť automat.',
       topIs: (L, p) => `Model teď nejvíc nabízí odpověď <b>${L}</b> (${p} %).`,
-      syco: '⚠️ Naučil se <b>lichotit</b> — i za cenu špatné odpovědi. To je <b>sykofancie</b> (podlézavost): model se naučí to, co odměňujeme, ne nutně pravdu. Stejný problém jako „reward hacking" v příkladu 12.',
-      fabTop: '⚠️ Nejvýš je odpověď, která si fakt vymýšlí — hodnocení ho zatím naučilo špatnou věc.',
-      goodTop: '✓ Hodnocení ho posunula ke správné, zdvořilé a stručné odpovědi — a kde odpověď neexistuje, k poctivému „nevím". Váhy platí pro vlastnosti, takže to funguje i u ostatních dotazů (přepni si nahoře).',
+      syco: '⚠️ Naučil se <b>lichotit</b> — i za cenu špatné odpovědi. To je <b>sykofancie</b> (podlézavost): model se naučí to, co odměňujeme, ne nutně pravdu. Stejný problém jako „reward hacking“ v příkladu 12.',
+      fabTop: '⚠️ Nejvýš je odpověď, která si vymýšlí fakta — hodnocení ho zatím naučilo špatnou věc.',
+      goodTop: '✓ Hodnocení ho posunula ke správné, zdvořilé a stručné odpovědi — a kde odpověď neexistuje, k poctivému „nevím“. Váhy platí pro vlastnosti, takže to funguje i u ostatních dotazů (přepni si nahoře).',
       learning: 'Pořád se učí — přidej další hodnocení.',
       wordy: '⚠️ Naučil se být <b>rozvláčný</b> — hodnotitel odměňuje délku, ne užitečnost.',
       raterHonest: 'hodnotitel: poctivý (správnost, zdvořilost)',
@@ -973,7 +973,7 @@ import Layout from '../layouts/Layout.astro';
       thinkLbl: 'tokeny přemýšlení (uživatel je obvykle nevidí celé)',
       cost: (a, t) => { const ta = `${a} ${plCs(a, 'token', 'tokeny', 'tokenů')} odpovědi`;
         return t ? `${t} ${plCs(t, 'token', 'tokeny', 'tokenů')} přemýšlení${a ? ` + ${ta} = ${a + t} tokenů` : ''}` : ta; },
-      fastBad: (ans, why) => `✗ Špatně — správně je <b>${esc(ans)}</b>. Typická chyba „vyhrknuté" odpovědi: ${esc(why)}.`,
+      fastBad: (ans, why) => `✗ Špatně — správně je <b>${esc(ans)}</b>. Typická chyba „vyhrknuté“ odpovědi: ${esc(why)}.`,
       slowGood: k => `✓ Správně. Mezikroky stály zhruba <b>${k}× víc tokenů</b> = víc výpočtu a delší čekání. Tomu se říká <b>výpočet při odpovídání</b> (test-time compute).`,
     },
     en: {
