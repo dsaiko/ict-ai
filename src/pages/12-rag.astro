@@ -3,40 +3,15 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout titleCs="Příklad #12 — RAG: model se zdroji" titleEn="Example #12 — RAG: a model with sources" back={true}>
 <style is:global>
-* { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #f4f5f7; color: #1c1c1e; margin: 0;
-    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
-  }
-  .back {
-    position: fixed; top: 18px; left: 18px; z-index: 10;
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 600; text-decoration: none;
-    color: #374151; background: #fff; border: 1px solid #e5e7eb;
-    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
-    transition: background .12s, transform .05s, box-shadow .12s;
-  }
-  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
-  .back:active { transform: scale(.97); }
-  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
-
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
-           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+           text-align: center; line-height: 1.5; }
 
   .explain { width: min(820px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
              padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
-  .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
-  .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
-  .explain p b { color: #374151; }
-  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
-                 border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
-                 font-size: 12.5px; color: #374151; font-weight: 600; }
+
   .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #0d9488; color: #fff;
                     font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-  .flow .arr { color: #9ca3af; font-size: 15px; }
 
   .panel { width: min(820px, 96vw); }
   .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
@@ -84,33 +59,9 @@ import Layout from '../layouts/Layout.astro';
   .rk .rkpct { flex: 0 0 44px; text-align: right; font-family: "SF Mono", Menlo, Consolas, monospace; color: #64748b; }
 
   .theory { width: min(820px, 96vw); margin-top: 24px; }
-  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
-  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
-  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
-           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
-  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
-  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
-
-  /* ── Přepínač jazyka (vlajky) ── */
-  .lang-cs .en, .lang-en .cs { display: none; }
-  .langpill {
-    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
-    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
-  }
-  .langpill button {
-    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
-    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
-    opacity: .45; transition: opacity .12s, background .12s;
-  }
-  .langpill button:hover { opacity: .8; background: #f3f4f6; }
-  .langpill button.on { opacity: 1; background: #eef2ff; }
-  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 
-<h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">12</span><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h1>
+<h1><span class="badge">12</span><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h1>
   <p class="intro">
     <span class="cs">Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví.
     <b>RAG</b> (vyhledáním rozšířená generace) to řeší: model nejdřív <b>najde relevantní text</b> a teprve pak
@@ -267,6 +218,8 @@ import Layout from '../layouts/Layout.astro';
       retrieved: 'Nejpodobnější dokument se přiloží k otázce a model odpoví <b>z něj</b>:',
       grounded: '✓ Odpověď je <b>podložená</b> nalezeným dokumentem (#DOC#).',
       noneFound: 'Žádný dokument nevypadá dost podobně — RAG by tu nepomohl (a model by zase jen hádal).',
+      uncertain: others => `⚠️ Vyhledávání si <b>není jisté</b> — ${others} vypadá skoro stejně podobně. Odpověď se opírá o dokument, který možná není ten správný: RAG je jen tak dobré, jak dobré je vyhledávání. (Tady hledáme podle společných slov; skutečné embeddingy by lépe poznaly, o čem otázka je.)`,
+      weak: '⚠️ Podobnost je <b>nízká</b> — dokument sdílí s otázkou jen málo slov, odpověď nemusí sedět.',
       empty: 'Napiš otázku nebo klikni na předvolbu a porovnej obě odpovědi.',
     },
     en: {
@@ -277,25 +230,42 @@ import Layout from '../layouts/Layout.astro';
       retrieved: 'The most similar document is attached to the question and the model answers <b>from it</b>:',
       grounded: '✓ The answer is <b>grounded</b> in the retrieved document (#DOC#).',
       noneFound: 'No document looks similar enough — RAG would not help here (and the model would just guess again).',
+      uncertain: others => `⚠️ Retrieval is <b>not sure</b> — ${others} looks almost as similar. The answer leans on a document that may not be the right one: RAG is only as good as its search. (Here we match shared words; real embeddings would better tell what the question is about.)`,
+      weak: '⚠️ Similarity is <b>low</b> — the document shares only a few words with the question, so the answer may be off.',
       empty: 'Type a question or click a preset and compare the two answers.',
     },
   };
 
   const STOP = {
-    cs: new Set('a i o u v k s z na do je se si že to co jak kdy kde kdo ve pro po jaké jaká jaký ten ta nebo ale můj má v'.split(' ')),
-    en: new Set('a an the is are of to in on at for what when where who how do does it and or my your this that with'.split(' ')),
+    cs: new Set('a i o u v k s z na do je se si že to co jak kdy kde kdo ve pro po jaké jaká jaký ten ta nebo ale můj má kolik který která které najdu'.split(' ')),
+    en: new Set('a an the is are of to in on at for what when where who how do does it and or my your this that with which can find'.split(' ')),
   };
 
   function tokenize(t){ return (t.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []); }
   function sig(t){ return tokenize(t).filter(w => w.length > 1 && !STOP[curLang].has(w)); }
 
-  // podobnost otázky a dokumentu = podíl významových slov otázky, která se vyskytují v dokumentu
-  function similarity(q, doc){
+  // „Stejné slovo" i v jiném tvaru: ředitel ~ ředitelem, knihovna ~ knihovny, open ~ opens.
+  // Shoda = společný začátek aspoň 4 znaky a u OBOU slov nejvýš 2 znaky navíc (koncovka) —
+  // jinak by „principalities" odpovídalo „principal".
+  function sameWord(a, b){
+    if (a === b) return true;
+    let cp = 0; while (cp < a.length && cp < b.length && a[cp] === b[cp]) cp++;
+    return cp >= 4 && a.length - cp <= 2 && b.length - cp <= 2;
+  }
+  const inDoc = (w, docWords) => docWords.some(d => sameWord(w, d));
+
+  // Podobnost otázky a dokumentu: podíl slov otázky nalezených v dokumentu, vážený
+  // „vzácností" slova (IDF) — slovo z jediného dokumentu (jídelna) váží víc než
+  // slovo, které je skoro všude (škola). Stejná myšlenka jako u klasického vyhledávání.
+  function rankDocs(q, docs){
     const qs = [...new Set(sig(q))];
-    if (!qs.length) return 0;
-    const ds = new Set(sig(doc));
-    let m = 0; for (const w of qs) if (ds.has(w)) m++;
-    return m / qs.length;
+    const dws = docs.map(d => sig(d));
+    const idf = qs.map(w => Math.log((docs.length + 1) / (dws.filter(dw => inDoc(w, dw)).length + 0.5)));
+    const total = idf.reduce((a, b) => a + b, 0);
+    return docs.map((d, i) => {
+      let m = 0; qs.forEach((w, k) => { if (inDoc(w, dws[i])) m += idf[k]; });
+      return { i, d, s: total ? m / total : 0 };
+    }).sort((a, b) => b.s - a.s);
   }
 
   function renderDocs(){
@@ -311,8 +281,8 @@ import Layout from '../layouts/Layout.astro';
 
   // zvýrazni v textu významová slova sdílená s otázkou
   function highlight(doc, q){
-    const qs = new Set(sig(q));
-    return doc.replace(/[\p{L}\p{N}]+/gu, w => qs.has(w.toLowerCase()) ? `<mark>${w}</mark>` : w);
+    const qs = sig(q);
+    return doc.replace(/[\p{L}\p{N}]+/gu, w => qs.some(x => sameWord(x, w.toLowerCase())) ? `<mark>${w}</mark>` : w);
   }
 
   function findGuess(q){
@@ -323,7 +293,7 @@ import Layout from '../layouts/Layout.astro';
   function ask(){
     const q = $('q').value.trim();
     if (!q){ $('ansPlain').textContent=''; $('notePlain').textContent=''; $('rank').innerHTML='';
-             $('ansRag').textContent=''; $('noteRag').innerHTML = I18N[curLang].empty; return; }
+             $('ansRag').textContent=''; $('noteRag').innerHTML = I18N[curLang].empty; $('noteRag').style.color = ''; return; }
 
     // ── bez RAG: model si tipne ──
     $('ansPlain').innerHTML = I18N[curLang].guessPrefix + findGuess(q) + I18N[curLang].guessSuffix;
@@ -331,7 +301,7 @@ import Layout from '../layouts/Layout.astro';
 
     // ── s RAG: seřaď dokumenty podle podobnosti ──
     const docs = DATA[curLang].docs;
-    const scored = docs.map((d,i) => ({ i, d, s: similarity(q, d) })).sort((a,b)=>b.s-a.s);
+    const scored = rankDocs(q, docs);
     const maxS = scored[0].s;
     $('rank').innerHTML = scored.map((r,rank) => {
       const pct = Math.round(r.s*100);
@@ -343,11 +313,17 @@ import Layout from '../layouts/Layout.astro';
     if (maxS <= 0){
       $('ansRag').textContent = '';
       $('noteRag').innerHTML = I18N[curLang].noneFound;
+      $('noteRag').style.color = '#b45309';
       return;
     }
     const top = scored[0];
     $('ansRag').innerHTML = I18N[curLang].retrieved + '<br><br>' + highlight(top.d, q);
-    $('noteRag').innerHTML = I18N[curLang].grounded.replace('#DOC#', '#' + (top.i+1));
+    // poctivě přiznej nejistotu: remíza s dalším dokumentem nebo slabá shoda
+    const rivals = scored.slice(1).filter(r => r.s > 0 && r.s >= top.s - 0.05).map(r => '#' + (r.i+1));
+    $('noteRag').innerHTML = rivals.length ? I18N[curLang].uncertain(rivals.join(', '))
+      : top.s < 0.34 ? I18N[curLang].weak
+      : I18N[curLang].grounded.replace('#DOC#', '#' + (top.i+1));
+    $('noteRag').style.color = (rivals.length || top.s < 0.34) ? '#b45309' : '';
   }
 
   $('btnAsk').addEventListener('click', ask);
@@ -364,11 +340,11 @@ import Layout from '../layouts/Layout.astro';
 
   // přepnutí jazyka: nová data, nová otázka (pokud byla výchozí), překresli
   window.onLangChange = function(l){
-    const prevDefault = DATA[curLang].presets.some(p => p.q === $('q').value.trim());
+    const preset = DATA[curLang].presets.findIndex(p => p.q === $('q').value.trim());   // zachovej zvolenou předvolbu
     curLang = l;
     renderDocs(); renderPresets();
     $('q').placeholder = l === 'cs' ? 'např. Kdy zavírá knihovna v pátek?' : 'e.g. When does the library close on Friday?';
-    if (prevDefault) $('q').value = DATA[l].presets[0].q;
+    if (preset >= 0) $('q').value = DATA[l].presets[preset].q;
     ask();
   };
 </script>

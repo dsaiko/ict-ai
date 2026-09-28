@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 
-// POC migrace statických AI-ukázek na Astro.
+// Statický web AI-ukázek (src/pages/*.astro → dist/*.html).
 // build.format: 'file' zachová ploché .html URL (08-genetika.html, ne
 // 08-genetika/index.html) — stávající relativní odkazy mezi stránkami
 // i deploy na S3 (make deploy) tak fungují beze změny.
@@ -12,6 +12,10 @@ export default defineConfig({
     // funguje i přes file:// a "view source" ukáže všechno).
     inlineStylesheets: 'always',
   },
+  // Astro 7 má výchozí 'jsx' — zahazuje zalomení řádků kolem elementů, takže
+  // víceřádkový text "…up.\n <b>RAG</b>" by se slil na "up.RAG". true = bezeztrátová
+  // komprese jako v Astru 6 (mezery, které se v prohlížeči vykreslí, zůstanou).
+  compressHTML: true,
   // Žádný runtime JS navíc: dema mají vlastní inline <script is:inline>,
   // Astro samo neposílá nic, dokud nepoužiješ client:* direktivu.
 });

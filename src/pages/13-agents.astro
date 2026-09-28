@@ -3,33 +3,12 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout titleCs="Příklad #13 — Agenti: model, který jedná" titleEn="Example #13 — Agents: a model that acts" back={true}>
 <style is:global>
-* { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #f4f5f7; color: #1c1c1e; margin: 0;
-    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
-  }
-  .back {
-    position: fixed; top: 18px; left: 18px; z-index: 10;
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 600; text-decoration: none;
-    color: #374151; background: #fff; border: 1px solid #e5e7eb;
-    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
-    transition: background .12s, transform .05s, box-shadow .12s;
-  }
-  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
-  .back:active { transform: scale(.97); }
-  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
-
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 730px;
-           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+           text-align: center; line-height: 1.5; }
 
   .explain { width: min(820px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
              padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
-  .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
-  .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
-  .explain p b { color: #374151; }
 
   /* rovnice */
   .equation { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
@@ -39,13 +18,9 @@ import Layout from '../layouts/Layout.astro';
   .equation .op { color: #9ca3af; font-weight: 700; font-size: 16px; }
   .equation .res { background: #6d28d9; border-color: #6d28d9; color: #fff; }
 
-  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
-                 border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
-                 font-size: 12.5px; color: #374151; font-weight: 600; }
   .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #7c3aed; color: #fff;
                     font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-  .flow .arr { color: #9ca3af; font-size: 15px; }
+
   .flow .repeat { color: #16a34a; font-weight: 600; font-size: 12px; }
 
   .panel { width: min(820px, 96vw); }
@@ -92,33 +67,9 @@ import Layout from '../layouts/Layout.astro';
               border-top: 1px solid #f0f1f3; padding-top: 12px; } .contrast b { color: #374151; }
 
   .theory { width: min(820px, 96vw); margin-top: 24px; }
-  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
-  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
-  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
-           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
-  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
-  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
-
-  /* ── Přepínač jazyka (vlajky) ── */
-  .lang-cs .en, .lang-en .cs { display: none; }
-  .langpill {
-    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
-    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
-  }
-  .langpill button {
-    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
-    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
-    opacity: .45; transition: opacity .12s, background .12s;
-  }
-  .langpill button:hover { opacity: .8; background: #f3f4f6; }
-  .langpill button.on { opacity: 1; background: #eef2ff; }
-  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 
-<h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">13</span><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h1>
+<h1><span class="badge">13</span><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h1>
   <p class="intro">
     <span class="cs">Dosud model jen <b>psal text</b>. Agent jde dál: dostane úkol, sám se rozhodne, <b>zavolá nástroj</b>
     (vyhledávání, kalkulačku, e-mail…), podívá se na výsledek a pokračuje — dokud úkol nesplní. To je směr, kterým
@@ -259,7 +210,7 @@ import Layout from '../layouts/Layout.astro';
         'Tělocvična je v přízemí a o víkendu je přístupná po domluvě se správcem budovy.',
       ],
       re: {
-        math: /\d\s*(?:%|[-+*/×])|kolik\s+je|procent/i,
+        math: /\d\s*(?:%|procent|[-+*/×]\s*\d)/i,
         lookup: /heslo|wi-?fi|knihovn|ředitel|robotik|jídel|tělocvičn|oběd|kancelář|otev[íř]|zav[íř]|kdy\b|kde\b/i,
         send: /pošl|odešl|napiš|e-?mail/i,
         date: /datum|dnes|kolikát|který den|hodin|čas\b/i,
@@ -284,10 +235,10 @@ import Layout from '../layouts/Layout.astro';
         'The gym is on the ground floor and is open on weekends by arrangement with the caretaker.',
       ],
       re: {
-        math: /\d\s*(?:%|[-+*/×])|what\s+is|percent/i,
+        math: /\d\s*(?:%|percent|[-+*/×]\s*\d)/i,
         lookup: /password|wi-?fi|librar|principal|robotic|canteen|lunch|gym|office|open|close|when\b|where\b/i,
         send: /send|email|e-mail|write|mail/i,
-        date: /date|today|day is|time\b|what day/i,
+        date: /date|today|day is|time\b|what day|o'clock/i,
       },
       placeholder: 'e.g. Find the Wi-Fi password and send it by email.',
       defaultRecipient: 'principal@school.org',
@@ -299,13 +250,16 @@ import Layout from '../layouts/Layout.astro';
   const I18N = {
     cs: {
       toolName: { calc:'kalkulačka', search:'vyhledávání', date:'kalendář', email:'odeslat_email' },
-      thought: { calc:'Tohle je výpočet → použiju kalkulačku.', search:'Tuhle informaci neznám z hlavy → vyhledám ji.', date:'Potřebuju aktuální datum → kouknu do kalendáře.', email:'Mám co poslat → odešlu e-mail.' },
+      thought: { calc:'Tohle je výpočet → použiju kalkulačku.', search:'Tuhle informaci neznám z hlavy → vyhledám ji.', date:'Potřebuju aktuální datum a čas → kouknu do kalendáře.', email:'Mám co poslat → odešlu e-mail.' },
       lThought:'Úvaha', lAction:'Akce', lObs:'Pozorování', lAnswer:'Hotovo',
       obsNone:'nic relevantního nenalezeno',
+      obsCalcFail:'kalkulačka výrazu nerozuměla',
+      finalCalcFail: 'Výpočet se mi z úkolu nepodařilo přečíst — zkus ho zapsat třeba jako <b>17 % z 240</b> nebo <b>12 * 7</b>.',
+      finalEmailNoInfo: 'Požadovanou informaci jsem <b>nenašel</b>, takže e-mail jsem odeslal bez ní.',
       obsEmail: to => 'e-mail odeslán na: ' + to,
       finalCalc: r => 'Výsledek je <b>' + r + '</b>.',
       finalSearch: s => s,
-      finalDate: d => 'Dnes je <b>' + d + '</b>.',
+      finalDate: d => 'Teď je <b>' + d + '</b>.',
       finalEmail: 'Hotovo — <b>e-mail jsem odeslal</b>.',
       finalEmailWith: c => 'Našel jsem požadovanou informaci a <b>odeslal ji e-mailem</b> (' + c + ').',
       finalGuess: 'Na tohle nemám žádný nástroj — samotný model by si musel jen <b>tipnout</b>.',
@@ -314,13 +268,16 @@ import Layout from '../layouts/Layout.astro';
     },
     en: {
       toolName: { calc:'calculator', search:'search', date:'calendar', email:'send_email' },
-      thought: { calc:'This is a calculation → I\'ll use the calculator.', search:'I don\'t know this offhand → I\'ll look it up.', date:'I need the current date → I\'ll check the calendar.', email:'I have something to send → I\'ll send an email.' },
+      thought: { calc:'This is a calculation → I\'ll use the calculator.', search:'I don\'t know this offhand → I\'ll look it up.', date:'I need the current date and time → I\'ll check the calendar.', email:'I have something to send → I\'ll send an email.' },
       lThought:'Reason', lAction:'Action', lObs:'Observation', lAnswer:'Done',
       obsNone:'nothing relevant found',
+      obsCalcFail:'the calculator couldn\'t read the expression',
+      finalCalcFail: 'I couldn\'t read a calculation from the task — try writing it as <b>17% of 240</b> or <b>12 * 7</b>.',
+      finalEmailNoInfo: 'I <b>didn\'t find</b> the requested information, so I sent the email without it.',
       obsEmail: to => 'email sent to: ' + to,
       finalCalc: r => 'The result is <b>' + r + '</b>.',
       finalSearch: s => s,
-      finalDate: d => 'Today is <b>' + d + '</b>.',
+      finalDate: d => 'It is now <b>' + d + '</b>.',
       finalEmail: 'Done — <b>the email has been sent</b>.',
       finalEmailWith: c => 'I found the requested information and <b>sent it by email</b> (' + c + ').',
       finalGuess: 'I have no tool for this — the model alone would just have to <b>guess</b>.',
@@ -345,19 +302,23 @@ import Layout from '../layouts/Layout.astro';
     }
     return bs>0 ? best : null;
   }
+  // uživatelský text jde do innerHTML → escapovat
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
   function fmtNum(n){ return (Math.round(n*100)/100).toLocaleString(DATA[curLang].locale); }
   function calc(task){
     const t = task.replace(/(\d),(\d)/g,'$1.$2');
-    let m = t.match(/(\d+(?:\.\d+)?)\s*%\s*(?:z|of)\s*(\d+(?:\.\d+)?)/i);
+    let m = t.match(/(\d+(?:\.\d+)?)\s*(?:%|procent|percent)\s*(?:ze?|of)\s*(\d+(?:\.\d+)?)/i);
     if(m) return fmtNum((+m[1])/100*(+m[2]));
     m = t.match(/(\d+(?:\.\d+)?)\s*([-+*/×])\s*(\d+(?:\.\d+)?)/);
     if(m){ const a=+m[1], b=+m[3], op=m[2];
-      return fmtNum(op==='+'?a+b: op==='-'?a-b: (op==='*'||op==='×')?a*b: a/b); }
-    return null;
+      const r = op==='+'?a+b: op==='-'?a-b: (op==='*'||op==='×')?a*b: a/b;
+      return Number.isFinite(r) ? fmtNum(r) : null; }     // dělení nulou → nevím, ne „Nekonečno"
+    return null;                                          // výraz se nepodařilo přečíst
   }
   function nowStr(){
     const d = new Date();
-    return d.toLocaleDateString(DATA[curLang].locale, { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    return d.toLocaleDateString(DATA[curLang].locale, { weekday:'long', day:'numeric', month:'long', year:'numeric' }) +
+      ', ' + d.toLocaleTimeString(DATA[curLang].locale, { hour:'2-digit', minute:'2-digit' });
   }
   function recipient(task){
     let m = task.match(/[\w.+-]+@[\w.-]+/);
@@ -385,7 +346,7 @@ import Layout from '../layouts/Layout.astro';
       const tool = nextTool(task, mem);
       if (!tool) break;
       let obs, argDisp;
-      if (tool === 'calc'){ obs = calc(task) ?? '?'; argDisp = task; }
+      if (tool === 'calc'){ obs = calc(task) ?? I18N[curLang].obsCalcFail; argDisp = task; }
       else if (tool === 'search'){ const d = searchKB(task); obs = d || I18N[curLang].obsNone; argDisp = '"' + sig(task).slice(0,3).join(' ') + '"'; }
       else if (tool === 'date'){ obs = nowStr(); argDisp = ''; }
       else { const to = recipient(task); obs = I18N[curLang].obsEmail(to); argDisp = to; }
@@ -399,8 +360,9 @@ import Layout from '../layouts/Layout.astro';
   function finalAnswer(task, mem){
     const I = I18N[curLang];
     const get = tool => mem.find(s => s.tool === tool);
-    if (get('email')) return get('search') ? I.finalEmailWith(get('search').obs) : I.finalEmail;
-    if (get('calc')) return I.finalCalc(get('calc').obs);
+    const found = get('search') && get('search').obs !== I.obsNone;
+    if (get('email')) return found ? I.finalEmailWith(get('search').obs) : get('search') ? I.finalEmailNoInfo : I.finalEmail;
+    if (get('calc')) return get('calc').obs === I.obsCalcFail ? I.finalCalcFail : I.finalCalc(get('calc').obs);
     if (get('search')) return get('search').obs === I.obsNone ? I.finalGuess : I.finalSearch(get('search').obs);
     if (get('date')) return I.finalDate(get('date').obs);
     return I.finalGuess;
@@ -421,8 +383,8 @@ import Layout from '../layouts/Layout.astro';
         n++;
         html += '<div class="tstep"><div class="tnum">' + I.lThought.toUpperCase() + ' · ' + (curLang==='cs'?'krok ':'step ') + n + '</div>' +
           '<div class="line">💭 <span class="k">' + I.thought[s.tool] + '</span></div>' +
-          '<div class="line">🔧 <span class="k">' + I.lAction + ':</span> <span class="tool">' + TICON[s.tool] + ' ' + I.toolName[s.tool] + '(' + s.argDisp + ')</span></div>' +
-          '<div class="line">👁 <span class="k">' + I.lObs + ':</span> <span class="obs">' + s.obs + '</span></div></div>';
+          '<div class="line">🔧 <span class="k">' + I.lAction + ':</span> <span class="tool">' + TICON[s.tool] + ' ' + I.toolName[s.tool] + '(' + esc(s.argDisp) + ')</span></div>' +
+          '<div class="line">👁 <span class="k">' + I.lObs + ':</span> <span class="obs">' + esc(s.obs) + '</span></div></div>';
       }
     }
     el.innerHTML = html;
@@ -431,10 +393,9 @@ import Layout from '../layouts/Layout.astro';
 
   function prepare(){ if(timer){clearInterval(timer);timer=null;} steps = runAgent($('task').value.trim()); shown = 0; render(); }
   function reveal(){ if (shown < steps.length){ shown++; render(); } }
+  // vždy přepočítej trasu pro aktuální text — předvolba mění value bez události 'input'
   function runAll(){
-    if (!steps.length || timer) prepare();
-    if (timer){ clearInterval(timer); timer=null; }
-    shown = 0; render();
+    prepare();
     timer = setInterval(() => { reveal(); if (shown >= steps.length){ clearInterval(timer); timer=null; } }, 650);
   }
 
@@ -461,11 +422,11 @@ import Layout from '../layouts/Layout.astro';
 
   window.onLangChange = function(l){
     if(timer){clearInterval(timer);timer=null;}
-    const wasDefault = DATA[curLang].tasks.includes($('task').value.trim());
+    const preset = DATA[curLang].tasks.indexOf($('task').value.trim());   // zachovej zvolenou předvolbu
     curLang = l;
     renderPresets();
     $('task').placeholder = DATA[l].placeholder;
-    if (wasDefault) $('task').value = DATA[l].tasks[3];
+    if (preset >= 0) $('task').value = DATA[l].tasks[preset];
     steps = runAgent($('task').value); shown = steps.length; render();
   };
 </script>

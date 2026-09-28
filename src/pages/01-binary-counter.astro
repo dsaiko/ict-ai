@@ -3,11 +3,11 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout titleCs="Příklad #1 — Binární počítadlo 8×8" titleEn="Example #1 — Binary counter 8×8" back={true}>
 <style is:global>
-:root {
-    --cell: 56px;
+  :root {
+    --cell: min(56px, calc((100vw - 84px) / 8));   /* na telefonu se mřížka zmenší */
     --gap: 4px;
   }
-  * { box-sizing: border-box; }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #f4f5f7;
@@ -20,19 +20,7 @@ import Layout from '../layouts/Layout.astro';
     justify-content: center;
     padding: 24px;
   }
-  .back {
-    position: fixed; top: 18px; left: 18px; z-index: 10;
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 600; text-decoration: none;
-    color: #374151; background: #fff; border: 1px solid #e5e7eb;
-    border-radius: 999px; padding: 8px 16px;
-    box-shadow: 0 2px 8px rgba(17,24,39,0.06);
-    transition: background .12s, transform .05s, box-shadow .12s;
-  }
-  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
-  .back:active { transform: scale(.97); }
-  .back .arrow { transition: transform .12s; }
-  .back:hover .arrow { transform: translateX(-3px); }
+
   h1 {
     font-size: 20px;
     font-weight: 600;
@@ -119,6 +107,10 @@ import Layout from '../layouts/Layout.astro';
     margin-top: 2px;
   }
   .readout .block { margin-top: 12px; }
+  @media (max-width: 720px) {
+    body { padding: 72px 16px 24px; }               /* místo pro tlačítko ZPĚT */
+    .readout .bin { white-space: normal; }          /* 64 bitů se zalomí po bajtech */
+  }
 
   /* Odhad zbývajícího času */
   .eta {
@@ -178,32 +170,16 @@ import Layout from '../layouts/Layout.astro';
     align-items: center;
     gap: 8px;
   }
-
-  /* ── Přepínač jazyka (vlajky) ── */
-  .lang-cs .en, .lang-en .cs { display: none; }
-  .langpill {
-    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
-    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
-  }
-  .langpill button {
-    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
-    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0; min-width: 0;
-    opacity: .45; transition: opacity .12s, background .12s;
-  }
-  .langpill button:hover { opacity: .8; background: #f3f4f6; }
-  .langpill button.on { opacity: 1; background: #eef2ff; }
-  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 
-<h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">01</span><span class="cs">Binární počítadlo 8×8</span><span class="en">Binary counter 8×8</span></h1>
+<h1><span class="badge">01</span><span class="cs">Binární počítadlo 8×8</span><span class="en">Binary counter 8×8</span></h1>
   <p class="subtitle"><span class="cs">Klikni do mřížky a nastav bity. 64 polí = 64bitové číslo.</span><span class="en">Click the grid to set bits. 64 cells = a 64-bit number.</span></p>
 
   <div class="whathow">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Mřížka 64 čtverečků je vlastně <b>malinký černobílý obrázek</b> (8×8 pixelů) — a zároveň jedno obří číslo ve dvojkové soustavě, kde každý čtvereček je jeden <b>bit</b> (0 = zhasnuto, 1 = svítí). Přesně takhle si počítač ukládá obrázky i všechno ostatní.</span><span class="en">The grid of 64 squares is really a <b>tiny black-and-white image</b> (8×8 pixels) — and at the same time one huge number in binary, where each square is a single <b>bit</b> (0 = off, 1 = on). This is exactly how a computer stores images and everything else.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Klikáním rozsvěcíš čtverečky (vlastně <b>kreslíš obrázek</b>) a tlačítkem <b>RUN</b> necháš počítadlo přičítat o jedničku. Políčka naskakují jako tachometr — a postupně tak vzniká <b>jedna možná podoba mřížky za druhou</b>. Graf ukazuje, jak dlouho by trvalo projít je všechny.</span><span class="en">Click to light up squares (you're really <b>drawing a picture</b>) and press <b>RUN</b> to make the counter add one. The cells tick over like an odometer — and step by step it produces <b>one possible look of the grid after another</b>. The graph shows how long it would take to go through them all.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Kdybychom měli dost času, počítač by takhle <b>vygeneroval úplně všechny obrázky</b>, které se do té mřížky vejdou — každé písmeno, každý tvar, i tvůj portrét v 8×8. Jenže jich je 2⁶⁴ (přes 18 trilionů): i kdyby zkoušel milion za vteřinu, trvalo by to déle, než existuje vesmír. Proto AI nemůže „zkoušet všechno" hrubou silou — musí být <b>chytrá</b>. Tím série začíná.</span><span class="en">Given enough time, the computer would this way <b>generate every image</b> that fits in the grid — every letter, every shape, even your portrait in 8×8. But there are 2⁶⁴ of them (over 18 quintillion): even at a million per second it would take longer than the universe has existed. That's why AI can't just "try everything" by brute force — it has to be <b>smart</b>. This is where the series begins.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Kdybychom měli dost času, počítač by takhle <b>vygeneroval úplně všechny obrázky</b>, které se do té mřížky vejdou — každé písmeno, každý tvar, i tvůj portrét v 8×8. Jenže jich je 2⁶⁴ (přes 18 trilionů): tempem tohohle dema by to trvalo přes 35 miliard let (víc než stáří vesmíru) a i počítač, který zkusí <b>miliardu za vteřinu</b>, by počítal skoro 600 let — a to jde o pouhých 8×8 pixelů. Mřížka 10×10 (2¹⁰⁰ možností) by i takovou rychlostí trvala tisíckrát déle, než existuje vesmír. Proto AI nemůže „zkoušet všechno" hrubou silou — musí být <b>chytrá</b>. Tím série začíná.</span><span class="en">Given enough time, the computer would this way <b>generate every image</b> that fits in the grid — every letter, every shape, even your portrait in 8×8. But there are 2⁶⁴ of them (over 18 quintillion): at this demo's pace it would take over 35 billion years (longer than the age of the universe), and even a computer trying <b>a billion per second</b> would need almost 600 years — for a mere 8×8 pixels. A 10×10 grid (2¹⁰⁰ possibilities) would, even at that speed, take thousands of times longer than the universe has existed. That's why AI can't just "try everything" by brute force — it has to be <b>smart</b>. This is where the series begins.</span></p>
   </div>
 
   <div class="grid" id="grid"></div>

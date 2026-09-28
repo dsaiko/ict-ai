@@ -3,27 +3,9 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout titleCs="Příklad #9 — Tokenizace a embeddingy" titleEn="Example #9 — Tokenization and embeddings" back={true}>
 <style is:global>
-* { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #f4f5f7; color: #1c1c1e; margin: 0;
-    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
-  }
-  .back {
-    position: fixed; top: 18px; left: 18px; z-index: 10;
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 600; text-decoration: none;
-    color: #374151; background: #fff; border: 1px solid #e5e7eb;
-    border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(17,24,39,0.06);
-    transition: background .12s, transform .05s, box-shadow .12s;
-  }
-  .back:hover { background: #f3f4f6; box-shadow: 0 4px 14px rgba(17,24,39,0.12); }
-  .back:active { transform: scale(.97); }
-  .back .arrow { transition: transform .12s; } .back:hover .arrow { transform: translateX(-3px); }
-
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
-           text-align: center; line-height: 1.5; } .intro b { color: #374151; }
+           text-align: center; line-height: 1.5; }
 
   .panel { width: min(760px, 96vw); }
   .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
@@ -46,9 +28,11 @@ import Layout from '../layouts/Layout.astro';
   .blocknote em { color: #9ca3af; }
 
   /* mapa embeddingů */
-  .map { position: relative; width: min(720px, 94vw); height: 500px; margin: 0 auto;
+  .map { position: relative; width: min(720px, 94vw); height: 500px; margin: 0 auto; container-type: inline-size;
          background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
-  .map svg { position: absolute; inset: 0; pointer-events: none; }
+  @media (max-width: 760px) { .map { width: 100%; } }   /* na telefonu nepřetéct blok */
+  .map svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .map svg line { vector-effect: non-scaling-stroke; }
   .word { position: absolute; transform: translate(-50%,-50%); font-size: 13px; font-weight: 600;
           padding: 4px 9px; border-radius: 999px; cursor: pointer; white-space: nowrap;
           border: 1.5px solid transparent; transition: opacity .15s, transform .1s, box-shadow .15s; }
@@ -70,33 +54,9 @@ import Layout from '../layouts/Layout.astro';
   .controls button.small { font-size: 12px; padding: 7px 13px; }
 
   .theory { width: min(760px, 96vw); margin-top: 24px; }
-  .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-  .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; } .theory .lead b { color: #374151; }
-  .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
-  .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
-           border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
-  .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-  .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
-  .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
-
-  /* ── Přepínač jazyka (vlajky) ── */
-  .lang-cs .en, .lang-en .cs { display: none; }
-  .langpill {
-    position: fixed; top: 18px; right: 18px; z-index: 20; display: flex; gap: 4px;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px;
-    box-shadow: 0 2px 8px rgba(17,24,39,0.08);
-  }
-  .langpill button {
-    display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
-    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
-    opacity: .45; transition: opacity .12s, background .12s;
-  }
-  .langpill button:hover { opacity: .8; background: #f3f4f6; }
-  .langpill button.on { opacity: 1; background: #eef2ff; }
-  .langpill svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,0.06); }
 </style>
 
-<h1><span style="background:#111827;color:#fff;font:700 0.62em/1 'SF Mono',Menlo,Consolas,monospace;border-radius:6px;padding:.28em .5em;margin-right:.45em;vertical-align:middle;letter-spacing:.04em;">09</span><span class="cs">Tokenizace a embeddingy</span><span class="en">Tokenization and embeddings</span></h1>
+<h1><span class="badge">09</span><span class="cs">Tokenizace a embeddingy</span><span class="en">Tokenization and embeddings</span></h1>
   <p class="intro">
     <span class="cs">Jazykový model nečte písmena ani slova jako my. Text si nejdřív rozseká na <b>tokeny</b>
     a každému přiřadí <b>vektor čísel</b> (embedding), který zachycuje význam. Podobná slova mají
@@ -144,7 +104,7 @@ import Layout from '../layouts/Layout.astro';
 
     <div class="block">
       <div class="label"><span class="cs">2 · embeddingy — mapa významů (klikni na slovo)</span><span class="en">2 · embeddings — a map of meaning (click a word)</span></div>
-      <div class="map" id="map"><svg id="lines"></svg></div>
+      <div class="map" id="map"><svg id="lines" viewBox="0 0 718 498" preserveAspectRatio="none"></svg></div>
       <div class="sublabel"><span class="cs">Analogie — počítání s významy (klikni a sleduj šipky):</span><span class="en">Analogies — computing with meaning (click and watch the arrows):</span></div>
       <div class="controls" id="analogies">
         <button class="go small cs" data-a="král" data-b="muž" data-c="žena">král − muž + žena</button>
@@ -293,11 +253,11 @@ import Layout from '../layouts/Layout.astro';
     const text = $('text').value;
     const toks = tokenize(text);
     $('tokens').innerHTML = toks.map((t,i)=>
-      `<span class="tok" style="background:${TOK_COLORS[i%TOK_COLORS.length]}">${t===' '?'␣':t}` +
+      `<span class="tok" style="background:${TOK_COLORS[i%TOK_COLORS.length]}">${t.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c])}` +
       `<span class="id">#${hashId(t)}</span></span>`).join('');
     $('tokstat').innerHTML = I18N[curLang].tokstat(
       text.length, toks.length,
-      (text.replace(/\s/g,'').length/Math.max(toks.length,1)).toFixed(1));
+      (text.length/Math.max(toks.length,1)).toFixed(1));
   }
   $('text').addEventListener('input', renderTokens);
 
@@ -357,7 +317,8 @@ import Layout from '../layouts/Layout.astro';
       const el = document.createElement('div');
       el.className = 'word';
       el.textContent = d.w;
-      el.style.left = d.x+'px'; el.style.top = d.y+'px';
+      // souřadnice jsou pro mapu 718 px širokou (720 − rámeček); užší mapa je vodorovně zmenší
+      el.style.left = `calc(${d.x} * min(1px, 100cqw / 718))`; el.style.top = d.y+'px';
       el.style.background = GROUPS[d.g].bg; el.style.color = GROUPS[d.g].fg;
       el.style.borderColor = GROUPS[d.g].fg + '55';
       el.addEventListener('click', () => selectWord(d.i));

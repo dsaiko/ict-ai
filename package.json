@@ -6,9 +6,16 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test": "node tests/smoke.mjs"
   },
   "dependencies": {
-    "astro": "^6.4.4"
+    "astro": "^7.3.5"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0"
   }
 }

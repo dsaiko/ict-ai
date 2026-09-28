@@ -4,7 +4,8 @@
 // zpět, spodní lang-switch skript a base CSS chrome.
 //
 // titleCs/titleEn  — titulek stránky v obou jazycích (řídí <title> i přepínač)
-// back             — zobrazit tlačítko "← ZPĚT" (rozcestník ho nemá, dema ano)
+// back             — zobrazit tlačítko "← ZPĚT" (rozcestník ho nemá, dema ano);
+//                    zároveň přidá <body class="demo"> se společným vzhledem dem
 interface Props {
   titleCs: string;
   titleEn: string;
@@ -13,17 +14,25 @@ interface Props {
 const { titleCs, titleEn, back = false } = Astro.props;
 
 // Měření návštěvnosti přes GoatCounter (cookieless, bez lišty na souhlas,
-// zdarma pro nekomerční použití). Po registraci na https://www.goatcounter.com
-// sem vlož svůj endpoint, např. 'https://saiko-ai.goatcounter.com/count'.
-// Prázdné = vypnuto. Pozn.: count.js sám přeskakuje localhost i file://,
-// takže `make preview` ani lokální otevření statistiky nešpiní.
+// zdarma pro nekomerční použití). Prázdný řetězec = měření vypnuto.
+// Pozn.: count.js sám přeskakuje localhost i file://, takže `make preview`
+// ani lokální otevření statistiky nešpiní.
 const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
+
+const DESCRIPTION = 'Interaktivní ukázky principů umělé inteligence — od hrubé síly a hledání přes učení z dat a neuronové sítě až k jazykovým modelům, RAG a agentům. / Interactive demos of the principles behind AI.';
+// Favicon jako inline SVG — žádný externí soubor, stránka zůstává soběstačná
+// (a prohlížeč už nehlásí 404 na /favicon.ico).
+const FAVICON = 'data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2563eb"/>' +
+  '<text x="32" y="43" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="30" font-weight="800" fill="#fff" text-anchor="middle">AI</text></svg>');
 ---
 <!DOCTYPE html>
 <html lang="cs">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content={DESCRIPTION} />
+<link rel="icon" type="image/svg+xml" href={FAVICON} />
 <script is:inline>
   /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
      Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
@@ -45,7 +54,7 @@ const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
   }
   .langpill button {
     display: flex; align-items: center; justify-content: center; width: 36px; height: 27px;
-    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0;
+    border: none; background: none; border-radius: 999px; cursor: pointer; padding: 0; min-width: 0;
     opacity: .45; transition: opacity .12s, background .12s;
   }
   .langpill button:hover { opacity: .8; background: #f3f4f6; }
@@ -79,10 +88,51 @@ const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
   .wh-k { font-weight: 700; color: #111827; }
   .wh-k::after { content: ": "; }
   .whathow b { color: #374151; }
+
+  /* ── Společný vzhled dem (body.demo) ──
+     Dřív zkopírované v každé ukázce. :where() nezvyšuje specificitu, takže
+     stejné pravidlo ve stránce (lokální varianta) pořád vyhraje. */
+  body:where(.demo) {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1c1c1e; margin: 0;
+    padding: 32px 16px 64px; display: flex; flex-direction: column; align-items: center;
+  }
+  /* číslo příkladu v nadpisu */
+  :where(.demo) h1 .badge {
+    background: #111827; color: #fff; font: 700 0.62em/1 'SF Mono', Menlo, Consolas, monospace;
+    border-radius: 6px; padding: .28em .5em; margin-right: .45em; vertical-align: middle; letter-spacing: .04em;
+  }
+  :where(.demo) .intro b { color: #374151; }
+
+  /* blok „Co a jak?" s krokovým diagramem */
+  :where(.demo) .explain h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; }
+  :where(.demo) .explain p { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 14px; }
+  :where(.demo) .explain p b { color: #374151; }
+  :where(.demo) .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  :where(.demo) .flow .stepc { display: inline-flex; align-items: center; gap: 8px; background: #f9fafb;
+    border: 1px solid #eef0f3; border-radius: 999px; padding: 6px 13px;
+    font-size: 12.5px; color: #374151; font-weight: 600; }
+  :where(.demo) .flow .arr { color: #9ca3af; font-size: 15px; }
+
+  /* teorie na konci ukázky */
+  :where(.demo) .theory .head { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  :where(.demo) .theory .lead { font-size: 13.5px; color: #6b7280; line-height: 1.55; margin-bottom: 16px; }
+  :where(.demo) .theory .lead b { color: #374151; }
+  :where(.demo) .tcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+  :where(.demo) .tcard { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid var(--c);
+    border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  :where(.demo) .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  :where(.demo) .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  :where(.demo) .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* úzký displej: pevné tlačítko ZPĚT by jinak překrylo nadpis */
+  @media (max-width: 640px) {
+    body:where(.demo) { padding-top: 72px; }
+  }
 </style>
 <slot name="head" />
 </head>
-<body>
+<body class:list={[{ demo: back }]}>
   <div class="langpill" role="group" aria-label="Language / Jazyk">
     <button data-lang="cs" title="Čeština" aria-label="Čeština">
       <svg width="24" height="16" viewBox="0 0 6 4" xmlns="http://www.w3.org/2000/svg">
@@ -136,7 +186,7 @@ const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
   </script>
 
   {GOATCOUNTER && (
-    <script is:inline async src="//gc.zgo.at/count.js" data-goatcounter={GOATCOUNTER}></script>
+    <script is:inline async src="https://gc.zgo.at/count.js" data-goatcounter={GOATCOUNTER}></script>
   )}
 </body>
 </html>

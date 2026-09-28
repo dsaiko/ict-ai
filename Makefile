@@ -1,4 +1,4 @@
-.PHONY: help setup build preview clean deploy-s3 deploy-s3-dryrun deploy-invalidate deploy
+.PHONY: help setup build test preview clean deploy-s3 deploy-s3-dryrun deploy-invalidate deploy
 
 # Lokální overrides (AWS_PROFILE, S3_BUCKET, S3_PATH, CLOUDFRONT_DIST).
 # Soubor Makefile.local není součástí gitu — viz .gitignore.
@@ -18,8 +18,9 @@ PREVIEW_PORT     ?= 8080
 # takže výstup funguje pod /ai/ i přes file:// stejně jako dřív.
 help:
 	@echo "Základy AI — interaktivní ukázky — dostupné cíle:"
-	@echo "  make setup              — npm install (závislosti Astro, jednorázově)"
+	@echo "  make setup              — npm ci (závislosti Astro, jednorázově)"
 	@echo "  make build              — astro build (src/pages/*.astro → dist/)"
+	@echo "  make test               — build + smoke test v Chromu (chyby JS, mobil, regrese)"
 	@echo "  make preview            — náhled dist/ na http://localhost:$(PREVIEW_PORT)"
 	@echo "  make clean              — smaže dist/"
 	@echo ""
@@ -31,15 +32,22 @@ help:
 	@echo "Konfigurace deploye je v Makefile.local (mimo git)."
 	@echo "Live: https://www.saiko.cz/$(S3_PATH)"
 
-# node_modules se přeinstaluje, jen když je package.json novější (nebo chybí).
-node_modules: package.json
-	npm install
+# node_modules se přeinstaluje, jen když je package.json/package-lock.json
+# novější (nebo chybí). npm ci = přesně verze z lock souboru (reprodukovatelný build).
+node_modules: package.json package-lock.json
+	npm ci
+	@touch node_modules
 
 setup: node_modules
 
 build: node_modules
 	npm run build
 	@echo "→ dist/ obsahuje:" && ls -1 dist/
+
+# Smoke test před přednáškou: proklikne všechny stránky v Chromu (desktop + mobil,
+# cs + en) a hlídá chyby JS, přetečení na mobilu a regrese opravených chyb.
+test: build
+	npm test
 
 preview: build
 	@echo "→ http://localhost:$(PREVIEW_PORT)/  (Ctrl-C ukončí)"
@@ -75,4 +83,9 @@ deploy-invalidate:
 		--distribution-id $(CLOUDFRONT_DIST) \
 		--paths "/$(S3_PATH)*"
 
-deploy: deploy-s3 deploy-invalidate
+# Kroky za sebou i při `make -j`: nejdřív test, pak S3, pak invalidace.
+# (Jako prosté prerekvizity by je paralelní make mohl pustit najednou a nahrát
+# na S3 dřív, než test selže.)
+deploy: test
+	$(MAKE) deploy-s3
+	$(MAKE) deploy-invalidate
