@@ -426,7 +426,7 @@ On the table stands a vase with flowers.`,
     if (!prev){ $('bars').innerHTML = ''; $('meta').innerHTML = I18N[curLang].empty; return; }
     const { arr, known } = baseDist(prev);
     const a = shaped(arr);
-    const top = a.slice(0, 9);
+    const top = a.slice(0, Math.max(9, topk));      // top-k až 12 → ukaž i ty
     $('bars').innerHTML = top.map(d => {
       const pct = Math.round(d.p*100);
       return `<div class="cand ${d.kept?'':'cut'}">` +

@@ -293,11 +293,11 @@ import Layout from '../layouts/Layout.astro';
     const text = $('text').value;
     const toks = tokenize(text);
     $('tokens').innerHTML = toks.map((t,i)=>
-      `<span class="tok" style="background:${TOK_COLORS[i%TOK_COLORS.length]}">${t===' '?'␣':t}` +
+      `<span class="tok" style="background:${TOK_COLORS[i%TOK_COLORS.length]}">${t.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c])}` +
       `<span class="id">#${hashId(t)}</span></span>`).join('');
     $('tokstat').innerHTML = I18N[curLang].tokstat(
       text.length, toks.length,
-      (text.replace(/\s/g,'').length/Math.max(toks.length,1)).toFixed(1));
+      (text.length/Math.max(toks.length,1)).toFixed(1));
   }
   $('text').addEventListener('input', renderTokens);
 

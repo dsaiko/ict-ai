@@ -286,8 +286,10 @@ import Layout from '../layouts/Layout.astro';
   }
 
   function trainStep(lr) {
-    // jedna epocha = projít všechny body (stochasticky)
-    for (const p of points) {
+    // jedna epocha = projít všechny body v náhodném pořadí (stochastický gradient)
+    const order = points.slice();
+    for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [order[i], order[j]] = [order[j], order[i]]; }
+    for (const p of order) {
       const acts = forward([p.x, p.y]);
       const L = Wt.length;
       // delta na výstupu (MSE + sigmoid)

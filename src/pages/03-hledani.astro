@@ -278,6 +278,7 @@ import Layout from '../layouts/Layout.astro';
     const i = cells.indexOf(e.target);
     if (i < 0 || isFixed(i)) return;
     drawing = true; drawMode = !walls.has(i); setWall(i, drawMode);
+    resetResults();                   // jiné bludiště → staré výsledky už nejsou srovnatelné
     e.preventDefault();
   });
   gridEl.addEventListener('mouseover', e => {
@@ -454,6 +455,10 @@ import Layout from '../layouts/Layout.astro';
     lastKey = key;
     renderResults();
   }
+  function resetResults() {
+    for (const k in results) delete results[k];
+    lastKey = null; renderResults();
+  }
   function renderResults() {
     const t = I18N[curLang];
     const tbody = document.querySelector('#results tbody');
@@ -477,7 +482,7 @@ import Layout from '../layouts/Layout.astro';
   document.getElementById('btnReset').addEventListener('click', () => { if (!running) clearSearch(); });
   document.getElementById('btnClearWalls').addEventListener('click', () => {
     if (running) return;
-    walls.clear(); cells.forEach(c => c.classList.remove('wall')); clearSearch();
+    walls.clear(); cells.forEach(c => c.classList.remove('wall')); clearSearch(); resetResults();
   });
   document.getElementById('btnMaze').addEventListener('click', () => {
     if (running) return;
@@ -485,7 +490,7 @@ import Layout from '../layouts/Layout.astro';
     for (let i = 0; i < N; i++) {
       if (!isFixed(i) && Math.random() < 0.28) setWall(i, true);
     }
-    clearSearch();
+    clearSearch(); resetResults();
   });
 
   // přepnutí jazyka: překresli tabulku výsledků v novém jazyce
