@@ -43,7 +43,7 @@ The examples build on each other — each one solves the limitation of the previ
 | ✍️ How an LLM writes | 11 | Generating text token by token: probabilities, sampling, temperature/top-k/top-p, hallucination |
 | 📎 Giving the model sources (RAG) | 12 | Retrieve relevant documents (similarity), then answer from them — fewer hallucinations |
 | 🤖 Agents — a model that acts | 13 | Model + memory + tools + planning = agent; a reason→act→observe loop over real tools |
-| ⚖️ Data and bias | 14 | Biased training data → a biased model; per-group fairness (builds on 05–06) |
+| ⚖️ Data and bias | 14 | Biased training data → a biased model; per-group fairness (builds on 06–08) |
 | 🚚 Bonus — optimization in practice | 15 | The travelling salesman problem solved by evolution (joins 01 and 08) |
 
 ---
@@ -100,7 +100,7 @@ You click two colors of points and the perceptron finds a **separating line** on
 
 ![Neural network](images/06.png)
 
-A sequel to #5: a network of neurons (2 → 12 → 12 → 1) handles a **curved** boundary too — a circle, a cross, a spiral. The network diagram colors the connections by their current weights (blue +, red −), so you see the network "rewire" during training. You click in your own data.
+A sequel to #6: a network of neurons (2 → 12 → 12 → 1) handles a **curved** boundary too — a circle, a cross, a spiral. The network diagram colors the connections by their current weights (blue +, red −), so you see the network "rewire" during training. You click in your own data.
 
 ---
 
@@ -109,7 +109,7 @@ A sequel to #5: a network of neurons (2 → 12 → 12 → 1) handles a **curved*
 
 ![How a computer sees](images/07.png)
 
-AI isn't only about text — it also handles images, sound and video. How? To a computer an **image is just a grid of numbers** (pixel brightness 0–255). Draw something into the grid (or pick a template) and watch a small **3×3 filter (a convolution)** sweep across it: for each pixel it computes a weighted sum of the neighborhood, pulling out a **feature** — edges, blur, sharpening. Stack thousands of such filters whose values are **learned from data** and you get a **convolutional neural network**, the neural net from example 6 extended to images. And modern **multimodal** models turn an image into the same vectors as words (example 9), so a language model can "see" it.
+AI isn't only about text — it also handles images, sound and video. How? To a computer an **image is just a grid of numbers** (pixel brightness 0–255). Draw something into the grid (or pick a template) and watch a small **3×3 filter (a convolution)** sweep across it: for each pixel it computes a weighted sum of the neighborhood, pulling out a **feature** — edges, blur, sharpening. Stack thousands of such filters whose values are **learned from data** and you get a **convolutional neural network**, the neural net from example 8 extended to images. And modern **multimodal** models turn an image into the same vectors as words (example 13), so a language model can "see" it.
 
 ---
 
@@ -145,7 +145,7 @@ Click a word in a sentence and see how much **attention** it pays to the others 
 
 ![How an LLM writes](images/11.png)
 
-Real language models don't blurt out a finished answer — they write it **token by token**. At each step the model computes a probability for every possible next word and **samples** one. This demo shows that step live: a probability bar chart, an editable prompt, and **temperature / top-k / top-p** controls that change how boldly it samples — with a small built-in word model (like the Markov chain in 04) under the hood. It also shows **why models hallucinate**: even when unsure (a flat distribution or an unknown context) the model still confidently picks something. The synthesis of the LLM arc — meaning (09) + context (10) → generation.
+Real language models don't blurt out a finished answer — they write it **token by token**. At each step the model computes a probability for every possible next word and **samples** one. This demo shows that step live: a probability bar chart, an editable prompt, and **temperature / top-k / top-p** controls that change how boldly it samples — with a small built-in word model (like the Markov chain in 05) under the hood. It also shows **why models hallucinate**: even when unsure (a flat distribution or an unknown context) the model still confidently picks something. The synthesis of the LLM arc — meaning (13) + context (14) → generation.
 
 ---
 
@@ -154,7 +154,7 @@ Real language models don't blurt out a finished answer — they write it **token
 
 ![RAG — a model with sources](images/12.png)
 
-A language model only knows what it learned during training — and sounds confident even when it doesn't. **RAG** (retrieval-augmented generation) fixes this: faced with a question, the model first **retrieves** the most relevant document from a knowledge base (by similarity — the embeddings idea from 09) and then answers **from it**. The demo puts the two answers side by side: the model **alone** (it guesses and hallucinates the made-up facts) vs **model + RAG** (it ranks the documents by similarity, attaches the best one, and gives a grounded, source-backed answer). RAG is by far the most common real-world way to deploy an LLM over your own data.
+A language model only knows what it learned during training — and sounds confident even when it doesn't. **RAG** (retrieval-augmented generation) fixes this: faced with a question, the model first **retrieves** the most relevant document from a knowledge base (by similarity — the embeddings idea from 13) and then answers **from it**. The demo puts the two answers side by side: the model **alone** (it guesses and hallucinates the made-up facts) vs **model + RAG** (it ranks the documents by similarity, attaches the best one, and gives a grounded, source-backed answer). RAG is by far the most common real-world way to deploy an LLM over your own data.
 
 ---
 
@@ -172,7 +172,7 @@ So far the model only **wrote text**. An **agent** is the equation **model + mem
 
 ![Biased data, biased model](images/14.png)
 
-The classifiers in 05–06 learn from data — so **what happens when the data is biased?** The same perceptron is trained on either fair or biased historical decisions. With fair data the decision boundary is vertical (only qualification matters); with biased data — where one group was historically held to a higher bar — the boundary **tilts**, and equally qualified people from that group get rejected. A per-group acceptance-rate readout makes the unfairness explicit. The model never "meant" to discriminate; it just faithfully copied the pattern in the data — which is exactly why bias in AI is so easy to miss. Applies to LLMs too.
+The classifiers in 06–08 learn from data — so **what happens when the data is biased?** The same perceptron is trained on either fair or biased historical decisions. With fair data the decision boundary is vertical (only qualification matters); with biased data — where one group was historically held to a higher bar — the boundary **tilts**, and equally qualified people from that group get rejected. A per-group acceptance-rate readout makes the unfairness explicit. The model never "meant" to discriminate; it just faithfully copied the pattern in the data — which is exactly why bias in AI is so easy to miss. Applies to LLMs too.
 
 ---
 
@@ -191,7 +191,7 @@ A bonus card with an embedded older project: a **TSP visualizer that solves the 
 - **Bilingual in one file** — Czech and English content live side by side; a flag toggle (top-right) switches them instantly with no reload, and the choice is saved to `localStorage`. You can deep-link a language with `?lang=en` / `?lang=cs`.
 - **Exact arithmetic** — the counter in example 1 uses `BigInt`, because a normal JS number is only exact up to 53 bits.
 - **From-scratch implementations** — the neural network (incl. backpropagation), the Markov chain, A\*/BFS, the genetic algorithm, convolution and attention are all written from the ground up, without ML libraries, so the principle is visible in the code.
-- Examples 09 and 10 are **simplified illustrations** of the mechanisms (embeddings projected into 2D, illustrative attention), not trained models — they're meant to convey the principle.
+- Examples 13 and 14 are **simplified illustrations** of the mechanisms (embeddings projected into 2D, illustrative attention), not trained models — they're meant to convey the principle.
 
 ---
 
@@ -261,7 +261,7 @@ Příklady na sebe navazují — každý vyřeší hranici toho předchozího:
 | ✍️ Jak LLM píše | 11 | Generování textu token po tokenu: pravděpodobnosti, vzorkování, teplota/top-k/top-p, halucinace |
 | 📎 Dát modelu zdroje (RAG) | 12 | Vyhledá relevantní dokumenty (podobnost) a odpoví z nich — méně halucinací |
 | 🤖 Agenti — model, který jedná | 13 | Model + paměť + nástroje + plánování = agent; smyčka úvaha→akce→pozorování nad nástroji |
-| ⚖️ Data a zaujatost | 14 | Zaujatá trénovací data → zaujatý model; spravedlnost po skupinách (navazuje na 05–06) |
+| ⚖️ Data a zaujatost | 14 | Zaujatá trénovací data → zaujatý model; spravedlnost po skupinách (navazuje na 06–08) |
 | 🚚 Bonus — optimalizace v praxi | 15 | Problém obchodního cestujícího řešený evolucí (spojuje 01 a 08) |
 
 ---
@@ -318,7 +318,7 @@ Naklikáš dvě barvy bodů a perceptron sám hledá **dělicí přímku**. Sch�
 
 ![Neuronová síť](images/06.png)
 
-Pokračování pětky: síť neuronů (2 → 12 → 12 → 1) zvládne i **zakřivenou** hranici — kruh, kříž, spirálu. Schéma sítě barví spoje podle aktuálních vah (modrá +, červená −), takže vidíš, jak se síť během tréninku „přepojuje". Vlastní data si naklikáš sám.
+Pokračování perceptronu (06): síť neuronů (2 → 12 → 12 → 1) zvládne i **zakřivenou** hranici — kruh, kříž, spirálu. Schéma sítě barví spoje podle aktuálních vah (modrá +, červená −), takže vidíš, jak se síť během tréninku „přepojuje". Vlastní data si naklikáš sám.
 
 ---
 
@@ -327,7 +327,7 @@ Pokračování pětky: síť neuronů (2 → 12 → 12 → 1) zvládne i **zakř
 
 ![Jak počítač vidí](images/07.png)
 
-AI není jen o textu — zvládá i obrázky, zvuk a video. Jak? Pro počítač je **obrázek jen mřížka čísel** (jas pixelu 0–255). Nakresli něco do mřížky (nebo zvol předlohu) a sleduj, jak po ní přejíždí malý **filtr 3×3 (konvoluce)**: pro každý pixel spočítá vážený součet okolí a vytáhne tak určitý **rys** — hrany, rozmazání, zaostření. Navrstvením tisíců takových filtrů, jejichž hodnoty se síť **naučí z dat**, vznikne **konvoluční neuronová síť** — neuronka z příkladu 6 rozšířená na obrázky. A moderní **multimodální** modely převedou obrázek na stejné vektory jako slova (příklad 9), takže ho jazykový model „vidí".
+AI není jen o textu — zvládá i obrázky, zvuk a video. Jak? Pro počítač je **obrázek jen mřížka čísel** (jas pixelu 0–255). Nakresli něco do mřížky (nebo zvol předlohu) a sleduj, jak po ní přejíždí malý **filtr 3×3 (konvoluce)**: pro každý pixel spočítá vážený součet okolí a vytáhne tak určitý **rys** — hrany, rozmazání, zaostření. Navrstvením tisíců takových filtrů, jejichž hodnoty se síť **naučí z dat**, vznikne **konvoluční neuronová síť** — neuronka z příkladu 8 rozšířená na obrázky. A moderní **multimodální** modely převedou obrázek na stejné vektory jako slova (příklad 13), takže ho jazykový model „vidí".
 
 ---
 
@@ -363,7 +363,7 @@ Klikni na slovo ve větě a uvidíš, kolik **pozornosti** věnuje ostatním —
 
 ![Jak LLM píše](images/11.png)
 
-Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token po tokenu**. V každém kroku spočítají pravděpodobnost pro každé možné další slovo a jedno **losují**. Ukázka to zobrazí naživo: sloupcový graf pravděpodobností, editovatelný začátek věty a ovládání **teploty / top-k / top-p**, které mění, jak odvážně model losuje — pod kapotou běží malý slovní model (jako Markov ve 4). Zároveň ukazuje, **proč modely halucinují**: i když si není jistý (ploché rozdělení nebo neznámý kontext), model stejně sebevědomě něco vybere. Vyvrcholení linie o LLM — význam (09) + kontext (10) → generování.
+Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token po tokenu**. V každém kroku spočítají pravděpodobnost pro každé možné další slovo a jedno **losují**. Ukázka to zobrazí naživo: sloupcový graf pravděpodobností, editovatelný začátek věty a ovládání **teploty / top-k / top-p**, které mění, jak odvážně model losuje — pod kapotou běží malý slovní model (jako Markov ve 5). Zároveň ukazuje, **proč modely halucinují**: i když si není jistý (ploché rozdělení nebo neznámý kontext), model stejně sebevědomě něco vybere. Vyvrcholení linie o LLM — význam (13) + kontext (14) → generování.
 
 ---
 
@@ -372,7 +372,7 @@ Skutečné jazykové modely nevyhrknou hotovou odpověď — píšou ji **token 
 
 ![RAG — model se zdroji](images/12.png)
 
-Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví. **RAG** (vyhledáním rozšířená generace) to řeší: na otázku model nejdřív **vyhledá** nejrelevantnější dokument ze znalostní báze (podle podobnosti — princip embeddingů z 09) a teprve pak odpoví **z něj**. Ukázka staví obě odpovědi vedle sebe: **jen model** (tipne si a vymyšlené údaje halucinuje) vs **model + RAG** (seřadí dokumenty podle podobnosti, ten nejlepší přiloží a dá odpověď podloženou zdrojem). RAG je dnes zdaleka nejčastější způsob, jak nasadit LLM nad vlastní data.
+Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví. **RAG** (vyhledáním rozšířená generace) to řeší: na otázku model nejdřív **vyhledá** nejrelevantnější dokument ze znalostní báze (podle podobnosti — princip embeddingů z 13) a teprve pak odpoví **z něj**. Ukázka staví obě odpovědi vedle sebe: **jen model** (tipne si a vymyšlené údaje halucinuje) vs **model + RAG** (seřadí dokumenty podle podobnosti, ten nejlepší přiloží a dá odpověď podloženou zdrojem). RAG je dnes zdaleka nejčastější způsob, jak nasadit LLM nad vlastní data.
 
 ---
 
@@ -390,7 +390,7 @@ Dosud model jen **psal text**. **Agent** je rovnice **model + paměť + nástroj
 
 ![Zaujatá data, zaujatý model](images/14.png)
 
-Klasifikátory z 05–06 se učí z dat — a **co když jsou data zaujatá?** Stejný perceptron se natrénuje buď na férových, nebo na zaujatých historických rozhodnutích. U férových dat je dělicí hranice svislá (rozhoduje jen kvalifikace); u zaujatých — kde jedna skupina musela historicky splnit víc — se hranice **nakloní** a stejně kvalifikovaní lidé z té skupiny neprojdou. Míra přijetí po skupinách dělá nespravedlnost viditelnou. Model nikdy „nechtěl" diskriminovat; jen věrně zopakoval vzor z dat — a právě proto se zaujatost v AI tak snadno přehlédne. Týká se i LLM.
+Klasifikátory z 06–08 se učí z dat — a **co když jsou data zaujatá?** Stejný perceptron se natrénuje buď na férových, nebo na zaujatých historických rozhodnutích. U férových dat je dělicí hranice svislá (rozhoduje jen kvalifikace); u zaujatých — kde jedna skupina musela historicky splnit víc — se hranice **nakloní** a stejně kvalifikovaní lidé z té skupiny neprojdou. Míra přijetí po skupinách dělá nespravedlnost viditelnou. Model nikdy „nechtěl" diskriminovat; jen věrně zopakoval vzor z dat — a právě proto se zaujatost v AI tak snadno přehlédne. Týká se i LLM.
 
 ---
 

@@ -1,0 +1,31 @@
+---
+// Přesměrování původních adres po přečíslování série (v2: 15 → 21 kapitol).
+// Záložky, odkazy z výuky a vyhledávače tak dál fungují: 08-genetika.html →
+// 04-genetika.html atd. Parametr ?lang= (a #kotva) se zachová.
+export function getStaticPaths() {
+  // getStaticPaths nevidí ostatní proměnné frontmatteru → tabulka žije tady
+  const MOVED = {
+    '04-markov': '05-markov', '05-perceptron': '06-perceptron', '06-neuronka': '08-neuronka',
+    '07-vision': '10-vision', '08-genetika': '04-genetika', '09-embeddingy': '13-embeddingy',
+    '10-attention': '14-attention', '11-token': '15-token', '12-rag': '17-rag',
+    '13-agents': '18-agents', '14-bias': '19-bias', '15-tsp': '21-tsp',
+  };
+  return Object.entries(MOVED).map(([stara, nova]) => ({ params: { stara }, props: { nova } }));
+}
+const target = `${Astro.props.nova}.html`;
+---
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="robots" content="noindex" />
+<link rel="canonical" href={target} />
+<meta http-equiv="refresh" content={`0; url=${target}`} />
+<script is:inline define:vars={{ target }}>location.replace(target + location.search + location.hash);</script>
+<title>Přesunuto / Moved</title>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:40px;text-align:center">
+  <p>Ukázka se přestěhovala → <a href={target}>{target}</a></p>
+  <p>This demo has moved → <a href={target}>{target}</a></p>
+</body>
+</html>

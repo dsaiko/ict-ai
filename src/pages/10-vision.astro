@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout titleCs="Příklad #7 — Jak počítač vidí" titleEn="Example #7 — How a computer sees" back={true}>
+<Layout titleCs="Příklad #10 — Jak počítač vidí" titleEn="Example #10 — How a computer sees" back={true}>
 <style is:global>
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 730px;
@@ -50,7 +50,7 @@ import Layout from '../layouts/Layout.astro';
   .theory { width: min(820px, 96vw); margin-top: 24px; }
 </style>
 
-<h1><span class="badge">07</span><span class="cs">Jak počítač vidí</span><span class="en">How a computer sees</span></h1>
+<h1><span class="badge">10</span><span class="cs">Jak počítač vidí</span><span class="en">How a computer sees</span></h1>
   <p class="intro">
     <span class="cs">Modely jsme dosud krmili <b>textem</b>. Ale AI zvládá i obrázky, zvuk či video. Jak? Pro počítač je
     obrázek jen <b>mřížka čísel</b> — jasů jednotlivých pixelů. Tady uvidíš, jak z těch čísel <b>malý filtr</b>
@@ -64,7 +64,7 @@ import Layout from '../layouts/Layout.astro';
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Pro počítač je obrázek jen <b>mřížka čísel</b> — jasů pixelů (0 = černá, 255 = bílá; barevný = tři čísla na pixel, R, G, B). Žádné „vidění", jen čísla.</span><span class="en">To a computer an image is just a <b>grid of numbers</b> — pixel brightness (0 = black, 255 = white; color = three numbers per pixel, R, G, B). No “seeing”, just numbers.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Nakresli něco do levé mřížky (nebo zvol předlohu) a vyber <b>filtr</b>: malé okénko <b>3×3</b> (kernel) přejede obrázek a pro každý pixel spočítá vážený součet okolí. Výsledek vpravo zvýrazní určitý <b>rys</b> — hrany, rozmazání, zaostření.</span><span class="en">Draw something into the left grid (or pick a template) and choose a <b>filter</b>: a small <b>3×3</b> window (a kernel) sweeps the image and computes a weighted sum of each pixel’s neighborhood. The result on the right highlights a certain <b>feature</b> — edges, blur, sharpening.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Navrstvením tisíců takových filtrů, které se síť <b>sama naučí</b>, vznikne <b>konvoluční neuronová síť</b> — neuronka z příkladu 6 pro obrázky. Multimodální modely pak obrázek převedou na stejné vektory jako slova (příklad 9), takže ho model „vidí" vedle textu.</span><span class="en">Stack thousands of such filters the network <b>learns by itself</b> and you get a <b>convolutional neural network</b> — the neural net from example 6, for images. Multimodal models then turn an image into the same vectors as words (example 9), so a model can “see” it alongside text.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Navrstvením tisíců takových filtrů, které se síť <b>sama naučí</b>, vznikne <b>konvoluční neuronová síť</b> — neuronka z příkladu 8 pro obrázky. Multimodální modely pak obrázek převedou na stejné vektory jako slova (příklad 13), takže ho model „vidí" vedle textu.</span><span class="en">Stack thousands of such filters the network <b>learns by itself</b> and you get a <b>convolutional neural network</b> — the neural net from example 8, for images. Multimodal models then turn an image into the same vectors as words (example 13), so a model can “see” it alongside text.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">obrázek</span><span class="en">image</span></span>
       <span class="arr">→</span>
@@ -127,9 +127,9 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#0ea5e9">
         <h3><span class="dot"></span><span class="cs">Obrázek = čísla</span><span class="en">An image = numbers</span></h3>
         <p><span class="cs">Každý pixel je číslo (jas 0–255). Barevný obrázek má na pixel tři čísla (R, G, B). Stejně jako u textu
-           (příklad 9) i tady AI nakonec počítá jen s <b>čísly</b>.</span>
+           (příklad 13) i tady AI nakonec počítá jen s <b>čísly</b>.</span>
            <span class="en">Every pixel is a number (brightness 0–255). A color image has three per pixel (R, G, B). Just like with text
-           (example 9), here too the AI ultimately computes with <b>numbers</b> only.</span></p>
+           (example 13), here too the AI ultimately computes with <b>numbers</b> only.</span></p>
       </div>
       <div class="tcard" style="--c:#7c3aed">
         <h3><span class="dot"></span><span class="cs">Konvoluce = hledání rysu</span><span class="en">Convolution = finding a feature</span></h3>
@@ -141,15 +141,15 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#16a34a">
         <h3><span class="dot"></span><span class="cs">Vrstvy = konvoluční síť</span><span class="en">Layers = a convolutional net</span></h3>
         <p><span class="cs">Filtry se navrství: první najdou hrany, další z nich skládají tvary, další objekty. Hodnoty filtrů se
-           síť <b>naučí z dat</b> — je to neuronka z příkladu 6 pro obrázky (CNN).</span>
+           síť <b>naučí z dat</b> — je to neuronka z příkladu 8 pro obrázky (CNN).</span>
            <span class="en">Filters stack up: the first find edges, the next build shapes from them, the next objects. The filter values are
-           <b>learned from data</b> — it's the neural net from example 6 for images (a CNN).</span></p>
+           <b>learned from data</b> — it's the neural net from example 8 for images (a CNN).</span></p>
       </div>
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Multimodální modely</span><span class="en">Multimodal models</span></h3>
-        <p><span class="cs">Dnešní modely převedou obrázek na <b>vektory</b> stejně jako slova (příklad 9) a vloží je do téhož prostoru.
+        <p><span class="cs">Dnešní modely převedou obrázek na <b>vektory</b> stejně jako slova (příklad 13) a vloží je do téhož prostoru.
            Proto umí LLM „popsat fotku" nebo odpovídat na obrázek.</span>
-           <span class="en">Today's models turn an image into <b>vectors</b> just like words (example 9) and place them in the same space. That's
+           <span class="en">Today's models turn an image into <b>vectors</b> just like words (example 13) and place them in the same space. That's
            why an LLM can "describe a photo" or answer about an image.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">
@@ -161,9 +161,9 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#0d9488">
         <h3><span class="dot"></span><span class="cs">Stejný princip jako jinde</span><span class="en">The same principle as elsewhere</span></h3>
-        <p><span class="cs">Vážený součet vstupů (jako u neuronu, příklad 5–6), naučené váhy, vrstvení. „Vidění" není kouzlo — je to
+        <p><span class="cs">Vážený součet vstupů (jako u neuronu, příklad 6–8), naučené váhy, vrstvení. „Vidění" není kouzlo — je to
            táž matematika, jen nad mřížkou pixelů.</span>
-           <span class="en">A weighted sum of inputs (like a neuron, examples 5–6), learned weights, layering. "Seeing" is no magic — it's the
+           <span class="en">A weighted sum of inputs (like a neuron, examples 6–8), learned weights, layering. "Seeing" is no magic — it's the
            same math, just over a grid of pixels.</span></p>
       </div>
     </div>

@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout titleCs="Příklad #13 — Agenti: model, který jedná" titleEn="Example #13 — Agents: a model that acts" back={true}>
+<Layout titleCs="Příklad #18 — Agenti: model, který jedná" titleEn="Example #18 — Agents: a model that acts" back={true}>
 <style is:global>
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 730px;
@@ -69,7 +69,7 @@ import Layout from '../layouts/Layout.astro';
   .theory { width: min(820px, 96vw); margin-top: 24px; }
 </style>
 
-<h1><span class="badge">13</span><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h1>
+<h1><span class="badge">18</span><span class="cs">Agenti — model, který jedná</span><span class="en">Agents — a model that acts</span></h1>
   <p class="intro">
     <span class="cs">Dosud model jen <b>psal text</b>. Agent jde dál: dostane úkol, sám se rozhodne, <b>zavolá nástroj</b>
     (vyhledávání, kalkulačku, e-mail…), podívá se na výsledek a pokračuje — dokud úkol nesplní. To je směr, kterým
@@ -88,7 +88,7 @@ import Layout from '../layouts/Layout.astro';
       <span class="term"><span class="cs">plánování</span><span class="en">planning</span></span>
       <span class="op">=</span><span class="term res">agent</span>
     </div>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Agent</b> = model + paměť + nástroje + plánování. Samotné LLM umí jen <b>generovat text</b> (11); agent kolem něj přidá <b>nástroje</b> a <b>smyčku</b>, takže může i jednat.</span><span class="en">An <b>agent</b> = model + memory + tools + planning. A language model alone can only <b>generate text</b> (11); an agent adds <b>tools</b> and a <b>loop</b> around it, so it can also act.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Agent</b> = model + paměť + nástroje + plánování. Samotné LLM umí jen <b>generovat text</b> (15); agent kolem něj přidá <b>nástroje</b> a <b>smyčku</b>, takže může i jednat.</span><span class="en">An <b>agent</b> = model + memory + tools + planning. A language model alone can only <b>generate text</b> (15); an agent adds <b>tools</b> and a <b>loop</b> around it, so it can also act.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš úkol (nebo klikni na předvolbu) a spusť agenta. On si rozmyslí, který <b>nástroj</b> použít (vyhledávání, kalkulačku, e-mail…), <b>zavolá</b> ho, výsledek si <b>zapamatuje</b> a podle něj plánuje další krok — klidně několik za sebou.</span><span class="en">Type a task (or click a preset) and run the agent. It decides which <b>tool</b> to use (search, a calculator, email…), <b>calls</b> it, <b>remembers</b> the result and plans the next step from it — possibly several in a row.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tím model přestává být „chytrý textový automat" a stává se něčím, co <b>samostatně řeší úkoly</b>. To je směr, kterým se AI vydala v roce 2026 — vyvrcholení celé série.</span><span class="en">This turns the model from a “clever text machine” into something that <b>solves tasks on its own</b>. It’s the direction AI took in 2026 — the culmination of the whole series.</span></p>
     <div class="flow">
@@ -168,15 +168,15 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#dc2626">
         <h3><span class="dot"></span><span class="cs">Rizika a dohled</span><span class="en">Risks and oversight</span></h3>
         <p><span class="cs">Agent <b>opravdu jedná</b> ve světě (odešle e-mail, zaplatí, smaže soubor). Když se splete nebo
-           halucinuje (příklad 11), může nadělat škodu — proto potřebuje <b>limity a člověka u kontroly</b>.</span>
+           halucinuje (příklad 15), může nadělat škodu — proto potřebuje <b>limity a člověka u kontroly</b>.</span>
            <span class="en">An agent <b>really acts</b> in the world (sends an email, pays, deletes a file). If it errs or hallucinates
-           (example 11), it can do damage — which is why it needs <b>limits and a human in the loop</b>.</span></p>
+           (example 15), it can do damage — which is why it needs <b>limits and a human in the loop</b>.</span></p>
       </div>
       <div class="tcard" style="--c:#0ea5e9">
         <h3><span class="dot"></span><span class="cs">Celá série v jednom</span><span class="en">The whole series in one</span></h3>
-        <p><span class="cs">Agent spojuje vše: model generuje krok (11), vyhledávání je vlastně RAG (12), plánování trasy úkolů
+        <p><span class="cs">Agent spojuje vše: model generuje krok (15), vyhledávání je vlastně RAG (17), plánování trasy úkolů
            připomíná hledání (3) i optimalizaci. Mozek + nástroje + cíl.</span>
-           <span class="en">An agent ties it all together: the model generates a step (11), search is basically RAG (12), planning a path of
+           <span class="en">An agent ties it all together: the model generates a step (15), search is basically RAG (17), planning a path of
            subtasks echoes search (3) and optimization. Brain + tools + a goal.</span></p>
       </div>
       <div class="tcard" style="--c:#f59e0b">

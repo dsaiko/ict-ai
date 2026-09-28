@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout titleCs="Příklad #14 — Zaujatá data, zaujatý model" titleEn="Example #14 — Biased data, biased model" back={true}>
+<Layout titleCs="Příklad #19 — Zaujatá data, zaujatý model" titleEn="Example #19 — Biased data, biased model" back={true}>
 <style is:global>
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
@@ -48,19 +48,19 @@ import Layout from '../layouts/Layout.astro';
   .theory { width: min(760px, 96vw); margin-top: 28px; }
 </style>
 
-<h1><span class="badge">14</span><span class="cs">Zaujatá data, zaujatý model</span><span class="en">Biased data, biased model</span></h1>
+<h1><span class="badge">19</span><span class="cs">Zaujatá data, zaujatý model</span><span class="en">Biased data, biased model</span></h1>
   <p class="intro">
-    <span class="cs">Modely z příkladů 5 a 6 se učí <b>z dat</b>. Ale co když jsou data <b>zaujatá</b>? Tady stejný klasifikátor
+    <span class="cs">Modely z příkladů 6 a 8 se učí <b>z dat</b>. Ale co když jsou data <b>zaujatá</b>? Tady stejný klasifikátor
     (perceptron) dostane buď férová, nebo zaujatá historická rozhodnutí — a uvidíš, že <b>zaujatá data = zaujatý model</b>,
     i když jsme mu nikdy neřekli, aby někoho znevýhodňoval.</span>
-    <span class="en">The models in examples 5 and 6 learn <b>from data</b>. But what if the data is <b>biased</b>? Here the same
+    <span class="en">The models in examples 6 and 8 learn <b>from data</b>. But what if the data is <b>biased</b>? Here the same
     classifier (a perceptron) is given either fair or biased historical decisions — and you'll see that <b>biased data = a biased
     model</b>, even though we never told it to disadvantage anyone.</span>
   </p>
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Stejný klasifikátor jako u perceptronu (5). Každý bod je člověk: vodorovně <b>kvalifikace</b>, svisle <b>skupina</b> (A/B — což by nemělo rozhodovat), barva = jak rozhodla <b>historická data</b>. Model se z nich naučí dělicí hranici.</span><span class="en">The same classifier as the perceptron (5). Each dot is a person: horizontally <b>qualification</b>, vertically <b>group</b> (A/B — which shouldn’t decide anything), color = how the <b>historical data</b> decided. The model learns a boundary from them.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Stejný klasifikátor jako u perceptronu (6). Každý bod je člověk: vodorovně <b>kvalifikace</b>, svisle <b>skupina</b> (A/B — což by nemělo rozhodovat), barva = jak rozhodla <b>historická data</b>. Model se z nich naučí dělicí hranici.</span><span class="en">The same classifier as the perceptron (6). Each dot is a person: horizontally <b>qualification</b>, vertically <b>group</b> (A/B — which shouldn’t decide anything), color = how the <b>historical data</b> decided. The model learns a boundary from them.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Přepínej mezi <b>férovými</b> a <b>zaujatými</b> daty a sleduj dole <b>míru přijetí stejně kvalifikovaných</b> lidí v obou skupinách. U férových je hranice svislá; u zaujatých se nakloní — a kvalifikovaní ze skupiny B najednou neprojdou.</span><span class="en">Switch between <b>fair</b> and <b>biased</b> data and watch the <b>acceptance rate of equally qualified</b> people in both groups below. With fair data the boundary is vertical; with biased data it tilts — and qualified people from group B suddenly don’t make it.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Model nikdy nedostal pokyn někoho znevýhodnit — <b>převzal nespravedlnost z dat</b>. A tváří se objektivně. Tečka za sérií: každý model je jen tak dobrý jako data, na kterých se učí.</span><span class="en">The model was never told to disadvantage anyone — it <b>inherited the unfairness from the data</b>. And it looks objective. A coda to the series: a model is only as good as the data it learns from.</span></p>
     <div class="flow">
@@ -130,9 +130,9 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Týká se i LLM</span><span class="en">It applies to LLMs too</span></h3>
-        <p><span class="cs">Stejně jako tenhle klasifikátor (příklady 5–6) se i velké jazykové modely učí z dat — a přebírají jejich
+        <p><span class="cs">Stejně jako tenhle klasifikátor (příklady 6–8) se i velké jazykové modely učí z dat — a přebírají jejich
            zaujatost a stereotypy. Větší model problém nevyřeší, jen schová.</span>
-           <span class="en">Just like this classifier (examples 5–6), large language models also learn from data — and pick up its biases and
+           <span class="en">Just like this classifier (examples 6–8), large language models also learn from data — and pick up its biases and
            stereotypes. A bigger model doesn't solve the problem, it just hides it.</span></p>
       </div>
     </div>
@@ -161,7 +161,7 @@ import Layout from '../layouts/Layout.astro';
 
   // ── data: x = kvalifikace (0..1), y = pozice dle skupiny, group 0=A(nahoře)/1=B(dole) ──
   let points = [], mode = 'fair';
-  // Průměrovaný perceptron: učí se stejně jako v příkladu 5 (w), ale rozhoduje
+  // Průměrovaný perceptron: učí se stejně jako v příkladu 6 (w), ale rozhoduje
   // podle průměru vah přes celý trénink (avg). Na neoddělitelných (zaujatých)
   // datech klasický perceptron osciluje a verdikt by náhodně přeskakoval.
   let w = [0, 0, 0];                 // [bias, w_x, w_y] — průběžné váhy
