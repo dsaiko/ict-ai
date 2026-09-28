@@ -55,7 +55,7 @@ The examples build on each other — each one solves the limitation of the previ
 
 ![Binary counter](images/01.png)
 
-A grid of 64 cells as a single 64-bit number. Click to set bits and press RUN to count up. The remaining-time graph shows why "trying every combination" by brute force **never finishes** — even at thousands of steps per second it's tens of billions of years (longer than the age of the universe). The perfect motivation for why we don't use brute force in AI.
+A grid of 64 cells as a single 64-bit number. Click to set bits and press RUN to count up. The remaining-time graph shows why "trying every combination" by brute force **never finishes** — at the demo's pace it's over 35 billion years (longer than the age of the universe), and even at a billion steps per second it would take almost 600 years for a mere 8×8 grid. The perfect motivation for why we don't use brute force in AI.
 
 ---
 
@@ -73,7 +73,7 @@ Four steps **A–D** as a mini-history of language models: from combinatorially 
 
 ![Pathfinding](images/03.png)
 
-A grid maze (draw walls with the mouse) and a contest of methods: **random walk, greedy, BFS and A\***. You see for yourself how many cells each one explores — and a comparison table shows why brute force gives way to smart search (A\* finds a path as short as BFS but explores orders of magnitude fewer cells).
+A grid maze (draw walls with the mouse) and a contest of methods: **random walk, greedy, BFS and A\***. You see for yourself how many cells each one explores — and a comparison table shows why brute force gives way to smart search (A\* finds a path as short as BFS but explores far fewer cells — on open ground even an order of magnitude fewer).
 
 ---
 
@@ -270,7 +270,7 @@ Příklady na sebe navazují — každý vyřeší hranici toho předchozího:
 
 ![Binární počítadlo](images/01.png)
 
-Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tlačítkem RUN je necháš přičítat. Graf zbývajícího času ukazuje, proč „projít všechny kombinace" hrubou silou **nikdy nedoběhne** — i při tisících kroků za sekundu jde o desítky miliard let (víc než stáří vesmíru). Ideální motivace, proč v AI hrubou silu nepoužíváme.
+Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tlačítkem RUN je necháš přičítat. Graf zbývajícího času ukazuje, proč „projít všechny kombinace" hrubou silou **nikdy nedoběhne** — tempem dema přes 35 miliard let (víc než stáří vesmíru) a i při miliardě kroků za sekundu by to pro pouhou mřížku 8×8 trvalo skoro 600 let. Ideální motivace, proč v AI hrubou silu nepoužíváme.
 
 ---
 
@@ -288,7 +288,7 @@ Mřížka 64 polí jako jedno 64bitové číslo. Klikáním nastavíš bity a tl
 
 ![Hledání cesty](images/03.png)
 
-Bludiště na mřížce (zdi kreslíš myší) a souboj postupů: **náhodné tápání, hladový, BFS a A\***. Vidíš na vlastní oči, kolik políček každý prozkoumá — a srovnávací tabulka ukáže, proč se hrubá síla nahrazuje chytrým prohledáváním (A\* najde stejně krátkou cestu jako BFS, ale prozkoumá řádově méně).
+Bludiště na mřížce (zdi kreslíš myší) a souboj postupů: **náhodné tápání, hladový, BFS a A\***. Vidíš na vlastní oči, kolik políček každý prozkoumá — a srovnávací tabulka ukáže, proč se hrubá síla nahrazuje chytrým prohledáváním (A\* najde stejně krátkou cestu jako BFS, ale prozkoumá výrazně méně — na volné ploše i řádově).
 
 ---
 
