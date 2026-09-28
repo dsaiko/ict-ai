@@ -18,7 +18,7 @@ PREVIEW_PORT     ?= 8080
 # takže výstup funguje pod /ai/ i přes file:// stejně jako dřív.
 help:
 	@echo "Základy AI — interaktivní ukázky — dostupné cíle:"
-	@echo "  make setup              — npm install (závislosti Astro, jednorázově)"
+	@echo "  make setup              — npm ci (závislosti Astro, jednorázově)"
 	@echo "  make build              — astro build (src/pages/*.astro → dist/)"
 	@echo "  make preview            — náhled dist/ na http://localhost:$(PREVIEW_PORT)"
 	@echo "  make clean              — smaže dist/"
@@ -31,9 +31,11 @@ help:
 	@echo "Konfigurace deploye je v Makefile.local (mimo git)."
 	@echo "Live: https://www.saiko.cz/$(S3_PATH)"
 
-# node_modules se přeinstaluje, jen když je package.json novější (nebo chybí).
-node_modules: package.json
-	npm install
+# node_modules se přeinstaluje, jen když je package.json/package-lock.json
+# novější (nebo chybí). npm ci = přesně verze z lock souboru (reprodukovatelný build).
+node_modules: package.json package-lock.json
+	npm ci
+	@touch node_modules
 
 setup: node_modules
 
