@@ -220,10 +220,9 @@ import Layout from '../layouts/Layout.astro';
       for(let w=-1;w<=1;w++){ set(Math.round(c+(rad+w)*Math.cos(t)), Math.round(c+(rad+w)*Math.sin(t)),1);} } },
     cross(){ clearImg(); for(let i=4;i<G-4;i++){ for(let w=-1;w<=1;w++){ set(i,i+w,1); set(i,G-1-i+w,1);} } },
     stripes(){ clearImg(); for(let x=0;x<G;x++) if(Math.floor(x/3)%2===0) for(let y=3;y<G-3;y++) set(x,y,1); },
-    letter(){ clearImg(); const pts=[];
-      for(let y=5;y<23;y++){ pts.push([10+Math.round((y-5)*0.0),y]); } // placeholder
+    letter(){ clearImg();
       // levá a pravá noha + příčka písmene A
-      for(let y=5;y<23;y++){ const t=(y-5)/18; set(Math.round(14-6*t)-0, y,1); set(Math.round(14+6*t),y,1);
+      for(let y=5;y<23;y++){ const t=(y-5)/18; set(Math.round(14-6*t), y,1); set(Math.round(14+6*t),y,1);
         set(Math.round(14-6*t)+1,y,1); set(Math.round(14+6*t)-1,y,1); }
       for(let x=10;x<=18;x++){ set(x,15,1); set(x,16,1);} },
   };

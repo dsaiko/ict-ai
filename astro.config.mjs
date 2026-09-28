@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 
-// POC migrace statických AI-ukázek na Astro.
+// Statický web AI-ukázek (src/pages/*.astro → dist/*.html).
 // build.format: 'file' zachová ploché .html URL (08-genetika.html, ne
 // 08-genetika/index.html) — stávající relativní odkazy mezi stránkami
 // i deploy na S3 (make deploy) tak fungují beze změny.

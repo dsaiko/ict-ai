@@ -95,7 +95,7 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
         <div class="opt">
-          <span class="label" style="margin:0"><span class="cs">kontext (řád <span id="orderName">n</span>)</span><span class="en">context (order <span id="orderNameEn">n</span>)</span></span>
+          <span class="label" style="margin:0"><span class="cs">kontext (řád n)</span><span class="en">context (order n)</span></span>
           <input type="range" id="order" min="1" max="5" value="3" step="1">
           <span class="rangeval" id="orderVal">3</span>
         </div>
@@ -302,7 +302,7 @@ The land slept, and only the quiet river flowed tirelessly on toward the grey da
   // v režimu „po slovech" slova v klíči spojila bez mezery a kontext by
   // pak nešel rozdělit zpět na slova (proto generování po slovech selhávalo
   // pro řád ≥ 2). V režimu „po znacích" je výstup beze změny.
-  const SEP = '';
+  const SEP = '\u0001';
   // mapa: prefix (n jednotek) → seznam možných následníků (s opakováním = četností)
   function buildModel(units, n) {
     const model = new Map();

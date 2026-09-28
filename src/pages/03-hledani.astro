@@ -205,7 +205,7 @@ import Layout from '../layouts/Layout.astro';
   // ── Mřížka ───────────────────────────────────────────────────
   const COLS = 28, ROWS = 16;
   const N = COLS * ROWS;
-  const startIdx = ROWS * 0 + Math.floor(ROWS/2) * COLS + 1;     // vlevo uprostřed
+  const startIdx = Math.floor(ROWS/2) * COLS + 1;     // vlevo uprostřed
   const goalIdx  = Math.floor(ROWS/2) * COLS + (COLS - 2);        // vpravo uprostřed
   const walls = new Set();
 
