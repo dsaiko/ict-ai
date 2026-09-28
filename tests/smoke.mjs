@@ -47,6 +47,11 @@ async function open(page, { mobile = false, lang = 'cs' } = {}) {
 }
 
 // ── 1) každá stránka: chyby JS a přetečení ───────────────────────
+// přetečení na mobilu hlídáme po načtení, po přepnutí jazyka i po proklikání
+const overflow = async (p, where, when) => {
+  const { sw, vw } = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, vw: document.documentElement.clientWidth }));
+  if (sw > vw) fail(where, `stránka přetéká do strany ${when} (${sw} px > ${vw} px)`);
+};
 for (const mobile of [false, true]) {
   console.log(mobile ? '\nMobil (390 px)' : 'Desktop (1280 px)');
   for (const name of PAGES) {
@@ -54,61 +59,122 @@ for (const mobile of [false, true]) {
     const where = `${name} ${mobile ? 'mobil' : 'desktop'}`;
     console.log(`• ${name}`);
     await p.waitForTimeout(300);
-    if (mobile) {
-      const { sw, vw } = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, vw: document.documentElement.clientWidth }));
-      if (sw > vw) fail(where, `stránka přetéká do strany (${sw} px > ${vw} px)`);
-    }
+    if (mobile) await overflow(p, where, 'po načtení');
     for (const lang of ['cs', 'en']) {
       await p.evaluate(l => window.setLang(l), lang);
+      if (mobile) await overflow(p, where, `po přepnutí na ${lang}`);
       for (const b of await p.$$('button:not(.langpill button)')) {
         if (!(await b.isVisible()) || !(await b.isEnabled())) continue;
         await b.click({ timeout: 800 }).catch(() => {});
         await p.waitForTimeout(80);
       }
+      await p.waitForTimeout(300);
+      if (mobile) await overflow(p, where, `po proklikání (${lang})`);
     }
-    await p.waitForTimeout(300);
     for (const e of errs) fail(where, `chyba JS: ${e}`);
     await ctx.close();
   }
 }
 
-// ── 2) Regrese opravených chyb ───────────────────────────────────
+// ── 2) Regrese opravených chyb (v obou jazycích) ─────────────────
 console.log('\nRegrese');
-async function check(name, what, fn) {
-  console.log(`• ${name}: ${what}`);
-  const o = await open(name);
-  try { const msg = await fn(o.p); if (msg) fail(name, msg); } catch (e) { fail(name, e.message); }
+async function check(name, what, fn, lang = 'cs') {
+  console.log(`• ${name} [${lang}]: ${what}`);
+  const o = await open(name, { lang });
+  try { const msg = await fn(o.p); if (msg) fail(`${name} [${lang}]`, msg); } catch (e) { fail(`${name} [${lang}]`, e.message); }
   for (const e of o.errs) fail(name, `chyba JS: ${e}`);
   await o.ctx.close();
 }
+// agent: spusť úkol a vrať text odpovědi + názvy použitých nástrojů
+async function agent(p, task) {
+  if (task !== null) { await p.fill('#task', task); await p.click('#btnRun'); }
+  await p.waitForSelector('.tanswer', { timeout: 8000 });
+  return { answer: (await p.textContent('.tanswer')).trim(), tools: (await p.$$eval('.tstep .tool', e => e.map(x => x.textContent))).join(' ') };
+}
+const XSS = '<img src=x onerror="window.__pwned=1"> 2+2';
+const pwned = p => p.evaluate(() => window.__pwned === 1);
 
-await check('13-agents', 'předvolba spustí agenta na SVŮJ úkol', async p => {
-  await p.click('#presets button[data-i="0"]');                       // „Kolik je 17 % z 240?"
-  await p.waitForSelector('.tanswer', { timeout: 6000 });
-  const t = await p.textContent('.tanswer');
-  if (!t.includes('40,8')) return `čekáno „40,8", odpověď: ${t.trim()}`;
+const AG = {
+  cs: { preset: '40,8', time: ['Kolik je hodin?'], now: 'Teď je', cal: 'kalendář', noCalc: ['Sleva je 20 %', 'nepodařilo přečíst'] },
+  en: { preset: '40.8', time: ['What time is it?', 'What is the date today?'], now: 'It is now', cal: 'calendar', noCalc: ['The discount is 20%', "couldn't read"] },
+};
+for (const lang of ['cs', 'en']) {
+  const L = AG[lang];
+  await check('13-agents', 'předvolba spustí agenta na SVŮJ úkol', async p => {
+    await p.click('#presets button[data-i="0"]');                   // „Kolik je 17 % z 240?"
+    const { answer } = await agent(p, null);
+    if (!answer.includes(L.preset)) return `čekáno „${L.preset}", odpověď: ${answer}`;
+  }, lang);
+  for (const q of L.time) await check('13-agents', `„${q}" → kalendář s datem a časem`, async p => {
+    const { answer, tools } = await agent(p, q);
+    if (!tools.includes(L.cal)) return `nepoužil kalendář (nástroje: ${tools || '—'})`;
+    if (!answer.includes(L.now) || !/\d{1,2}:\d{2}/.test(answer)) return `odpověď bez času: ${answer}`;
+  }, lang);
+  await check('13-agents', 'nepřečtený výpočet → přiznání, ne „Výsledek je ?"', async p => {
+    const { answer } = await agent(p, L.noCalc[0]);
+    if (!answer.includes(L.noCalc[1])) return `odpověď: ${answer}`;
+  }, lang);
+}
+await check('13-agents', 'HTML v úkolu se escapuje (žádný vložený prvek, žádný handler)', async p => {
+  await agent(p, XSS);
+  if (await p.$('#trace img')) return 'v trase se vykreslil vložený <img>';
+  if (await pwned(p)) return 'spustil se vložený onerror';
+  if (!(await p.textContent('#trace')).includes('<img')) return 'text úkolu se v trase neukázal jako text';
 });
-await check('13-agents', '„Kolik je hodin?" nejde na kalkulačku', async p => {
-  await p.fill('#task', 'Kolik je hodin?'); await p.click('#btnRun');
-  await p.waitForSelector('.tanswer', { timeout: 6000 });
-  const t = await p.textContent('.tanswer');
-  if (t.includes('?')) return `odpověď obsahuje „?": ${t.trim()}`;
+await check('09-embeddingy', 'HTML v textu se escapuje (žádný vložený prvek, žádný handler)', async p => {
+  await p.fill('#text', XSS); await p.waitForTimeout(200);
+  if (await p.$('#tokens img')) return 'v tokenech se vykreslil vložený <img>';
+  if (await pwned(p)) return 'spustil se vložený onerror';
 });
-await check('12-rag', 'všechny předvolby najdou dokument se 100 % a ✓', async p => {
-  const n = await p.$$eval('#presets button', b => b.length);
-  for (let i = 0; i < n; i++) {
-    await p.click(`#presets button[data-i="${i}"]`);
-    const pct = await p.textContent('.rk .rkpct'), note = await p.textContent('#noteRag');
-    if (pct.trim() !== '100 %' || !note.startsWith('✓')) return `předvolba ${i}: ${pct.trim()} / ${note.slice(0, 40)}`;
-  }
-});
-await check('14-bias', 'zaujatá data → verdikt „Nespravedlivé" (5 běhů)', async p => {
-  await p.click('#mode button[data-mode="biased"]');
-  for (let i = 0; i < 5; i++) {
-    await p.click('#btnNew'); await p.waitForTimeout(3200);
-    if (!(await p.getAttribute('#verdict', 'class')).includes('bad')) return `běh ${i + 1}: verdikt „Férové"`;
-  }
-});
+
+const RAG = {
+  cs: { morph: ['Kde najdu ředitele?', '#4'], tie: 'V kolik otevírá jídelna?', none: 'Jaké je počasí?' },
+  en: { morph: ['When does the canteen open?', '#3'], tie: 'Is there vegetarian food?', none: 'What are principalities?' },
+};
+const ask = async (p, q) => { await p.fill('#q', q); await p.click('#btnAsk');
+  return { top: (await p.textContent('.rk .rkdoc')).trim(), pct: (await p.textContent('.rk .rkpct')).trim(), note: (await p.textContent('#noteRag')).trim(),
+           color: await p.$eval('#noteRag', e => e.style.color) }; };
+for (const lang of ['cs', 'en']) {
+  const R = RAG[lang];
+  await check('12-rag', 'všechny předvolby najdou dokument se 100 % a ✓', async p => {
+    const n = await p.$$eval('#presets button', b => b.length);
+    for (let i = 0; i < n; i++) {
+      await p.click(`#presets button[data-i="${i}"]`);
+      const pct = await p.textContent('.rk .rkpct'), note = await p.textContent('#noteRag');
+      if (pct.trim() !== '100 %' || !note.startsWith('✓')) return `předvolba ${i}: ${pct.trim()} / ${note.slice(0, 40)}`;
+    }
+  }, lang);
+  await check('12-rag', `tvar slova: „${R.morph[0]}" → dokument ${R.morph[1]}`, async p => {
+    const r = await ask(p, R.morph[0]);
+    if (r.top !== R.morph[1] || r.pct === '0 %') return `nejlepší ${r.top} (${r.pct})`;
+  }, lang);
+  await check('12-rag', 'remíza / slabá shoda → ⚠️, ne ✓', async p => {
+    const r = await ask(p, R.tie);
+    if (!r.note.startsWith('⚠️')) return `poznámka: ${r.note.slice(0, 50)}`;
+  }, lang);
+  await check('12-rag', 'nic nenalezeno → žádné ✓; barva poznámky se resetuje', async p => {
+    await ask(p, R.tie);
+    const r = await ask(p, R.none);
+    if (r.note.startsWith('✓')) return `„${R.none}" dostalo ✓ (${r.top} ${r.pct})`;
+    await p.fill('#q', ''); await p.click('#btnAsk');
+    if (await p.$eval('#noteRag', e => e.style.color)) return 'prázdný dotaz zdědil barvu varování';
+  }, lang);
+}
+
+// zaujatost: čekáme na konec tréninku (timer === null), ne pevnou pauzu
+const trained = p => p.waitForFunction(() => timer === null, null, { timeout: 15000, polling: 100 });
+for (const [mode, want, label] of [['biased', 'bad', 'Nespravedlivé'], ['fair', 'ok', 'Férové']])
+  await check('14-bias', `${mode === 'biased' ? 'zaujatá' : 'férová'} data → verdikt „${label}" (5 běhů)`, async p => {
+    await p.click(`#mode button[data-mode="${mode}"]`); await trained(p);
+    for (let i = 0; i < 5; i++) {
+      await p.click('#btnNew'); await p.waitForTimeout(50); await trained(p);
+      if (!(await p.getAttribute('#verdict', 'class')).includes(want)) return `běh ${i + 1}: jiný verdikt než „${label}"`;
+    }
+  });
+
+// testovací server: chybějící soubor = 404, server běží dál
+{ const r = await fetch(`${BASE}neexistuje.html`); if (r.status !== 404) fail('server', `chybějící soubor vrátil ${r.status}`);
+  const ok = await fetch(`${BASE}index.html`); if (ok.status !== 200) fail('server', 'po 404 server neodpovídá'); }
 
 await browser.close();
 server.close();
