@@ -191,29 +191,29 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#f59e0b">
         <h3><span class="dot"></span><span class="cs">Proč model „kecá"</span><span class="en">Why the model "makes things up"</span></h3>
         <p><span class="cs">I když si <b>není jistý</b> (ploché rozdělení nebo neznámý kontext), stejně něco vybere — a tváří se
-           sebevědomě. Halucinace = <b>sebevědomý odhad bez opory v datech</b>. Model nikdy neřekne „nevím", protože
-           pořád jen losuje další token.</span>
+           sebevědomě. Halucinace = <b>sebevědomý odhad bez opory v datech</b>. Sám od sebe „nevím" neřekne, protože
+           pořád jen losuje další token — přiznat nejistotu se ho musí naučit až další trénink (příklad 16), a ani to není spolehlivé.</span>
            <span class="en">Even when it's <b>not sure</b> (a flat distribution or unfamiliar context) it still picks something — and
-           sounds confident. A hallucination = <b>a confident guess with no support in the data</b>. The model never says
-           "I don't know", because all it ever does is sample the next token.</span></p>
+           sounds confident. A hallucination = <b>a confident guess with no support in the data</b>. On its own it never says
+           "I don't know", because all it ever does is sample the next token — admitting uncertainty has to be taught by further training (example 16), and even that isn't reliable.</span></p>
       </div>
       <div class="tcard" style="--c:#0ea5e9">
         <h3><span class="dot"></span><span class="cs">Trénink × používání (inference)</span><span class="en">Training vs. use (inference)</span></h3>
         <p><span class="cs">Tady model jen <b>používáme</b> (inference) — četnosti jsou hotové a my z nich jen losujeme.
            <b>Trénink</b> je něco jiného: tam se ty pravděpodobnosti teprve nastavují z obrovského množství textu
-           (u velkých modelů miliardy vět).</span>
+           (u velkých modelů biliony slov).</span>
            <span class="en">Here we only <b>use</b> the model (inference) — the frequencies are fixed and we just sample from them.
            <b>Training</b> is something else: that's where those probabilities are set from a huge amount of text
-           (billions of sentences for large models).</span></p>
+           (trillions of words for large models).</span></p>
       </div>
       <div class="tcard" style="--c:#ec4899">
         <h3><span class="dot"></span><span class="cs">Vztah ke „skutečným" LLM</span><span class="en">Relation to "real" LLMs</span></h3>
         <p><span class="cs">Princip je totožný, jen větší: místo posledního slova se model dívá na <b>celou větu</b> (attention,
            příklad 14), místo slov má <b>tokeny</b> (příklad 13) a pravděpodobnosti počítá <b>neuronová síť</b>
-           (příklady 6–8) naučená z miliard vět.</span>
+           (příklady 6–8) naučená z bilionů slov textu.</span>
            <span class="en">The principle is identical, just bigger: instead of the last word the model looks at the <b>whole sentence</b>
            (attention, example 14), instead of words it has <b>tokens</b> (example 13), and the probabilities are computed by a
-           <b>neural network</b> (examples 6–8) trained on billions of sentences.</span></p>
+           <b>neural network</b> (examples 6–8) trained on trillions of words of text.</span></p>
       </div>
     </div>
     <p class="lead" style="margin-top:16px">

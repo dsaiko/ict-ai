@@ -88,8 +88,10 @@ import Layout from '../layouts/Layout.astro';
         <br><br>
         Barvy jen opticky oddělují sousední tokeny. Všimni si, že <b>delší slova se rozpadnou na
         menší kousky</b> (tzv. subword tokeny) — díky tomu model zvládne i slovo, které nikdy neviděl,
-        poskládáním z částí. V praxi je <b>1 token ≈ 4 znaky</b> (zhruba ¾ slova).
-        <em>&nbsp;ID je tu jen ilustrativní, dopočítané z textu tokenu — skutečné modely mají pevný slovník desítek tisíc tokenů.</em></span>
+        poskládáním z částí. V angličtině je <b>1 token ≈ 4 znaky</b> (zhruba ¾ slova).
+        Čeština se kvůli skloňování a diakritice rozpadá na kratší kousky, takže stejný text zabere
+        <b>víc tokenů</b> — a je tedy pro model „dražší" i pomalejší.
+        <em>&nbsp;ID je tu jen ilustrativní, dopočítané z textu tokenu — skutečné modely mají pevný slovník desítek až stovek tisíc tokenů.</em></span>
         <span class="en"><b>What do those numbers mean?</b> Under each token is its <b>ID</b> (e.g. <b>#22040</b>) —
         the index of that piece in the model's <b>vocabulary</b>. The model doesn't work with letters or
         words, but with these numbers: <b>text → tokens → IDs</b>, and only then does it compute with the IDs.
@@ -97,8 +99,10 @@ import Layout from '../layouts/Layout.astro';
         <br><br>
         The colors just visually separate neighboring tokens. Notice that <b>longer words break into
         smaller pieces</b> (so-called subword tokens) — this lets the model handle even a word it has never seen
-        by assembling it from parts. In practice <b>1 token ≈ 4 characters</b> (roughly ¾ of a word).
-        <em>&nbsp;The ID here is only illustrative, derived from the token's text — real models have a fixed vocabulary of tens of thousands of tokens.</em></span>
+        by assembling it from parts. In English <b>1 token ≈ 4 characters</b> (roughly ¾ of a word).
+        Languages with rich inflection and diacritics, like Czech, break into shorter pieces, so the same text takes
+        <b>more tokens</b> — making it “more expensive” and slower for the model.
+        <em>&nbsp;The ID here is only illustrative, derived from the token's text — real models have a fixed vocabulary of tens to hundreds of thousands of tokens.</em></span>
       </div>
     </div>
 
