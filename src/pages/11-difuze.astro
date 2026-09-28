@@ -1,0 +1,580 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout titleCs="Příklad #11 — Difúze: jak AI kreslí obrázky" titleEn="Example #11 — Diffusion: how AI draws pictures" back={true}>
+<style is:global>
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 760px;
+           text-align: center; line-height: 1.5; }
+
+  .explain { width: min(920px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #9333ea; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  .panel { width: min(920px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); min-width: 0; }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+  .label .ph { color: #9333ea; font-weight: 700; }
+
+  /* volba tvaru (= trénovací data = „prompt") */
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; }
+  .seg button { border: none; background: #fff; padding: 9px 15px; font-size: 13.5px; font-weight: 600;
+                color: #6b7280; cursor: pointer; border-right: 1px solid #e5e7eb; }
+  .seg button:last-child { border-right: none; }
+  .seg button:hover { background: #faf5ff; }
+  .seg button.on { background: #9333ea; color: #fff; }
+  .shaperow { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
+  .hint { font-size: 12.5px; color: #6b7280; margin-top: 10px; line-height: 1.5; }
+  .hint b { color: #374151; }
+
+  /* dvě fáze vedle sebe (na mobilu pod sebou) */
+  .phases { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .phases .block { margin-bottom: 0; }
+  canvas { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto;
+           background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin-top: 12px; }
+  button.go, button.util, button.stop { font-size: 13.5px; font-weight: 700; padding: 10px 18px; border: none;
+    border-radius: 8px; cursor: pointer; transition: background .12s, transform .05s; }
+  button.go { background: #9333ea; color: #fff; } button.go:hover:not(:disabled) { background: #7e22ce; }
+  button.util { background: #e5e7eb; color: #374151; font-weight: 600; } button.util:hover:not(:disabled) { background: #d1d5db; }
+  button.stop { background: #dc2626; color: #fff; } button.stop:hover:not(:disabled) { background: #b91c1c; }
+  button:active:not(:disabled) { transform: scale(.97); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+
+  .slider { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 13px; color: #374151; }
+  .slider input[type=range] { flex: 1; min-width: 0; accent-color: #9333ea; height: 26px; }
+  .slider .val { font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 700; min-width: 3.2em; text-align: right; }
+  .slider .nm { white-space: nowrap; }
+  .check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: #374151; margin-top: 10px; cursor: pointer; }
+  .check input { width: 17px; height: 17px; accent-color: #9333ea; }
+
+  .stat { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; color: #374151;
+          margin-top: 10px; text-align: center; line-height: 1.6; min-height: 3.2em; }
+  .stat b { color: #111827; }
+  .msg { font-size: 13px; color: #6b7280; text-align: center; margin-top: 4px; line-height: 1.5; min-height: 2.9em; }
+  .msg b { color: #374151; }
+  .msg.good { color: #15803d; } .msg.warn { color: #b45309; }
+
+  /* signál vs. šum */
+  .mix { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 10px auto 0; max-width: 420px; background: #f1f3f5; }
+  .mix .sig { background: #9333ea; } .mix .noi { background: #cbd5e1; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; font-size: 12px; color: #6b7280; margin-top: 8px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+  .legend i.gen { background: #9333ea; } .legend i.train { border: 2px solid #f59e0b; }
+  .legend i.orig { background: #e5e7eb; } .legend i.arrow { background: #0ea5e9; border-radius: 2px; height: 3px; width: 14px; vertical-align: 3px; }
+
+  /* poctivost */
+  .honest { border-left: 4px solid #f59e0b; margin-top: 18px; }
+  .honest p { margin: 0; font-size: 13.5px; color: #4b5563; line-height: 1.55; }
+  .honest p b { color: #92400e; }
+
+  .theory { width: min(920px, 96vw); margin-top: 24px; }
+</style>
+
+<h1><span class="badge">11</span><span class="cs">Difúze — jak AI kreslí obrázky</span><span class="en">Diffusion — how AI draws pictures</span></h1>
+  <p class="intro">
+    <span class="cs">V příkladu 10 AI obrázky <b>rozpoznávala</b>. Teď je bude <b>tvořit</b>. Nástroje jako Stable Diffusion nebo
+    DALL·E stojí na nápadu, který zní skoro jako trik: naučit se <b>odstraňovat šum</b>. Když to model umí, stačí mu dát
+    <b>čistý náhodný šum</b> a nechat ho odšumovat krok za krokem — a z chaosu vyleze nový obrázek.</span>
+    <span class="en">In example 10 AI <b>recognized</b> images. Now it will <b>create</b> them. Tools like Stable Diffusion or DALL·E
+    rest on an idea that sounds almost like a trick: learn to <b>remove noise</b>. Once a model can do that, you just hand it
+    <b>pure random noise</b> and let it denoise step by step — and a new picture emerges from the chaos.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Difúzní model</b>: obrázek se postupně <b>zašumí</b> až na nepoznání a model se učí tenhle proces <b>obrátit</b> — z šumu udělat obrázek. Tady místo fotek pracujeme s <b>tečkami</b>: každá tečka je jeden vzorek („obrázek" o pouhých 2 číslech x, y). Asi 400 teček tvaru jsou <b>trénovací data</b>; každá vygenerovaná tečka je <b>nový vzorek</b>.</span><span class="en">A <b>diffusion model</b>: an image is gradually <b>noised</b> beyond recognition and the model learns to <b>reverse</b> that process — turning noise into an image. Instead of photos we work with <b>dots</b> here: each dot is one sample (an “image” of just 2 numbers, x and y). About 400 dots of a shape are the <b>training data</b>; each generated dot is a <b>new sample</b>.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Vyber tvar. Vlevo posuvníkem času <b>t</b> (nebo tlačítkem „Zašum") sleduj, jak se tvar rozpouští v šumu. Vpravo stiskni <b>„Vygeneruj z šumu"</b>: začne se z nových náhodných teček a ty se krok za krokem složí do tvaru. Pak zkus <b>málo kroků</b> (1, 2, 5) — výsledek je rozmazaný. A zapni „ukaž trénovací body".</span><span class="en">Pick a shape. On the left, use the time slider <b>t</b> (or the “Add noise” button) to watch the shape dissolve into noise. On the right, press <b>“Generate from noise”</b>: it starts from fresh random dots, which assemble into the shape step by step. Then try <b>few steps</b> (1, 2, 5) — the result is blurry. And switch on “show training points”.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Na tomhle principu dnes vzniká většina obrázků od AI. A demo zároveň ukazuje jejich slabinu: model, který si data <b>zapamatuje</b>, je jen <b>kopíruje</b> — odtud spory o autorská práva.</span><span class="en">Most AI-made images today are created on this principle. And the demo also shows its weak spot: a model that <b>memorizes</b> its data just <b>copies</b> it — hence the copyright disputes.</span></p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">obrázek (trénovací data)</span><span class="en">image (training data)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">postupně přidávej šum</span><span class="en">add noise step by step</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">síť se učí krok zpět</span><span class="en">a network learns one step back</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">čistý šum → odšumuj krok za krokem</span><span class="en">pure noise → denoise step by step</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">5</span> <span class="cs">nový obrázek</span><span class="en">a new image</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="block">
+      <div class="label"><span class="cs">trénovací data = „prompt" (co má vzniknout)</span><span class="en">training data = the “prompt” (what should appear)</span></div>
+      <div class="shaperow">
+        <div class="seg" id="shapes">
+          <button data-shape="heart" class="on"><span class="cs">♥ srdce</span><span class="en">♥ heart</span></button>
+          <button data-shape="spiral"><span class="cs">🌀 spirála</span><span class="en">🌀 spiral</span></button>
+          <button data-shape="ai"><span class="cs">„AI" písmena</span><span class="en">“AI” letters</span></button>
+          <button data-shape="smiley"><span class="cs">☺ smajlík</span><span class="en">☺ smiley</span></button>
+        </div>
+      </div>
+      <p class="hint"><span class="cs"><b>Zjednodušení:</b> skutečný obrázek jsou miliony čísel (pixely, příklad 10). Tady má každý „obrázek" jen <b>2 čísla</b> — polohu jedné tečky. <span id="nTrainCs">420</span> teček tvaru = <span id="nTrainCs2">420</span> trénovacích „obrázků". Model se učí, <b>kde takové tečky leží</b>; volba tvaru tu hraje roli promptu — rozhoduje, kam šum povede.</span><span class="en"><b>Simplification:</b> a real image is millions of numbers (pixels, example 10). Here each “image” has just <b>2 numbers</b> — the position of one dot. <span id="nTrainEn">420</span> dots of the shape = <span id="nTrainEn2">420</span> training “images”. The model learns <b>where such dots lie</b>; the shape choice plays the role of a prompt — it decides where the noise will lead.</span></p>
+    </div>
+
+    <div class="phases">
+      <!-- ── fáze 1: dopředu (zašumění) ── -->
+      <div class="block">
+        <div class="label"><span class="ph">1 · </span><span class="cs">dopředu: přidávání šumu</span><span class="en">forward: adding noise</span></div>
+        <canvas id="cvF" width="420" height="420"></canvas>
+        <div class="mix"><div class="sig" id="mixS"></div><div class="noi" id="mixN"></div></div>
+        <div class="stat" id="fwdStat"></div>
+        <div class="slider">
+          <span class="nm"><span class="cs">čas t</span><span class="en">time t</span></span>
+          <input type="range" id="tSlider" min="0" max="100" value="0" aria-label="t">
+          <span class="val" id="tVal">0</span>
+        </div>
+        <div class="controls">
+          <button class="go" id="btnNoise"><span class="cs">Zašum ▶</span><span class="en">Add noise ▶</span></button>
+          <button class="stop" id="btnStopF" disabled>■ STOP</button>
+        </div>
+        <label class="check"><input type="checkbox" id="chkArrows"> <span><span class="cs">ukaž přidaný šum (šipky) — právě ten se síť učí uhodnout</span><span class="en">show the added noise (arrows) — exactly what the network learns to guess</span></span></label>
+        <div class="legend"><span><i class="orig"></i><span class="cs">původní tvar</span><span class="en">original shape</span></span><span><i class="gen"></i><span class="cs">zašuměné tečky</span><span class="en">noised dots</span></span><span><i class="arrow"></i><span class="cs">šum</span><span class="en">noise</span></span></div>
+        <div class="msg" id="fwdMsg"></div>
+      </div>
+
+      <!-- ── fáze 2: zpátky (generování) ── -->
+      <div class="block">
+        <div class="label"><span class="ph">2 · </span><span class="cs">zpátky: generování ze šumu</span><span class="en">backward: generating from noise</span></div>
+        <canvas id="cvG" width="420" height="420"></canvas>
+        <div class="mix"><div class="sig" id="gmixS"></div><div class="noi" id="gmixN"></div></div>
+        <div class="stat" id="genStat"></div>
+        <div class="slider">
+          <span class="nm"><span class="cs">počet kroků</span><span class="en">number of steps</span></span>
+          <input type="range" id="sSlider" min="0" max="8" value="6" aria-label="steps">
+          <span class="val" id="sVal">40</span>
+        </div>
+        <div class="controls">
+          <button class="go" id="btnGen"><span class="cs">Vygeneruj z šumu ▶</span><span class="en">Generate from noise ▶</span></button>
+          <button class="stop" id="btnStopG" disabled>■ STOP</button>
+        </div>
+        <label class="check"><input type="checkbox" id="chkDDPM"> <span><span class="cs">se šumem (DDPM) — v každém kroku přidej trochu nové náhody</span><span class="en">with noise (DDPM) — add a little fresh randomness at each step</span></span></label>
+        <label class="check"><input type="checkbox" id="chkTrain"> <span><span class="cs">ukaž trénovací body</span><span class="en">show training points</span></span></label>
+        <div class="legend"><span><i class="gen"></i><span class="cs">generované tečky</span><span class="en">generated dots</span></span><span><i class="train"></i><span class="cs">trénovací body</span><span class="en">training points</span></span></div>
+        <div class="msg" id="genMsg"></div>
+      </div>
+    </div>
+
+    <div class="block honest">
+      <p><span class="cs"><b>Poctivě:</b> skutečné modely <b>nemají trénovací obrázky u sebe</b>. Odšumování se naučí <b>neuronová síť</b> (typicky předpovídá přidaný šum) z obrovského množství obrázků a pak už data nepotřebuje. Tady odšumovač pro názornost počítáme <b>přesně z trénovacích teček</b> (vážený průměr těch, ze kterých mohla zašuměná tečka vzniknout). Proto výsledek jen <b>kopíruje trénovací data</b> — zapni „ukaž trénovací body" a uvidíš, že vygenerované tečky padají přesně na ně. To je <b>zapamatování (přeučení)</b> z příkladu 7 v čisté podobě a přesně o tomhle se vedou spory o autorská práva: nevrací model jen kopie cizích obrázků?</span><span class="en"><b>Honestly:</b> real models <b>don't keep their training images</b>. The denoising is learned by a <b>neural network</b> (typically predicting the added noise) from a huge number of images, after which the data is no longer needed. Here, for clarity, we compute the denoiser <b>exactly from the training dots</b> (a weighted average of the dots a noisy dot could have come from). That's why the result just <b>copies the training data</b> — switch on “show training points” and you'll see the generated dots land exactly on them. That is <b>memorization (overfitting)</b> from example 7 in its purest form, and exactly what copyright disputes are about: isn't the model just returning copies of other people's images?</span></p>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Jak difúze funguje — a co z toho plyne</span><span class="en">How diffusion works — and what follows from it</span></div>
+    <p class="lead">
+      <span class="cs">Nakreslit celý obrázek najednou je strašně těžké. Ale poznat, kde v <b>trochu zašuměném</b> obrázku je šum, a kousek
+      ho ubrat, je mnohem snazší. Difúze proto celý problém rozseká na <b>desítky malých kroků zpět</b>. Difúzní modely se
+      prosadily zhruba v letech 2020–2022 a dnes na nich stojí většina generátorů obrázků.</span>
+      <span class="en">Drawing a whole picture at once is terribly hard. But spotting where the noise is in a <b>slightly noisy</b> image and
+      removing a bit of it is much easier. So diffusion chops the whole problem into <b>dozens of small steps back</b>. Diffusion
+      models took off roughly in 2020–2022, and most image generators are built on them today.</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#9333ea">
+        <h3><span class="dot"></span><span class="cs">Šum a odšumování</span><span class="en">Noise and denoising</span></h3>
+        <p><span class="cs">Dopředu: v každém kroku trochu zeslabíme obrázek a přidáme náhodný (gaussovský) šum:
+           <b>x<sub>t</sub> = √ᾱ<sub>t</sub>·x<sub>0</sub> + √(1−ᾱ<sub>t</sub>)·ε</b>. Po dost krocích zbude jen šum. Zpátky:
+           model v každém kroku odhadne, kde byl obrázek, a udělá <b>jeden malý krok</b> k němu. Málo kroků = velké skoky a rozmazaný výsledek.</span>
+           <span class="en">Forward: at each step we fade the image a little and add random (Gaussian) noise:
+           <b>x<sub>t</sub> = √ᾱ<sub>t</sub>·x<sub>0</sub> + √(1−ᾱ<sub>t</sub>)·ε</b>. After enough steps only noise remains. Backward:
+           at each step the model estimates where the image was and takes <b>one small step</b> toward it. Few steps = big jumps and a blurry result.</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">Co se síť učí</span><span class="en">What the network learns</span></h3>
+        <p><span class="cs">Trénink je jednoduchý: vezmi skutečný obrázek, přidej náhodné množství šumu a nech síť <b>hádat, jaký šum
+           jsi přidal</b> (šipky ve fázi 1). Chyba = rozdíl skutečného a uhodnutého šumu a síť ji zmenšuje gradientním sestupem
+           jako v příkladu 7 (učení přes backprop z příkladu 8). Opakuje se to na obrovském množství obrázků.</span>
+           <span class="en">Training is simple: take a real image, add a random amount of noise and let the network <b>guess what noise
+           you added</b> (the arrows in phase 1). The error = the difference between the real and the guessed noise, and the network
+           shrinks it with gradient descent as in example 7 (learning via backprop from example 8). This is repeated on a huge number of images.</span></p>
+      </div>
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span><span class="cs">Text → obrázek</span><span class="en">Text → image</span></h3>
+        <p><span class="cs">Prompt se převede na <b>vektor</b> (jako slova v příkladu 13) a síť ho dostává v každém kroku jako nápovědu —
+           prompt tak <b>řídí</b>, kam odšumování vede. Tzv. <b>guidance</b> ten vliv ještě zesílí: porovná odhad s promptem a bez
+           něj a posune výsledek víc směrem k promptu. U nás tuhle roli hraje volba tvaru.</span>
+           <span class="en">The prompt is turned into a <b>vector</b> (like words in example 13) and the network gets it at every step as a hint —
+           so the prompt <b>steers</b> where denoising goes. So-called <b>guidance</b> strengthens that influence: it compares the estimate
+           with and without the prompt and pushes the result further toward the prompt. Here the shape choice plays that role.</span></p>
+      </div>
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span><span class="cs">Obrázek = čísla (příklad 10)</span><span class="en">An image = numbers (example 10)</span></h3>
+        <p><span class="cs">Naše tečka má 2 čísla, barevný obrázek 512×512 jich má 786 432 (tři na pixel). Princip je stejný, jen v
+           mnohem více rozměrech. <b>Latentní difúze</b> (např. Stable Diffusion) si obrázek nejdřív zmenší na kompaktní
+           reprezentaci, odšumuje tu a teprve nakonec ji převede zpět na pixely — je to mnohem rychlejší.</span>
+           <span class="en">Our dot has 2 numbers; a 512×512 color image has 786,432 (three per pixel). The principle is the same, just in
+           far more dimensions. <b>Latent diffusion</b> (e.g. Stable Diffusion) first shrinks the image into a compact
+           representation, denoises that, and only at the end turns it back into pixels — which is much faster.</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">Zapamatování a autorská práva</span><span class="en">Memorization and copyright</span></h3>
+        <p><span class="cs">Naše demo si data pamatuje dokonale, takže jen kopíruje — přeučení z příkladu 7. Skutečné modely mají
+           obrázky <b>zobecňovat</b>, ale výzkumníci ukázali, že občas dokážou vrátit téměř přesnou kopii tréninkového obrázku.
+           Proto se vedou spory, zda trénink na cizích dílech bez svolení je v pořádku.</span>
+           <span class="en">Our demo remembers the data perfectly, so it just copies — the overfitting from example 7. Real models are meant to
+           <b>generalize</b>, but researchers have shown they can occasionally return a near-exact copy of a training image.
+           That's why there are disputes over whether training on other people's work without permission is OK.</span></p>
+      </div>
+      <div class="tcard" style="--c:#dc2626">
+        <h3><span class="dot"></span><span class="cs">Rizika: deepfakes a falešné fotky</span><span class="en">Risks: deepfakes and fake photos</span></h3>
+        <p><span class="cs">Vygenerovaná „fotka" může vypadat úplně skutečně — falešné zprávy, podvržené fotky lidí (deepfakes),
+           podvody. Fotka dnes sama o sobě <b>nic nedokazuje</b>: ověřuj <b>zdroj</b> (kdo ji zveřejnil, kde jinde se objevila).
+           Vodoznaky a metadata o původu pomáhají, ale dají se odstranit.</span>
+           <span class="en">A generated “photo” can look completely real — fake news, forged pictures of people (deepfakes),
+           scams. A photo on its own <b>proves nothing</b> today: check the <b>source</b> (who published it, where else it appeared).
+           Watermarks and provenance metadata help, but they can be removed.</span></p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:16px"><span class="cs"><b>Pointa:</b> generovat = <b>odšumovat</b>. Model nekreslí tah po tahu, ale z náhodného šumu opakovaně
+      „ubírá, co tam nepatří". A to, co v šumu „vidí", je jen to, co se naučil z dat — proto je kvalita i původ trénovacích dat tak důležitá.</span>
+      <span class="en"><b>The point:</b> generating = <b>denoising</b>. The model doesn't draw stroke by stroke; it repeatedly “removes what doesn't belong”
+      from random noise. And what it “sees” in the noise is only what it learned from data — which is why the quality and origin of training data matter so much.</span></p>
+  </section>
+
+<script is:inline>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+
+  const I18N = {
+    cs: {
+      fwdStat: (t, s, n) => `t = <b>${t}</b> / ${T} · signál √ᾱ = <b>${s}</b> · šum √(1−ᾱ) = <b>${n}</b>`,
+      fwd0: 'Čistý tvar = trénovací data. Posuň čas <b>t</b> nebo stiskni „Zašum".',
+      fwdMid: 'Tvar slábne (zmenšuje se ke středu) a přibývá šumu — rozpouští se.',
+      fwdEnd: 'Čistý šum: z tvaru nezbylo <b>nic</b>. Teď to otoč → vpravo „Vygeneruj z šumu".',
+      genIdle: 'Nové náhodné tečky (čistý šum). Stiskni „Vygeneruj z šumu".',
+      genRun: (k, S, t) => `krok <b>${k}</b> / ${S} · t = <b>${t}</b>`,
+      genIdleStat: (S) => `připraveno · ${S} ${S === 1 ? 'krok' : S < 5 ? 'kroky' : 'kroků'} odšumování`,
+      genStopped: 'Zastaveno uprostřed — tečky jsou ještě zašuměné.',
+      genRunMsg: 'Odšumovač v každém kroku odhadne, kde tečka „byla", a posune ji o kus tím směrem.',
+      genDone: (pct, mean) => `<b>${pct} %</b> teček leží (téměř) přesně na trénovacím bodu · průměrná vzdálenost k nejbližšímu: <b>${mean}</b>`,
+      done1: 'Jediný krok: odhad z čistého šumu je jen <b>průměr všech dat</b>, takže se všechno slilo do jednoho místa.',
+      doneFew: 'Málo kroků = velké skoky: tečky skončily <b>rozmazaně</b> mezi trénovacími body. Zkus víc kroků.',
+      doneMany: 'Tvar se zformoval z čistého šumu. Zapni „ukaž trénovací body" — tečky jsou <b>kopie</b> trénovacích dat.',
+      doneManyOn: 'Tvar se zformoval z čistého šumu — a tečky leží <b>přesně na trénovacích bodech</b> (oranžové kroužky). Jsou to jen <b>kopie</b> trénovacích dat.',
+      doneMid: 'Skoro hotovo — tvar je vidět, ale část teček ještě neleží přesně na datech.',
+    },
+    en: {
+      fwdStat: (t, s, n) => `t = <b>${t}</b> / ${T} · signal √ᾱ = <b>${s}</b> · noise √(1−ᾱ) = <b>${n}</b>`,
+      fwd0: 'A clean shape = the training data. Move the time <b>t</b> or press “Add noise”.',
+      fwdMid: 'The shape fades (shrinks toward the center) and noise grows — it dissolves.',
+      fwdEnd: 'Pure noise: <b>nothing</b> is left of the shape. Now reverse it → “Generate from noise” on the right.',
+      genIdle: 'Fresh random dots (pure noise). Press “Generate from noise”.',
+      genRun: (k, S, t) => `step <b>${k}</b> / ${S} · t = <b>${t}</b>`,
+      genIdleStat: (S) => `ready · ${S} denoising step${S === 1 ? '' : 's'}`,
+      genStopped: 'Stopped halfway — the dots are still noisy.',
+      genRunMsg: 'At each step the denoiser estimates where a dot “was” and moves it a bit that way.',
+      genDone: (pct, mean) => `<b>${pct} %</b> of dots lie (almost) exactly on a training point · mean distance to the nearest: <b>${mean}</b>`,
+      done1: 'A single step: the estimate from pure noise is just the <b>average of all data</b>, so everything merged into one spot.',
+      doneFew: 'Few steps = big jumps: the dots ended up <b>blurred</b> between the training points. Try more steps.',
+      doneMany: 'The shape formed out of pure noise. Switch on “show training points” — the dots are <b>copies</b> of the training data.',
+      doneManyOn: 'The shape formed out of pure noise — and the dots lie <b>exactly on the training points</b> (orange rings). They are just <b>copies</b> of the training data.',
+      doneMid: 'Almost there — the shape is visible, but some dots don’t lie exactly on the data yet.',
+    },
+  };
+
+  // ── rozvrh šumu (cosinový, T kroků) ──────────────────────────
+  // ᾱ_t = „kolik původního obrázku ještě zbývá" (1 na začátku → 0 na konci).
+  const T = 100, S_OFF = 0.008;
+  const fcos = t => Math.cos(((t / T) + S_OFF) / (1 + S_OFF) * Math.PI / 2) ** 2;
+  const ABAR = [];
+  for (let t = 0; t <= T; t++) ABAR.push(Math.min(1, Math.max(0, fcos(t) / fcos(0))));
+  ABAR[0] = 1; ABAR[T] = 0;                  // přesně: t=0 čistý obrázek, t=T čistý šum
+
+  const STEP_OPTIONS = [1, 2, 3, 5, 10, 20, 40, 60, 100];
+  const N = 420;                             // počet trénovacích teček i generovaných vzorků
+  const R = 2.6;                             // zobrazený výřez souřadnic: −R … R
+
+  // ── trénovací data: tečky rozmístěné rovnoměrně po křivkách ─────
+  // Každá křivka je funkce u∈[0,1] → [x,y]; tečky se rozdělí podle délky.
+  function sampleCurves(curves, n){
+    const fine = curves.map(f => {                       // jemné vzorkování + kumulativní délka
+      const pts = [], cum = [0];
+      for (let i = 0; i <= 600; i++) pts.push(f(i / 600));
+      for (let i = 1; i < pts.length; i++) cum.push(cum[i-1] + Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]));
+      return { pts, cum, len: cum[cum.length-1] };
+    });
+    const total = fine.reduce((a, c) => a + c.len, 0);
+    const out = [];
+    fine.forEach((c, ci) => {
+      const k = ci === fine.length - 1 ? n - out.length : Math.round(n * c.len / total);
+      for (let j = 0; j < k; j++) {
+        const s = (j + 0.5) / k * c.len;                  // rovnoměrně po délce
+        let i = 1; while (i < c.cum.length - 1 && c.cum[i] < s) i++;
+        const a = (s - c.cum[i-1]) / ((c.cum[i] - c.cum[i-1]) || 1);
+        out.push([c.pts[i-1][0] + a*(c.pts[i][0]-c.pts[i-1][0]), c.pts[i-1][1] + a*(c.pts[i][1]-c.pts[i-1][1])]);
+      }
+    });
+    return out;
+  }
+  const seg = (x1, y1, x2, y2) => u => [x1 + (x2-x1)*u, y1 + (y2-y1)*u];
+  const arc = (cx, cy, r, a1, a2) => u => { const a = a1 + (a2-a1)*u; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; };
+
+  const SHAPES = {
+    heart: () => sampleCurves([u => {
+      const q = 2 * Math.PI * u, k = 1.4 / 17;
+      return [16 * Math.sin(q) ** 3 * k,
+              (13*Math.cos(q) - 5*Math.cos(2*q) - 2*Math.cos(3*q) - Math.cos(4*q)) * k + 0.2];
+    }], N),
+    spiral: () => sampleCurves([u => {
+      const q = 0.9 + u * (5 * Math.PI - 0.9), r = 1.45 * q / (5 * Math.PI);
+      return [r * Math.cos(q), r * Math.sin(q)];
+    }], N),
+    ai: () => sampleCurves([
+      seg(-1.35, -1.1, -0.65, 1.1), seg(-0.65, 1.1, 0.05, -1.1), seg(-1.095, -0.3, -0.205, -0.3),   // A
+      seg(0.95, -1.1, 0.95, 1.1), seg(0.55, 1.1, 1.35, 1.1), seg(0.55, -1.1, 1.35, -1.1),           // I
+    ], N),
+    smiley: () => sampleCurves([
+      arc(0, 0, 1.35, 0, 2*Math.PI),                                           // obličej
+      arc(-0.45, 0.42, 0.15, 0, 2*Math.PI), arc(0.45, 0.42, 0.15, 0, 2*Math.PI), // oči
+      arc(0, 0.15, 0.8, Math.PI * 1.12, Math.PI * 1.88),                       // úsměv
+    ], N),
+  };
+
+  // gaussovský šum (Box–Muller)
+  function gauss(){ let u = 0; while (u === 0) u = Math.random(); return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*Math.random()); }
+
+  // ── stav ─────────────────────────────────────────────────────
+  let TX, TY;                               // trénovací tečky x0_i
+  let EX, EY;                               // pevný šum ε pro dopředný proces (ať posuvník „jede" plynule)
+  let fwdT = 0, fwdRaf = null;
+  const GX = new Float64Array(N), GY = new Float64Array(N);   // generované tečky: stav na začátku kroku
+  const NX = new Float64Array(N), NY = new Float64Array(N);   // … a po kroku (mezi nimi animujeme)
+  const LOGW = new Float64Array(N);
+  let genRaf = null, genTau = [], genK = 0, genStepStart = 0, genDur = 0, genState = 'idle', genResult = null;
+
+  function loadShape(name){
+    const pts = SHAPES[name]();
+    TX = new Float64Array(pts.map(p => p[0])); TY = new Float64Array(pts.map(p => p[1]));
+    EX = new Float64Array(N).map(gauss); EY = new Float64Array(N).map(gauss);
+    ['nTrainCs','nTrainCs2','nTrainEn','nTrainEn2'].forEach(id => $(id).textContent = TX.length);
+  }
+
+  // ── PŘESNÝ optimální odšumovač pro trénovací množinu ─────────
+  // Zašuměná tečka x_t mohla vzniknout z kterékoli trénovací tečky x0_i;
+  // pravděpodobnost ∝ exp(−‖x_t − √ᾱ·x0_i‖² / (2(1−ᾱ))). Nejlepší odhad x̂0 je
+  // vážený průměr trénovacích teček s těmito vahami (softmax, počítaný stabilně
+  // přes log-sum-exp: odečteme maximum, ať exp nepřeteče).
+  // Skutečný model místo tohohle součtu přes data používá naučenou neuronovou síť.
+  function denoise(x, y, t){
+    const a = Math.sqrt(ABAR[t]), v2 = 2 * (1 - ABAR[t]);
+    const n = TX.length;
+    let mx = -Infinity;
+    for (let i = 0; i < n; i++) {
+      const dx = x - a*TX[i], dy = y - a*TY[i];
+      const l = -(dx*dx + dy*dy) / v2;
+      LOGW[i] = l; if (l > mx) mx = l;
+    }
+    let sw = 0, sx = 0, sy = 0;
+    for (let i = 0; i < n; i++) {
+      const w = Math.exp(LOGW[i] - mx);
+      sw += w; sx += w * TX[i]; sy += w * TY[i];
+    }
+    return [sx / sw, sy / sw];
+  }
+
+  // jeden krok zpět z času t do tp (< t) pro všechny generované tečky
+  // DDIM (deterministický): ε̂ = (x_t − √ᾱ_t·x̂0)/√(1−ᾱ_t);  x_tp = √ᾱ_tp·x̂0 + √(1−ᾱ_tp)·ε̂
+  // DDPM (se šumem): část ε̂ nahradí čerstvý náhodný šum o velikosti σ.
+  function reverseStep(t, tp, noisy){
+    const at = ABAR[t], ap = ABAR[tp];
+    const sig = noisy ? Math.sqrt((1 - ap) / (1 - at) * (1 - at / ap)) : 0;
+    const keep = Math.sqrt(Math.max(0, 1 - ap - sig*sig));
+    for (let j = 0; j < N; j++) {
+      const [hx, hy] = denoise(GX[j], GY[j], t);
+      const ex = (GX[j] - Math.sqrt(at)*hx) / Math.sqrt(1 - at);
+      const ey = (GY[j] - Math.sqrt(at)*hy) / Math.sqrt(1 - at);
+      NX[j] = Math.sqrt(ap)*hx + keep*ex + (sig ? sig*gauss() : 0);
+      NY[j] = Math.sqrt(ap)*hy + keep*ey + (sig ? sig*gauss() : 0);
+    }
+  }
+
+  // ── kreslení ─────────────────────────────────────────────────
+  const cvF = $('cvF'), cxF = cvF.getContext('2d');
+  const cvG = $('cvG'), cxG = cvG.getContext('2d');
+  const W = cvF.width;
+  const px = x => (x + R) / (2*R) * W, py = y => (R - y) / (2*R) * W;   // y nahoru
+
+  function background(ctx){
+    ctx.clearRect(0, 0, W, W);
+    ctx.strokeStyle = '#f1f3f5'; ctx.lineWidth = 1;
+    for (let g = -2; g <= 2; g++) {
+      ctx.beginPath(); ctx.moveTo(px(g), 0); ctx.lineTo(px(g), W); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, py(g)); ctx.lineTo(W, py(g)); ctx.stroke();
+    }
+  }
+  function dots(ctx, xs, ys, color, r){
+    ctx.fillStyle = color;
+    for (let i = 0; i < xs.length; i++) { ctx.beginPath(); ctx.arc(px(xs[i]), py(ys[i]), r, 0, 7); ctx.fill(); }
+  }
+  // desetinná čárka v češtině, tečka v angličtině
+  const fmt = (v, d = 2) => curLang === 'cs' ? v.toFixed(d).replace('.', ',') : v.toFixed(d);
+  function mixBar(sId, nId, t){
+    const s = Math.sqrt(ABAR[t]), n = Math.sqrt(1 - ABAR[t]);
+    $(sId).style.width = (s / (s + n) * 100) + '%'; $(nId).style.width = (n / (s + n) * 100) + '%';
+  }
+
+  function drawForward(){
+    const t = fwdT, a = Math.sqrt(ABAR[t]), b = Math.sqrt(1 - ABAR[t]);
+    background(cxF);
+    dots(cxF, TX, TY, '#e5e7eb', 2.6);                      // původní tvar (šedě)
+    const xs = new Float64Array(N), ys = new Float64Array(N);
+    for (let i = 0; i < N; i++) { xs[i] = a*TX[i] + b*EX[i]; ys[i] = a*TY[i] + b*EY[i]; }
+    if ($('chkArrows').checked && t > 0) {                  // šipka = přidaný šum √(1−ᾱ)·ε
+      cxF.strokeStyle = 'rgba(14,165,233,0.75)'; cxF.lineWidth = 1.4;
+      for (let i = 0; i < N; i += 10) {
+        cxF.beginPath(); cxF.moveTo(px(a*TX[i]), py(a*TY[i])); cxF.lineTo(px(xs[i]), py(ys[i])); cxF.stroke();
+      }
+    }
+    dots(cxF, xs, ys, '#9333ea', 2.6);
+    mixBar('mixS', 'mixN', t);
+    const L = I18N[curLang];
+    $('fwdStat').innerHTML = L.fwdStat(t, fmt(a), fmt(b));
+    $('fwdMsg').innerHTML = t === 0 ? L.fwd0 : t === T ? L.fwdEnd : L.fwdMid;
+    $('tSlider').value = t; $('tVal').textContent = t;
+  }
+
+  function drawGen(p){
+    background(cxG);
+    if ($('chkTrain').checked) {
+      cxG.strokeStyle = 'rgba(245,158,11,0.75)'; cxG.lineWidth = 1.2;
+      for (let i = 0; i < TX.length; i++) { cxG.beginPath(); cxG.arc(px(TX[i]), py(TY[i]), 3.6, 0, 7); cxG.stroke(); }
+    }
+    // mezi začátkem a koncem kroku plynule interpolujeme (p = 0…1)
+    cxG.fillStyle = '#9333ea';
+    for (let j = 0; j < N; j++) {
+      const x = GX[j] + (NX[j] - GX[j]) * p, y = GY[j] + (NY[j] - GY[j]) * p;
+      cxG.beginPath(); cxG.arc(px(x), py(y), 2.6, 0, 7); cxG.fill();
+    }
+  }
+
+  const steps = () => STEP_OPTIONS[+$('sSlider').value];
+
+  function renderGenText(){
+    const L = I18N[curLang], S = genTau.length ? genTau.length - 1 : steps();
+    let t = T, stat, msg = '', cls = '';
+    if (genState === 'idle') { stat = L.genIdleStat(steps()); msg = L.genIdle; }
+    else if (genState === 'run' || genState === 'stopped') {
+      t = genTau[genK]; stat = L.genRun(genK, S, t);
+      msg = genState === 'run' ? L.genRunMsg : L.genStopped; cls = genState === 'stopped' ? 'warn' : '';
+    } else {                                              // hotovo
+      t = 0;
+      const r = genResult;
+      stat = L.genRun(S, S, 0) + '<br>' + L.genDone(r.pct, fmt(r.mean, 3));
+      if (S === 1) { msg = L.done1; cls = 'warn'; }
+      else if (r.pct < 50) { msg = L.doneFew; cls = 'warn'; }
+      else if (r.pct < 90) { msg = L.doneMid; }
+      else { msg = $('chkTrain').checked ? L.doneManyOn : L.doneMany; cls = 'good'; }
+    }
+    $('genStat').innerHTML = stat;
+    $('genMsg').innerHTML = msg; $('genMsg').className = 'msg ' + cls;
+    mixBar('gmixS', 'gmixN', t);
+  }
+
+  // ── dopředný proces: animace t = 0 → T ───────────────────────
+  function stopForward(){
+    if (fwdRaf) { cancelAnimationFrame(fwdRaf); fwdRaf = null; }
+    $('btnStopF').disabled = true; $('btnNoise').disabled = false;
+  }
+  function startForward(){
+    stopForward();
+    const from = fwdT >= T ? 0 : fwdT, t0 = performance.now(), dur = 2600 * (T - from) / T;
+    $('btnStopF').disabled = false; $('btnNoise').disabled = true;
+    const tick = now => {
+      fwdT = Math.min(T, Math.round(from + (now - t0) / dur * (T - from)));
+      drawForward();
+      if (fwdT >= T) { fwdRaf = null; stopForward(); return; }
+      fwdRaf = requestAnimationFrame(tick);
+    };
+    fwdRaf = requestAnimationFrame(tick);
+  }
+
+  // ── generování: čistý šum → S kroků odšumování ──────────────
+  function freshNoise(){
+    for (let j = 0; j < N; j++) { GX[j] = NX[j] = gauss(); GY[j] = NY[j] = gauss(); }
+  }
+  function stopGen(finished){
+    if (genRaf) { cancelAnimationFrame(genRaf); genRaf = null; }
+    if (!finished && genState === 'run') {               // zastav na aktuálním (mezi)stavu
+      GX.set(NX); GY.set(NY); genK = Math.min(genK + 1, genTau.length - 1); genState = 'stopped';
+      drawGen(0);
+    }
+    $('btnStopG').disabled = true; $('btnGen').disabled = false; $('sSlider').disabled = false;
+    renderGenText();
+  }
+  function finishGen(){
+    // jak blízko je každá vygenerovaná tečka nejbližšímu trénovacímu bodu?
+    let hit = 0, sum = 0;
+    for (let j = 0; j < N; j++) {
+      let best = Infinity;
+      for (let i = 0; i < TX.length; i++) { const d = Math.hypot(GX[j]-TX[i], GY[j]-TY[i]); if (d < best) best = d; }
+      sum += best; if (best < 0.02) hit++;
+    }
+    genResult = { pct: Math.round(hit / N * 100), mean: sum / N };
+    genState = 'done';
+    stopGen(true);
+  }
+  function startGen(){
+    stopGen(true);
+    const S = steps();
+    // rovnoměrně rozložené časy T → 0 (S kroků)
+    genTau = []; for (let k = 0; k <= S; k++) genTau.push(Math.round(T * (1 - k / S)));
+    genK = 0; genState = 'run'; genResult = null;
+    freshNoise();
+    genDur = Math.min(700, Math.max(35, 3600 / S));      // celé generování ~3–4 s
+    const noisy = $('chkDDPM').checked;
+    $('btnStopG').disabled = false; $('btnGen').disabled = true; $('sSlider').disabled = true;
+    reverseStep(genTau[0], genTau[1], noisy);
+    genStepStart = performance.now();
+    renderGenText();
+    const tick = now => {
+      let p = (now - genStepStart) / genDur;
+      if (p >= 1) {                                       // krok hotov → další
+        GX.set(NX); GY.set(NY); genK++;
+        if (genK >= S) { drawGen(0); genRaf = null; finishGen(); return; }
+        reverseStep(genTau[genK], genTau[genK + 1], noisy);
+        genStepStart = now; p = 0;
+        renderGenText();
+      }
+      drawGen(p);
+      genRaf = requestAnimationFrame(tick);
+    };
+    genRaf = requestAnimationFrame(tick);
+  }
+  function resetGen(){
+    stopGen(true);
+    genState = 'idle'; genTau = []; genK = 0; genResult = null;
+    freshNoise(); drawGen(0); renderGenText();
+  }
+
+  // ── ovládání ─────────────────────────────────────────────────
+  $('shapes').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    $('shapes').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    stopForward(); loadShape(b.dataset.shape);
+    fwdT = 0; drawForward(); resetGen();
+  }));
+  $('tSlider').addEventListener('input', () => { stopForward(); fwdT = +$('tSlider').value; drawForward(); });
+  $('btnNoise').addEventListener('click', startForward);
+  $('btnStopF').addEventListener('click', stopForward);
+  $('chkArrows').addEventListener('change', drawForward);
+  $('sSlider').addEventListener('input', () => {
+    $('sVal').textContent = steps();
+    if (genState !== 'run') resetGen();
+  });
+  $('btnGen').addEventListener('click', startGen);
+  $('btnStopG').addEventListener('click', () => stopGen(false));
+  $('chkTrain').addEventListener('change', () => { if (!genRaf) drawGen(0); renderGenText(); });
+
+  // ── start ────────────────────────────────────────────────────
+  loadShape('heart');
+  $('sVal').textContent = steps();
+  drawForward(); resetGen();
+
+  window.onLangChange = function(l){ curLang = l; drawForward(); renderGenText(); };
+</script>
+</Layout>
