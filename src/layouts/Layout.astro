@@ -6,12 +6,39 @@
 // titleCs/titleEn  — titulek stránky v obou jazycích (řídí <title> i přepínač)
 // back             — zobrazit tlačítko "← ZPĚT" (rozcestník ho nemá, dema ano);
 //                    zároveň přidá <body class="demo"> se společným vzhledem dem
+import { execSync } from 'node:child_process';
+import { CHAPTERS } from '../data/chapters.js';
+import pkg from '../../package.json';
+
 interface Props {
   titleCs: string;
   titleEn: string;
   back?: boolean;
 }
 const { titleCs, titleEn, back = false } = Astro.props;
+
+// ── Kapitola a navigace ──
+// Jen kapitoly, jejichž stránka existuje (nová kapitola se objeví, jakmile
+// přibude její soubor). Kterou kapitolou jsme, poznáme podle adresy.
+// ?raw: potřebujeme jen seznam souborů — bez něj by Astro přibalilo CSS všech stránek
+const PAGES = import.meta.glob('../pages/*.astro', { query: '?raw' });
+const LIVE = CHAPTERS.filter(c => `../pages/${c.slug}.astro` in PAGES);
+const slug = Astro.url.pathname.split('/').pop().replace(/\.html$/, '');
+const idx = LIVE.findIndex(c => c.slug === slug);
+const ch = idx >= 0 ? LIVE[idx] : null;
+const prev = idx > 0 ? LIVE[idx - 1] : null;
+const next = idx >= 0 && idx < LIVE.length - 1 ? LIVE[idx + 1] : null;
+// text „Co dál?" mluví o bezprostředně následující kapitole → jen když opravdu následuje
+const nextHook = ch && next && ch.nextCs && +next.n === +ch.n + 1;
+
+// ── Verze a datum poslední aktualizace ──
+// Verze z package.json, datum z posledního commitu (bez gitu: datum buildu).
+let updated = '';
+try { updated = execSync('git log -1 --format=%cs', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch {}
+if (!/^\d{4}-\d\d-\d\d$/.test(updated)) updated = new Date().toISOString().slice(0, 10);
+const [uy, um, ud] = updated.split('-').map(Number);
+const dateCs = `${ud}. ${um}. ${uy}`;
+const dateEn = new Date(Date.UTC(uy, um - 1, ud)).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 // Měření návštěvnosti přes GoatCounter (cookieless, bez lišty na souhlas,
 // zdarma pro nekomerční použití). Prázdný řetězec = měření vypnuto.
@@ -125,6 +152,34 @@ const FAVICON = 'data:image/svg+xml,' + encodeURIComponent(
   :where(.demo) .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
   :where(.demo) .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
 
+  /* ── Patička kapitoly: historie, co dál, otázky, předchozí/další ── */
+  .chapfoot { width: min(820px, 96vw); margin: 34px auto 0; text-align: left; }
+  .cf-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .cf-row { font-size: 13.5px; color: #4b5563; line-height: 1.55; margin: 0 0 12px; }
+  .cf-row:last-child { margin-bottom: 0; }
+  .cf-k { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    color: #9ca3af; margin-bottom: 3px; }
+  .cf-row a { color: #2563eb; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .cf-row a:hover { text-decoration: underline; }
+  .cf-row ol { margin: 0; padding-left: 20px; }
+  .cf-row li { margin: 2px 0; }
+  .cf-nav { display: flex; gap: 10px; justify-content: space-between; align-items: stretch; margin-top: 14px; }
+  .cf-nav a { flex: 1 1 0; display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: #374151;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 13px; font-weight: 600;
+    transition: background .12s, border-color .12s; min-width: 0; }
+  .cf-nav a:hover { background: #f3f4f6; border-color: #c7d2fe; }
+  .cf-nav a small { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; }
+  .cf-nav .cf-prev { text-align: left; }
+  .cf-nav .cf-home { flex: 0 0 auto; justify-content: center; text-align: center; }
+  .cf-nav .cf-next { text-align: right; }
+  .cf-nav .cf-empty { flex: 1 1 0; }
+  @media (max-width: 560px) {
+    .cf-nav { flex-wrap: wrap; }
+    .cf-nav .cf-home { order: 3; flex: 1 1 100%; }
+  }
+  .version { font-size: 12px; color: #9ca3af; text-align: center; margin: 22px auto 0; }
+
   /* úzký displej: pevné tlačítko ZPĚT by jinak překrylo nadpis */
   @media (max-width: 640px) {
     body:where(.demo) { padding-top: 72px; }
@@ -160,6 +215,32 @@ const FAVICON = 'data:image/svg+xml,' + encodeURIComponent(
   )}
 
   <slot />
+
+  {ch && (
+    <footer class="chapfoot">
+      <div class="cf-box">
+        <div class="cf-row"><span class="cf-k"><span class="cs">🕰 Z historie</span><span class="en">🕰 From history</span></span>
+          <span class="cs">{ch.historyCs}</span><span class="en">{ch.historyEn}</span></div>
+        {nextHook && (
+          <div class="cf-row"><span class="cf-k"><span class="cs">➡️ Co dál?</span><span class="en">➡️ What's next?</span></span>
+            <span class="cs">{ch.nextCs}</span><span class="en">{ch.nextEn}</span>{' '}
+            <a href={`${next.slug}.html`}>{next.n} · <span class="cs">{next.titleCs}</span><span class="en">{next.titleEn}</span> →</a></div>
+        )}
+        <div class="cf-row"><span class="cf-k"><span class="cs">💬 Otázky do diskuse</span><span class="en">💬 Questions for discussion</span></span>
+          <ol class="cs">{ch.qCs.map((q) => <li>{q}</li>)}</ol><ol class="en">{ch.qEn.map((q) => <li>{q}</li>)}</ol></div>
+      </div>
+      <nav class="cf-nav" aria-label="Kapitoly / Chapters">
+        {prev ? <a class="cf-prev" href={`${prev.slug}.html`}><small><span class="cs">← předchozí</span><span class="en">← previous</span></small><span>{prev.n} · <span class="cs">{prev.titleCs}</span><span class="en">{prev.titleEn}</span></span></a> : <span class="cf-empty"></span>}
+        <a class="cf-home" href="index.html"><small><span class="cs">série</span><span class="en">series</span></small><span><span class="cs">Všechny kapitoly</span><span class="en">All chapters</span></span></a>
+        {next ? <a class="cf-next" href={`${next.slug}.html`}><small><span class="cs">další →</span><span class="en">next →</span></small><span>{next.n} · <span class="cs">{next.titleCs}</span><span class="en">{next.titleEn}</span></span></a> : <span class="cf-empty"></span>}
+      </nav>
+    </footer>
+  )}
+
+  <div class="version">
+    <span class="cs">Verze {pkg.version} · aktualizováno {dateCs}</span>
+    <span class="en">Version {pkg.version} · updated {dateEn}</span>
+  </div>
 
   <script is:inline define:vars={{ titleCs, titleEn }}>
     /* Přepínač jazyka: aktivní vlajka, titulek, uložení volby. */

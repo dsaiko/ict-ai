@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout titleCs="Příklad #6 — Neuronová síť kreslí hranici" titleEn="Example #6 — A neural network draws the boundary" back={true}>
+<Layout titleCs="Příklad #8 — Neuronová síť kreslí hranici" titleEn="Example #8 — A neural network draws the boundary" back={true}>
 <style is:global>
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 700px;
@@ -66,7 +66,7 @@ import Layout from '../layouts/Layout.astro';
   .tcard p:last-child { margin-bottom: 0; }
 </style>
 
-<h1><span class="badge">06</span><span class="cs">Neuronová síť kreslí hranici</span><span class="en">A neural network draws the boundary</span></h1>
+<h1><span class="badge">08</span><span class="cs">Neuronová síť kreslí hranici</span><span class="en">A neural network draws the boundary</span></h1>
   <p class="intro">
     <span class="cs">Stejná úloha jako u perceptronu, ale teď neuronů spojíme víc do <b>vrstev</b>. Síť pak umí
     nakreslit i <b>zakřivenou</b> hranici — kruh, spirálu, kříž. Sleduj, jak se barevná
@@ -78,7 +78,7 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="whathow">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Síť propojených neuronů — stejná myšlenka jako perceptron (05), ale neuronů je víc a jsou ve <b>vrstvách</b>. Díky tomu umí nakreslit i zakřivenou hranici, ne jen přímku.</span><span class="en">A network of connected neurons — the same idea as the perceptron (05), but with more neurons arranged in <b>layers</b>. That lets it draw a curved boundary, not just a straight line.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Síť propojených neuronů — stejná myšlenka jako perceptron (06), ale neuronů je víc a jsou ve <b>vrstvách</b>. Díky tomu umí nakreslit i zakřivenou hranici, ne jen přímku.</span><span class="en">A network of connected neurons — the same idea as the perceptron (06), but with more neurons arranged in <b>layers</b>. That lets it draw a curved boundary, not just a straight line.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Naklikej body dvou barev (nebo zvol tvar — kruh, kříž, spirálu) a spusť trénink. Sleduj, jak se barevná <b>rozhodovací plocha</b> během učení tvaruje kolem tvých bodů.</span><span class="en">Click points of two colors (or pick a shape — circle, cross, spiral) and start training. Watch the colored <b>decision surface</b> shape itself around your points as it learns.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tady se rodí síla neuronových sítí: skládáním jednoduchých neuronů zvládnou složité, <b>nelineární</b> vzory. Je to základní stavební kámen pod vším ostatním v této sérii — i pod ChatGPT.</span><span class="en">This is where the power of neural networks is born: stacking simple neurons handles complex, <b>non-linear</b> patterns. It is the basic building block under everything else in this series — and under ChatGPT.</span></p>
   </div>
@@ -166,9 +166,9 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Od hraček k LLM</span><span class="en">From toys to LLMs</span></h3>
-        <p><span class="cs">Tahle síť má pár desítek vah. Velké modely jich mají <b>miliardy</b> a místo dvou
+        <p><span class="cs">Tahle síť má 205 vah (včetně biasů). Velké modely jich mají <b>miliardy</b> a místo dvou
            čísel na vstupu zpracovávají text či obraz — princip učení je ale stejný.</span>
-           <span class="en">This network has a few dozen weights. Large models have <b>billions</b>, and instead of two numbers
+           <span class="en">This network has 205 weights (including biases). Large models have <b>billions</b>, and instead of two numbers
            on the input they process text or images — but the learning principle is the same.</span></p>
       </div>
     </div>

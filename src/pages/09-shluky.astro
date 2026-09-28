@@ -1,0 +1,836 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout titleCs="Příklad #9 — Učení bez učitele: shlukování" titleEn="Example #9 — Learning without a teacher: clustering" back={true}>
+<style is:global>
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; text-align: center; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 740px;
+           text-align: center; line-height: 1.5; }
+
+  .explain { width: min(880px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #db2777; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .repeat { color: #db2777; font-weight: 600; font-size: 12px; }
+
+  .panel { width: min(880px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+
+  /* předvolby dat */
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; }
+  .presets button { font-size: 13px; font-weight: 600; padding: 7px 14px; border: 1px solid #e5e7eb;
+    background: #fff; color: #374151; border-radius: 999px; cursor: pointer; }
+  .presets button:hover { background: #f3f4f6; }
+  .presets button.on { border-color: #db2777; color: #db2777; background: #fdf2f8; }
+  .dhint { font-size: 13px; color: #4b5563; line-height: 1.5; margin: 12px 0 0; min-height: 20px; }
+  .dhint b { color: #374151; }
+
+  /* nastavení: k, inicializace, zobrazení */
+  .opts { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; margin-top: 16px; }
+  .opt { display: flex; align-items: center; gap: 10px; }
+  .opt .label { margin: 0; }
+  input[type=range] { width: 170px; accent-color: #db2777; }
+  .kval { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 20px; font-weight: 700; color: #db2777;
+          min-width: 18px; }
+  .seg { display: inline-flex; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+  .seg button { font-size: 13px; font-weight: 600; padding: 7px 12px; border: none; border-radius: 0;
+                background: #fff; color: #6b7280; cursor: pointer; }
+  .seg button + button { border-left: 1px solid #e5e7eb; }
+  .seg button.on { background: #db2777; color: #fff; }
+  .chk { font-size: 13px; color: #374151; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .chk input { accent-color: #db2777; width: 16px; height: 16px; }
+
+  /* fáze algoritmu */
+  .phases { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .phase { font-size: 12.5px; font-weight: 600; color: #9ca3af; background: #f9fafb; border: 1px solid #eef0f3;
+           border-radius: 999px; padding: 5px 12px; transition: all .15s; }
+  .phase.on { color: #fff; background: #db2777; border-color: #db2777; }
+  .status { font-size: 13.5px; color: #374151; line-height: 1.5; min-height: 42px; margin-bottom: 10px; }
+  .status b { color: #111827; }
+
+  #cv { width: 800px; max-width: 100%; height: auto; display: block; margin: 0 auto;
+        background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; cursor: crosshair; touch-action: manipulation; }   /* prst smí stránku posouvat */
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
+  button.go, button.util, button.stop { font-size: 14px; font-weight: 700; padding: 10px 20px; border: none;
+           border-radius: 8px; cursor: pointer; transition: background .12s, transform .05s; }
+  button.go:active, button.util:active, button.stop:active { transform: scale(.97); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .go { background: #2563eb; color: #fff; } .go:hover:not(:disabled){ background:#1d4ed8; }
+  .util { background: #e5e7eb; color: #374151; } .util:hover:not(:disabled){ background:#d1d5db; }
+  .stop { background: #dc2626; color: #fff; } .stop:hover:not(:disabled){ background:#b91c1c; }
+
+  .stat { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 14px;
+          color: #374151; margin-top: 14px; display: flex; gap: 8px 24px; flex-wrap: wrap; justify-content: center; }
+  .stat b { color: #111827; }
+  .stat .ok { color: #16a34a; } .stat .run { color: #db2777; }
+  .hist { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; color: #6b7280; text-align: center;
+          margin-top: 6px; min-height: 18px; overflow-wrap: anywhere; }
+  .verdict { font-size: 13.5px; line-height: 1.5; margin-top: 10px; padding: 9px 12px; border-radius: 8px; display: none; }
+  .verdict.show { display: block; }
+  .verdict.good { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .verdict.bad  { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+  .verdict b { color: inherit; }
+  .hint { font-size: 12px; color: #9ca3af; margin-top: 10px; text-align: center; line-height: 1.5; }
+
+  /* graf „loket" */
+  #elbow { width: 100%; height: 250px; display: block; }
+  .enote { font-size: 13px; color: #4b5563; line-height: 1.5; margin-top: 8px; }
+  .enote b { color: #374151; }
+
+  .theory { width: min(880px, 96vw); margin-top: 24px; }
+  .tcard p + p { margin-top: 8px; }
+
+  @media (max-width: 640px) {
+    .block { padding: 14px 12px; }
+    .explain { padding: 14px 14px; }
+    input[type=range] { width: 130px; }
+    #elbow { height: 210px; }
+  }
+</style>
+
+<h1><span class="badge">09</span><span class="cs">Učení bez učitele — shlukování (k-means)</span><span class="en">Learning without a teacher — clustering (k-means)</span></h1>
+  <p class="intro">
+    <span class="cs">Perceptron (6) i neuronová síť (8) se učily z bodů, u kterých byla <b>správná odpověď</b> — barva.
+    To je učení <b>s učitelem</b>. Tady body <b>žádnou barvu nemají</b>. Algoritmus <b>k-means</b> musí skupiny
+    najít sám — jen podle toho, které body leží blízko sebe.</span>
+    <span class="en">The perceptron (6) and the neural network (8) learned from points that came with the <b>right answer</b> — a color.
+    That is learning <b>with a teacher</b>. Here the points <b>have no color at all</b>. The <b>k-means</b> algorithm has to
+    find the groups on its own — only from which points lie close together.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Shlukování</b> (clustering) = rozdělení dat do skupin podobných bodů, bez jakýchkoli štítků — <b>učení bez učitele</b>. <b>k-means</b> hledá <b>k</b> skupin a každou zastupuje jejím <b>středem</b> (průměrem jejích bodů, anglicky <i>centroid</i>).</span><span class="en"><b>Clustering</b> = splitting data into groups of similar points, with no labels at all — <b>learning without a teacher</b> (unsupervised learning). <b>k-means</b> looks for <b>k</b> groups and represents each one by its <b>center</b> (the average of its points, the <i>centroid</i>).</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Mačkej <b>Jeden krok</b> a sleduj dvě fáze, které se střídají: body se obarví podle nejbližšího středu, pak se středy přesunou doprostřed svých bodů. Pak <b>Spusť do konce</b>. Zkus „5 skupin" několikrát za sebou (různý start → různý výsledek), „dva měsíce" (k-means selže) a „rovnoměrný šum" (skupiny „najde", i když žádné nejsou). Kliknutím do plochy přidáš bod.</span><span class="en">Press <b>One step</b> repeatedly and watch the two alternating phases: the points take the color of the nearest center, then the centers move into the middle of their points. Then press <b>Run to the end</b>. Try “5 groups” several times in a row (different start → different result), “two moons” (k-means fails) and “uniform noise” (it “finds” groups even though there are none). Click into the canvas to add a point.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Většina dat na světě <b>štítky nemá</b> — nikdo je ručně neoznačil. Shlukování v nich najde strukturu: skupiny podobných zákazníků, podobné dokumenty nebo shluky slov s podobným významem v embeddinzích (13).</span><span class="en">Most of the world’s data <b>has no labels</b> — nobody marked it by hand. Clustering finds structure in it: groups of similar customers, similar documents, or clusters of words with similar meaning in embeddings (13).</span></p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">náhodné středy</span><span class="en">random centers</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">přiřaď body nejbližšímu středu</span><span class="en">assign points to the nearest center</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">posuň středy do průměru</span><span class="en">move centers to the average</span></span>
+      <span class="arr">↺</span>
+      <span class="repeat"><span class="cs">(2 a 3 dokola), dokud se nic nemění</span><span class="en">(2 and 3 again) until nothing changes</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="block">
+      <div class="label"><span class="cs">1 · data (body nemají žádnou barvu ani štítek)</span><span class="en">1 · data (the points have no color and no label)</span></div>
+      <div class="presets" id="presets">
+        <button data-p="blobs3"><span class="cs">3 skupiny</span><span class="en">3 groups</span></button>
+        <button data-p="blobs5"><span class="cs">5 skupin</span><span class="en">5 groups</span></button>
+        <button data-p="moons"><span class="cs">dva měsíce</span><span class="en">two moons</span></button>
+        <button data-p="rings"><span class="cs">kruh v kruhu</span><span class="en">circle in a circle</span></button>
+        <button data-p="noise"><span class="cs">rovnoměrný šum</span><span class="en">uniform noise</span></button>
+        <button data-p="empty"><span class="cs">prázdná plocha</span><span class="en">empty canvas</span></button>
+      </div>
+      <p class="dhint" id="dhint"></p>
+      <div class="opts">
+        <div class="opt">
+          <span class="label"><span class="cs">počet shluků k</span><span class="en">number of clusters k</span></span>
+          <input type="range" id="k" min="1" max="8" step="1" value="3">
+          <span class="kval" id="kval">3</span>
+        </div>
+        <div class="opt">
+          <span class="label"><span class="cs">start</span><span class="en">start</span></span>
+          <div class="seg" id="initSeg">
+            <button data-m="random"><span class="cs">náhodné body</span><span class="en">random points</span></button>
+            <button data-m="pp">k-means++</button>
+          </div>
+        </div>
+        <label class="chk"><input type="checkbox" id="chkLines" checked> <span class="cs">čáry ke středům</span><span class="en">lines to centers</span></label>
+        <label class="chk"><input type="checkbox" id="chkRegions" checked> <span class="cs">oblasti středů</span><span class="en">center regions</span></label>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">2 · k-means krok po kroku</span><span class="en">2 · k-means step by step</span></div>
+      <div class="phases">
+        <span class="phase" id="ph0"><span class="cs">① středy</span><span class="en">① centers</span></span>
+        <span class="phase" id="ph1"><span class="cs">② přiřaď body</span><span class="en">② assign points</span></span>
+        <span class="phase" id="ph2"><span class="cs">③ posuň středy</span><span class="en">③ move centers</span></span>
+      </div>
+      <div class="status" id="status"></div>
+      <canvas id="cv" width="800" height="480"></canvas>
+      <div class="controls">
+        <button class="util" id="btnInit"><span class="cs">Nové středy</span><span class="en">New centers</span></button>
+        <button class="go" id="btnStep"></button>
+        <button class="go" id="btnRun"><span class="cs">Spusť do konce</span><span class="en">Run to the end</span></button>
+        <button class="stop" id="btnStop" disabled>■ STOP</button>
+      </div>
+      <div class="stat">
+        <span><span class="cs">iterace:</span><span class="en">iteration:</span> <b id="sIter">0</b></span>
+        <span><span class="cs">inertia:</span><span class="en">inertia:</span> <b id="sInertia">–</b></span>
+        <span><span class="cs">stav:</span><span class="en">state:</span> <b id="sState">–</b></span>
+      </div>
+      <div class="hist" id="hist"></div>
+      <div class="verdict" id="verdict"></div>
+      <div class="hint">
+        <span class="cs"><b>Inertia</b> = součet druhých mocnin vzdáleností bodů od středu jejich shluku (čím menší, tím těsnější shluky). Kliknutím do plochy přidáš bod. Data jsou uměle vygenerovaná; algoritmus je skutečný k-means, jen ve 2D, aby byl vidět (v praxi mají data často stovky rozměrů).</span>
+        <span class="en"><b>Inertia</b> = the sum of squared distances of the points from the center of their cluster (smaller = tighter clusters). Click into the canvas to add a point. The data are artificially generated; the algorithm is real k-means, just in 2D so you can see it (real data often have hundreds of dimensions).</span>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">3 · jak zvolit k? graf „loket" (pro každé k 10 startů, bere se nejlepší)</span><span class="en">3 · how to choose k? the “elbow” chart (10 starts for each k, the best one counts)</span></div>
+      <canvas id="elbow"></canvas>
+      <div class="enote" id="enote"></div>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Jak k-means hledá skupiny a kde má hranice</span><span class="en">How k-means finds groups and where its limits are</span></div>
+    <p class="lead">
+      <span class="cs">k-means nic neví o tom, co body znamenají. Má jen jedno měřítko — <b>vzdálenost</b> — a jeden cíl:
+      aby body byly co nejblíž středu svého shluku (malá <b>inertia</b>). Dva jednoduché kroky dokola ten cíl
+      postupně zlepšují, podobně jako gradientní sestup v příkladu 7 zmenšuje chybu.</span>
+      <span class="en">k-means knows nothing about what the points mean. It has only one measure — <b>distance</b> — and one goal:
+      points should be as close as possible to the center of their cluster (small <b>inertia</b>). Two simple steps repeated
+      over and over improve that goal little by little, much like gradient descent in example 7 shrinks the error.</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span><span class="cs">S učitelem × bez učitele</span><span class="en">With vs. without a teacher</span></h3>
+        <p><span class="cs"><b>S učitelem</b> (příklady 6 a 8): ke každému bodu známe správnou odpověď a model se učí ji předpovídat.
+           <b>Bez učitele</b> (tady): odpovědi nemáme vůbec, model hledá <b>strukturu</b> — co k sobě patří.</span>
+           <span class="en"><b>With a teacher</b> (examples 6 and 8): we know the right answer for every point and the model learns to predict it.
+           <b>Without a teacher</b> (here): there are no answers at all, the model looks for <b>structure</b> — what belongs together.</span></p>
+        <p><span class="cs">Výsledek tu nemá „správné řešení" k porovnání — proto je těžší ho posoudit.</span>
+           <span class="en">There is no “correct answer” to compare the result with — which makes it harder to judge.</span></p>
+      </div>
+      <div class="tcard" style="--c:#db2777">
+        <h3><span class="dot"></span><span class="cs">Dva kroky dokola</span><span class="en">Two steps, over and over</span></h3>
+        <p><span class="cs"><b>Přiřaď:</b> každý bod patří nejbližšímu středu. <b>Posuň:</b> každý střed se přesune do průměru
+           svých bodů. Ani jeden krok nemůže inertii zvětšit, takže algoritmus se vždy zastaví — ve chvíli, kdy
+           žádný bod nezmění shluk.</span>
+           <span class="en"><b>Assign:</b> every point belongs to the nearest center. <b>Move:</b> every center moves to the average
+           of its points. Neither step can increase the inertia, so the algorithm always stops — at the moment when
+           no point changes its cluster.</span></p>
+        <p><span class="cs">Zastaví se ale v <b>lokálním minimu</b>: z jiného startu může skončit jinde (zkus „5 skupin").
+           Proto se v praxi spouští víckrát a bere se nejlepší výsledek; chytřejší start <b>k-means++</b> volí středy daleko od sebe.</span>
+           <span class="en">But it stops in a <b>local minimum</b>: from a different start it can end elsewhere (try “5 groups”).
+           That’s why in practice it’s run several times and the best result is kept; the smarter <b>k-means++</b> start picks centers far apart.</span></p>
+      </div>
+      <div class="tcard" style="--c:#7c3aed">
+        <h3><span class="dot"></span><span class="cs">Jak zvolit k?</span><span class="en">How to choose k?</span></h3>
+        <p><span class="cs">Víc shluků znamená vždy menší inertii (při k = počet bodů je nulová), takže „nejmenší inertia" nepomůže.
+           Hledá se <b>loket</b> — místo, kde přidání dalšího shluku už skoro nic nepřinese.</span>
+           <span class="en">More clusters always means smaller inertia (with k = number of points it is zero), so “smallest inertia” doesn’t help.
+           You look for the <b>elbow</b> — the point where adding another cluster barely helps any more.</span></p>
+        <p><span class="cs">Často loket zřetelný není a k volí <b>člověk</b> podle účelu: třeba e-shop chce 4 skupiny zákazníků,
+           protože má 4 typy nabídek.</span>
+           <span class="en">Often there is no clear elbow and a <b>human</b> picks k by purpose: say a shop wants 4 customer groups
+           because it has 4 kinds of offers.</span></p>
+      </div>
+      <div class="tcard" style="--c:#dc2626">
+        <h3><span class="dot"></span><span class="cs">Hranice metody</span><span class="en">Limits of the method</span></h3>
+        <p><span class="cs">k-means předpokládá <b>kulaté shluky podobné velikosti</b>. Hranice mezi dvěma středy je vždy <b>rovná čára</b>,
+           takže zahnuté „měsíce" nebo kruh v kruhu rozřízne napříč. Na takové tvary jsou jiné metody, např. <b>DBSCAN</b>
+           (hledá husté oblasti).</span>
+           <span class="en">k-means assumes <b>round clusters of similar size</b>. The border between two centers is always a <b>straight line</b>,
+           so curved “moons” or a circle in a circle get cut straight across. Such shapes need other methods, e.g. <b>DBSCAN</b>
+           (it looks for dense regions).</span></p>
+        <p><span class="cs">Je citlivý na start a na <b>měřítko os</b>: když je jedna osa v korunách a druhá v letech, rozhodují jen koruny —
+           data se proto nejdřív přeškálují.</span>
+           <span class="en">It is sensitive to the start and to the <b>scale of the axes</b>: if one axis is in dollars and the other in years,
+           only the dollars matter — so the data are rescaled first.</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">K čemu to je</span><span class="en">What it’s good for</span></h3>
+        <p><span class="cs"><b>Segmentace zákazníků</b> (kdo nakupuje podobně), <b>komprese barev</b> obrázku (miliony barev → k středů = paleta k barev),
+           seskupení podobných <b>dokumentů</b> nebo <b>embeddingů</b> (13), <b>detekce anomálií</b> (bod daleko od všech středů je podezřelý).</span>
+           <span class="en"><b>Customer segmentation</b> (who shops alike), <b>color compression</b> of an image (millions of colors → k centers = a k-color palette),
+           grouping similar <b>documents</b> or <b>embeddings</b> (13), <b>anomaly detection</b> (a point far from every center is suspicious).</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">Pozor: najde i to, co tam není</span><span class="en">Careful: it finds what isn’t there</span></h3>
+        <p><span class="cs">k-means vrátí <b>vždy přesně k shluků</b> — i v rovnoměrném šumu, kde žádné skupiny nejsou. Algoritmus nepozná,
+           jestli jsou skupiny skutečné. Jestli dávají smysl a co znamenají, musí posoudit <b>člověk</b>.</span>
+           <span class="en">k-means <b>always returns exactly k clusters</b> — even in uniform noise, where there are no groups. The algorithm can’t tell
+           whether the groups are real. Whether they make sense and what they mean is up to a <b>human</b>.</span></p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:16px">
+      <span class="cs"><b>Pointa:</b> i bez odpovědí se dá z dat něco naučit — jejich <b>strukturu</b>. Ale k-means vidí jen vzdálenosti:
+      najde kulaté skupiny, i když tam žádné nejsou, a zahnuté tvary nepozná. Stejná myšlenka „blízko = podobné" se vrátí
+      u embeddingů (13), kde slova s podobným významem tvoří shluky.</span>
+      <span class="en"><b>The point:</b> even without answers you can learn something from data — its <b>structure</b>. But k-means only sees distances:
+      it finds round groups even where there are none, and it can’t recognize curved shapes. The same idea “close = similar” comes back
+      with embeddings (13), where words with similar meaning form clusters.</span>
+    </p>
+  </section>
+
+<script is:inline>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+
+  // ── konstanty ────────────────────────────────────────────────
+  const LW = 800, LH = 480;        // logické rozměry plátna (souřadnice bodů)
+  const U = 80;                    // 1 jednotka vzdálenosti = 80 px (ať jsou čísla inertie čitelná)
+  const COLORS = ['#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#7c3aed', '#0891b2', '#db2777', '#a16207'];
+  const MAXIT = 100;               // pojistka: víc iterací k-means nikdy nepotřebuje (tady ~2–20)
+  const RESTARTS = 10;             // kolik startů pro každé k v grafu „loket"
+  const ANIM = 400;                // délka animace posunu středů (ms)
+  const SUGGESTED_K = { blobs3: 3, blobs5: 5, moons: 2, rings: 2, noise: 4 };
+
+  // ── dvojjazyčné texty ────────────────────────────────────────
+  const I18N = {
+    cs: {
+      hint: {
+        blobs3: 'Tři zřetelné skupiny. Mačkej <b>Jeden krok</b> a sleduj, jak se středy „stěhují" do skupin. Pak se podívej na loket: zlom je u <b>k = 3</b>.',
+        blobs5: 'Pět skupin, dvě vlevo nahoře jsou blízko sebe. S náhodným startem to často skončí špatně (dva středy v jedné skupině, jeden střed pro dvě) — stiskni <b>Spusť do konce</b> několikrát za sebou a pak zkus <b>k-means++</b> (pomáhá, i když ne vždy).',
+        moons: 'Dva zahnuté „měsíce". Oko vidí dvě skupiny, ale k-means s <b>k = 2</b> je rozřízne <b>rovnou čarou</b> napříč — hranice mezi dvěma středy je vždy přímka. To je hranice metody.',
+        rings: 'Malý kruh uvnitř velkého prstence. k-means s <b>k = 2</b> nerozdělí vnitřek a prstenec — rozpůlí oboje rovnou čarou. Na takové tvary jsou jiné metody.',
+        noise: 'Tady <b>žádné skupiny nejsou</b> — body jsou rozházené rovnoměrně. k-means přesto vrátí přesně k „shluků" (zkus jakékoli k). Křivka v lokti klesá plynule — žádné k z ní nevyčnívá tak jako u „3 skupin". Jestli skupiny dávají smysl, musí posoudit člověk.',
+        empty: 'Prázdná plocha — naklikej vlastní body (aspoň k) a stiskni <b>Jeden krok</b>.',
+      },
+      stepInit: 'Jeden krok ▸ středy',
+      stepAssign: 'Jeden krok ▸ přiřaď',
+      stepMove: 'Jeden krok ▸ posuň',
+      stepDone: 'Jeden krok ✓',
+      initName: { random: 'náhodně vybrané body z dat', pp: 'k-means++ (další střed nejspíš daleko od předchozích)' },
+      msg: {
+        ready: (m, k) => `① Rozmístěno <b>${k}</b> středů (${m}). Body jsou zatím šedé — nevíme, kam patří. Další krok je přiřadí.`,
+        assigned: ch => `② <b>Přiřazení:</b> každý bod dostal barvu <b>nejbližšího středu</b>. Počet bodů, které změnily shluk: <b>${ch}</b>. Další krok posune středy.`,
+        moved: s => `③ <b>Posun:</b> každý střed se přesunul do <b>průměru (těžiště) svých bodů</b> — stopa ukazuje, kudy šel. Celkový posun: <b>${s}</b>. Další krok znovu přiřadí body.`,
+        converged: it => `✓ <b>Hotovo:</b> v posledním přiřazení nezměnil shluk <b>žádný bod</b>, takže se středy už nepohnou. Algoritmus konvergoval (iterací: <b>${it}</b>).`,
+        few: k => `Málo bodů: pro k = ${k} potřebuješ aspoň ${k} bodů. Naklikej je do plochy.`,
+        empty: 'Plocha je prázdná — naklikej body (aspoň k) a stiskni <b>Jeden krok</b>.',
+        enough: 'Bodů je dost. Stiskni <b>Jeden krok</b> — nejdřív se rozmístí středy.',
+        added: 'Přidán bod (šedý = zatím nepřiřazený). Další krok ho zařadí k nejbližšímu středu.',
+        stopped: 'Zastaveno. Pokračuj <b>Jedním krokem</b> nebo znovu <b>Spusť do konce</b>.',
+        maxit: n => `Zastaveno po ${n} iteracích (pojistka).`,
+      },
+      stNone: '–', stReady: 'na startu', stRun: 'běží…', stMid: 'ještě se mění', stConv: 'konvergovalo ✓',
+      verdictBad: (p, b) => `⚠ Tohle řešení je o <b>${p} %</b> horší než nejlepší nalezené (inertia ${b}). Algoritmus uvízl v <b>lokálním minimu</b>: z tohohle rozložení už žádný krok nepomůže, ale z jiného startu by skončil lépe. Zkus <b>Nové středy</b>.`,
+      verdictGood: b => `✓ Prakticky stejně dobré jako nejlepší řešení nalezené z 10 startů (inertia ${b}).`,
+      histLabel: 'průběh inertie: ',
+      eAxisY: 'inertia', eAxisK: 'k = počet shluků',
+      eLegendBest: 'nejlepší z 10 startů', eLegendAll: 'jednotlivé starty', eLegendYou: 'tvůj výsledek',
+      eFew: 'Málo bodů na graf — přidej aspoň 2.',
+      eNote: (k, a, b) => {
+        let s = 'Čára = nejlepší inertia z 10 startů; šedé tečky = výsledky jednotlivých startů (když jsou výš než čára, ty starty uvízly v lokálním minimu). ';
+        if (a !== null) s += `Z k = ${k - 1} na <b>k = ${k}</b> inertia klesla o <b>${a} %</b>`;
+        if (b !== null) s += (a !== null ? `, z k = ${k} na k = ${k + 1} o <b>${b} %</b>.` : `Z <b>k = ${k}</b> na k = ${k + 1} inertia klesne o <b>${b} %</b>.`);
+        else if (a !== null) s += '.';
+        return s + ' Loket = místo, kde se velký pokles zlomí v malý.';
+      },
+    },
+    en: {
+      hint: {
+        blobs3: 'Three clear groups. Press <b>One step</b> repeatedly and watch the centers “move into” the groups. Then look at the elbow: the bend is at <b>k = 3</b>.',
+        blobs5: 'Five groups, the two at the top left are close to each other. With a random start it often ends badly (two centers in one group, one center for two) — press <b>Run to the end</b> several times in a row, then try <b>k-means++</b> (it helps, though not always).',
+        moons: 'Two curved “moons”. Your eye sees two groups, but k-means with <b>k = 2</b> cuts them with a <b>straight line</b> across — the border between two centers is always a straight line. That is the method’s limit.',
+        rings: 'A small circle inside a large ring. k-means with <b>k = 2</b> does not separate the inside from the ring — it halves both with a straight line. Such shapes need other methods.',
+        noise: 'There are <b>no groups here</b> — the points are spread uniformly. k-means still returns exactly k “clusters” (try any k). The elbow curve falls smoothly — no k stands out the way it does for “3 groups”. Whether the groups make sense is for a human to judge.',
+        empty: 'Empty canvas — click your own points (at least k) and press <b>One step</b>.',
+      },
+      stepInit: 'One step ▸ centers',
+      stepAssign: 'One step ▸ assign',
+      stepMove: 'One step ▸ move',
+      stepDone: 'One step ✓',
+      initName: { random: 'randomly chosen data points', pp: 'k-means++ (each next center likely far from the previous ones)' },
+      msg: {
+        ready: (m, k) => `① Placed <b>${k}</b> centers (${m}). The points are still gray — we don’t know where they belong. The next step assigns them.`,
+        assigned: ch => `② <b>Assign:</b> every point took the color of the <b>nearest center</b>. Points that changed cluster: <b>${ch}</b>. The next step moves the centers.`,
+        moved: s => `③ <b>Move:</b> every center moved to the <b>average (centroid) of its points</b> — the trail shows its path. Total shift: <b>${s}</b>. The next step assigns the points again.`,
+        converged: it => `✓ <b>Done:</b> in the last assignment <b>no point</b> changed its cluster, so the centers won’t move any more. The algorithm has converged (iterations: <b>${it}</b>).`,
+        few: k => `Not enough points: for k = ${k} you need at least ${k} points. Click them into the canvas.`,
+        empty: 'The canvas is empty — click points (at least k) and press <b>One step</b>.',
+        enough: 'There are enough points. Press <b>One step</b> — the centers get placed first.',
+        added: 'Point added (gray = not assigned yet). The next step assigns it to the nearest center.',
+        stopped: 'Stopped. Continue with <b>One step</b> or press <b>Run to the end</b> again.',
+        maxit: n => `Stopped after ${n} iterations (safety limit).`,
+      },
+      stNone: '–', stReady: 'at the start', stRun: 'running…', stMid: 'still changing', stConv: 'converged ✓',
+      verdictBad: (p, b) => `⚠ This solution is <b>${p} %</b> worse than the best one found (inertia ${b}). The algorithm got stuck in a <b>local minimum</b>: from this layout no step helps any more, but from a different start it would end better. Try <b>New centers</b>.`,
+      verdictGood: b => `✓ Practically as good as the best solution found from 10 starts (inertia ${b}).`,
+      histLabel: 'inertia over time: ',
+      eAxisY: 'inertia', eAxisK: 'k = number of clusters',
+      eLegendBest: 'best of 10 starts', eLegendAll: 'single starts', eLegendYou: 'your result',
+      eFew: 'Not enough points for the chart — add at least 2.',
+      eNote: (k, a, b) => {
+        let s = 'Line = best inertia from 10 starts; gray dots = results of single starts (when they sit above the line, those starts got stuck in a local minimum). ';
+        if (a !== null) s += `From k = ${k - 1} to <b>k = ${k}</b> the inertia dropped by <b>${a} %</b>`;
+        if (b !== null) s += (a !== null ? `, from k = ${k} to k = ${k + 1} by <b>${b} %</b>.` : `From <b>k = ${k}</b> to k = ${k + 1} the inertia drops by <b>${b} %</b>.`);
+        else if (a !== null) s += '.';
+        return s + ' The elbow = where a big drop turns into a small one.';
+      },
+    },
+  };
+
+  // ── náhoda s volitelným semínkem ─────────────────────────────
+  // Data předvoleb jsou pevná (stejné semínko = stejné body), aby se na přednášce
+  // chovala pokaždé stejně. Start středů naopak používá Math.random — schválně.
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function gauss(rng) {           // normální rozdělení (Box–Muller)
+    let u = 0; while (!u) u = rng();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng());
+  }
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+  // ── generování dat ───────────────────────────────────────────
+  // g = „skutečná" skupina, ze které bod vznikl. Algoritmus ji NEVIDÍ —
+  // slouží jen ke kontrole v testu (jak moc se k-means trefil).
+  function makeData(name) {
+    const rng = mulberry32({ blobs3: 11, blobs5: 21, moons: 31, rings: 41, noise: 51 }[name] || 1);
+    const P = [];
+    const add = (x, y, g) => P.push({ x: clamp(x, 10, LW - 10), y: clamp(y, 10, LH - 10), g });
+    const blob = (cx, cy, sd, n, g) => { for (let i = 0; i < n; i++) add(cx + gauss(rng) * sd, cy + gauss(rng) * sd, g); };
+    if (name === 'blobs3') {
+      blob(210, 150, 40, 50, 0); blob(580, 135, 40, 50, 1); blob(400, 355, 40, 50, 2);
+    } else if (name === 'blobs5') {
+      blob(135, 120, 32, 32, 0); blob(300, 105, 32, 32, 1); blob(640, 115, 34, 32, 2);
+      blob(230, 360, 34, 32, 3); blob(570, 360, 34, 32, 4);
+    } else if (name === 'moons') {
+      // dva do sebe zaklesnuté půlkruhy (klasická ukázka nekonvexních skupin)
+      const s = 215, ox = 185, oy = 300, n = 80;
+      for (let i = 0; i < n; i++) {
+        const t = Math.PI * rng();
+        add(ox + s * Math.cos(t) + gauss(rng) * 13, oy - s * Math.sin(t) + gauss(rng) * 13, 0);
+        add(ox + s * (1 - Math.cos(t)) + gauss(rng) * 13, oy - s * (0.5 - Math.sin(t)) + gauss(rng) * 13, 1);
+      }
+    } else if (name === 'rings') {
+      const cx = 400, cy = 240;
+      for (let i = 0; i < 50; i++) { const t = 2 * Math.PI * rng(), r = 55 * Math.sqrt(rng()); add(cx + r * Math.cos(t), cy + r * Math.sin(t), 0); }
+      for (let i = 0; i < 110; i++) { const t = 2 * Math.PI * rng(), r = 185 + gauss(rng) * 10; add(cx + r * Math.cos(t), cy + r * Math.sin(t), 1); }
+    } else if (name === 'noise') {
+      for (let i = 0; i < 160; i++) add(20 + rng() * (LW - 40), 20 + rng() * (LH - 40), 0);
+    }
+    return P;
+  }
+
+  // ═════════════════════════════════════════════════════════════
+  // ── ALGORITMUS k-means (celý je tady, nic víc v tom není) ────
+  // ═════════════════════════════════════════════════════════════
+  // druhá mocnina vzdálenosti dvou bodů (v jednotkách U)
+  function dist2(a, b) { const dx = (a.x - b.x) / U, dy = (a.y - b.y) / U; return dx * dx + dy * dy; }
+
+  // index nejbližšího středu
+  function nearest(p, C) {
+    let best = 0, bd = Infinity;
+    for (let j = 0; j < C.length; j++) { const d = dist2(p, C[j]); if (d < bd) { bd = d; best = j; } }
+    return best;
+  }
+
+  // krok ① — počáteční středy
+  //   random: k různých náhodně vybraných bodů z dat
+  //   pp (k-means++): první náhodně, každý další s pravděpodobností úměrnou
+  //                   druhé mocnině vzdálenosti od nejbližšího už vybraného středu
+  function initCenters(P, k, mode, rng) {
+    const n = P.length;
+    if (n < k || k < 1) return [];
+    if (mode === 'random') {
+      const idx = P.map((_, i) => i);
+      for (let i = 0; i < k; i++) { const j = i + Math.floor(rng() * (n - i)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+      return idx.slice(0, k).map(i => ({ x: P[i].x, y: P[i].y }));
+    }
+    const C = [{ ...P[Math.floor(rng() * n)] }];
+    while (C.length < k) {
+      const D = P.map(p => dist2(p, C[nearest(p, C)]));
+      const sum = D.reduce((a, b) => a + b, 0);
+      let i = 0;
+      if (sum > 0) { let r = rng() * sum; for (; i < n - 1; i++) { r -= D[i]; if (r <= 0) break; } }
+      else i = Math.floor(rng() * n);
+      C.push({ x: P[i].x, y: P[i].y });
+    }
+    return C.map(c => ({ x: c.x, y: c.y }));
+  }
+
+  // krok ② — každý bod přiřaď nejbližšímu středu; vrátí, kolik bodů změnilo shluk
+  function assignStep(P, C, asg) {
+    let changed = 0;
+    for (let i = 0; i < P.length; i++) {
+      const j = nearest(P[i], C);
+      if (asg[i] !== j) { asg[i] = j; changed++; }
+    }
+    return changed;
+  }
+
+  // krok ③ — každý střed přesuň do průměru jeho bodů
+  // (prázdný shluk nechá střed na místě — stává se to zřídka)
+  function moveStep(P, C, asg) {
+    const sx = C.map(() => 0), sy = C.map(() => 0), cnt = C.map(() => 0);
+    for (let i = 0; i < P.length; i++) { const j = asg[i]; if (j < 0) continue; sx[j] += P[i].x; sy[j] += P[i].y; cnt[j]++; }
+    return C.map((c, j) => cnt[j] ? { x: sx[j] / cnt[j], y: sy[j] / cnt[j] } : { x: c.x, y: c.y });
+  }
+
+  // inertia = součet druhých mocnin vzdáleností bodů od středu jejich shluku
+  function inertia(P, C, asg) {
+    let s = 0;
+    for (let i = 0; i < P.length; i++) if (asg[i] >= 0) s += dist2(P[i], C[asg[i]]);
+    return s;
+  }
+
+  // celý běh najednou (pro graf „loket"): ② a ③ dokola, dokud se přiřazení mění
+  function kmeans(P, k, mode, rng) {
+    let C = initCenters(P, k, mode, rng);
+    const asg = new Array(P.length).fill(-1);
+    for (let it = 0; it < MAXIT; it++) {
+      if (assignStep(P, C, asg) === 0) break;
+      C = moveStep(P, C, asg);
+    }
+    return { C, asg, inertia: inertia(P, C, asg) };
+  }
+
+  // ── stav interaktivního dema ─────────────────────────────────
+  let preset = 'blobs3', pts = [], K = 3, initMode = 'random';
+  let C = [];            // středy {x,y}
+  let asg = [];          // index shluku pro každý bod (-1 = zatím nepřiřazen)
+  let trails = [];       // stopa každého středu (jeho dřívější polohy)
+  let phase = 'assign';  // co udělá příští krok: 'assign' | 'move'
+  let lastPhase = -1;    // která fáze proběhla naposledy (0 = středy, 1 = přiřazení, 2 = posun)
+  let iter = 0, converged = false, hist = [];
+  let msg = ['empty'];   // poslední zpráva (klíč + parametry), ať jde přeložit
+  let elbow = null;      // { best: [..], all: [[..]] } pro k = 1..8
+  let running = false, timer = null, raf = null, anim = null;
+
+  const cv = $('cv'), ctx = cv.getContext('2d');
+  const ecv = $('elbow'), ectx = ecv.getContext('2d');
+  const fmt = v => (Math.round(v * 10) / 10).toLocaleString(curLang === 'cs' ? 'cs-CZ' : 'en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  // ostré plátno i na retině / projektoru: vnitřní rozlišení × devicePixelRatio
+  const DPR = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = LW * DPR; cv.height = LH * DPR;
+
+  // ── ovládání běhu ────────────────────────────────────────────
+  function stopAll() {
+    running = false;
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+    anim = null;           // stav středů je už konečný, animace byla jen na oko
+    updateButtons();
+  }
+
+  function newCenters() {
+    stopAll();
+    C = initCenters(pts, K, initMode, Math.random);
+    asg = new Array(pts.length).fill(-1);
+    trails = C.map(c => [{ x: c.x, y: c.y }]);
+    phase = 'assign'; iter = 0; converged = false; hist = [];
+    lastPhase = C.length ? 0 : -1;
+    msg = C.length ? ['ready'] : (pts.length ? ['few'] : ['empty']);
+    render();
+  }
+
+  // jeden krok algoritmu: střídá ② přiřazení a ③ posun
+  function doStep() {
+    if (anim) { cancelAnimationFrame(raf); raf = null; anim = null; }
+    if (!C.length) { newCenters(); return; }
+    if (converged) return;
+    if (phase === 'assign') {
+      const ch = assignStep(pts, C, asg);
+      lastPhase = 1;
+      hist.push(inertia(pts, C, asg));
+      if (ch === 0) { converged = true; msg = ['converged', iter]; }
+      else { msg = ['assigned', ch]; phase = 'move'; }
+    } else {
+      const old = C.map(c => ({ x: c.x, y: c.y }));
+      C = moveStep(pts, C, asg);
+      let shift = 0;
+      C.forEach((c, j) => { shift += Math.sqrt(dist2(c, old[j])); trails[j].push({ x: c.x, y: c.y }); });
+      iter++; lastPhase = 2; phase = 'assign';
+      hist.push(inertia(pts, C, asg));
+      msg = ['moved', shift];
+      startAnim(old);
+    }
+    render();
+  }
+
+  // animace posunu středů: kreslí se mezi starou a novou polohou
+  function startAnim(from) {
+    anim = { from, t0: performance.now() };
+    const frame = now => {
+      if (!anim) return;
+      if (now - anim.t0 >= ANIM) { anim = null; raf = null; draw(); return; }
+      draw(); raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+  }
+  function shownCenters() {
+    if (!anim) return C;
+    const t = Math.min(1, (performance.now() - anim.t0) / ANIM), e = t * (2 - t);   // ease-out
+    return C.map((c, j) => ({ x: anim.from[j].x + (c.x - anim.from[j].x) * e, y: anim.from[j].y + (c.y - anim.from[j].y) * e }));
+  }
+
+  // „Spusť do konce": kroky s pauzou, dokud nic nezmění shluk
+  function runToEnd() {
+    if (running) return;
+    if (converged || !C.length) newCenters();
+    if (!C.length) return;
+    running = true; updateButtons(); render();
+    const tick = () => {
+      timer = null;
+      if (!running) return;
+      if (iter >= MAXIT) { msg = ['maxit', iter]; stopAll(); render(); return; }
+      const wasMove = phase === 'move';
+      doStep();
+      if (converged) { stopAll(); render(); return; }
+      timer = setTimeout(tick, wasMove ? ANIM + 200 : 450);
+    };
+    timer = setTimeout(tick, 350);
+  }
+
+  function updateButtons() {
+    $('btnRun').disabled = running;
+    $('btnStop').disabled = !running;
+  }
+
+  // ── graf „loket" ─────────────────────────────────────────────
+  // pro k = 1..8 spustí k-means 10× (se zvoleným startem) a zapamatuje si nejlepší
+  // i všechny jednotlivé výsledky; semínko je pevné, aby se graf při překreslení nehýbal
+  function computeElbow() {
+    if (pts.length < 2) { elbow = null; return; }
+    const rng = mulberry32(1000 + pts.length);
+    const best = [], all = [];
+    for (let k = 1; k <= 8; k++) {
+      if (k > pts.length) { best.push(null); all.push([]); continue; }
+      const runs = [];
+      for (let r = 0; r < RESTARTS; r++) runs.push(kmeans(pts, k, initMode, rng).inertia);
+      all.push(runs); best.push(Math.min(...runs));
+    }
+    elbow = { best, all };
+  }
+
+  function drawElbow() {
+    const T = I18N[curLang];
+    const w = ecv.clientWidth || 600, h = ecv.clientHeight || 250;
+    ecv.width = Math.round(w * DPR); ecv.height = Math.round(h * DPR);
+    const g = ectx; g.setTransform(DPR, 0, 0, DPR, 0, 0); g.clearRect(0, 0, w, h);
+    g.font = '13px -apple-system, "Segoe UI", Roboto, sans-serif';
+    if (!elbow) {
+      g.fillStyle = '#9ca3af'; g.textAlign = 'center'; g.fillText(T.eFew, w / 2, h / 2);
+      $('enote').innerHTML = ''; return;
+    }
+    const L = 52, R = 14, TOP = 30, B = 44, pw = w - L - R, ph = h - TOP - B;
+    const vals = elbow.all.flat();
+    // „hezký" krok osy y (1, 2, 5 × 10^n), ať jsou popisky kulatá čísla
+    const raw = Math.max(...vals, 1e-9) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 5, 10].map(m => m * mag).find(v => v >= raw);
+    const nt = Math.ceil(Math.max(...vals, 1e-9) / step), ymax = nt * step;
+    const X = k => L + (k - 1) / 7 * pw, Y = v => TOP + ph - v / ymax * ph;
+
+    // zvýrazněný sloupec aktuálního k
+    g.fillStyle = 'rgba(219,39,119,0.09)';
+    const cw = pw / 7 * 0.7; g.fillRect(X(K) - cw / 2, TOP - 6, cw, ph + 6);
+
+    // osy a mřížka
+    g.strokeStyle = '#eef0f3'; g.lineWidth = 1; g.fillStyle = '#9ca3af'; g.textAlign = 'right'; g.textBaseline = 'middle';
+    for (let i = 0; i <= nt; i++) {
+      const v = step * i, y = Y(v);
+      g.beginPath(); g.moveTo(L, y); g.lineTo(w - R, y); g.stroke();
+      g.fillText(v.toLocaleString(curLang === 'cs' ? 'cs-CZ' : 'en-US', { maximumFractionDigits: 2 }), L - 8, y);
+    }
+    g.textAlign = 'center'; g.textBaseline = 'top';
+    for (let k = 1; k <= 8; k++) {
+      g.fillStyle = k === K ? '#db2777' : '#6b7280';
+      g.font = (k === K ? '700 ' : '') + '13px -apple-system, "Segoe UI", Roboto, sans-serif';
+      g.fillText(String(k), X(k), TOP + ph + 8);
+    }
+    g.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif'; g.fillStyle = '#9ca3af';
+    g.textAlign = 'left'; g.textBaseline = 'top'; g.fillText(T.eAxisY, 4, 6);
+    g.textAlign = 'center'; g.fillText(T.eAxisK, L + pw / 2, TOP + ph + 27);
+
+    // jednotlivé starty (šedé tečky)
+    g.fillStyle = 'rgba(107,114,128,0.45)';
+    elbow.all.forEach((runs, i) => runs.forEach(v => { g.beginPath(); g.arc(X(i + 1), Y(v), 3.2, 0, 7); g.fill(); }));
+    // nejlepší = čára
+    g.strokeStyle = '#374151'; g.lineWidth = 2.5; g.beginPath();
+    let first = true;
+    elbow.best.forEach((v, i) => { if (v === null) return; if (first) { g.moveTo(X(i + 1), Y(v)); first = false; } else g.lineTo(X(i + 1), Y(v)); });
+    g.stroke();
+    elbow.best.forEach((v, i) => {
+      if (v === null) return;
+      const on = i + 1 === K;
+      g.beginPath(); g.arc(X(i + 1), Y(v), on ? 7 : 4.5, 0, 7);
+      g.fillStyle = on ? '#db2777' : '#374151'; g.fill();
+      if (on) { g.lineWidth = 2; g.strokeStyle = '#fff'; g.stroke(); }
+    });
+    // tvůj výsledek (po konvergenci)
+    if (converged && C.length) {
+      const v = inertia(pts, C, asg);
+      g.beginPath(); g.arc(X(K), Y(v), 10, 0, 7); g.lineWidth = 2.5; g.strokeStyle = '#111827'; g.stroke();
+    }
+    // legenda
+    g.font = '12px -apple-system, "Segoe UI", Roboto, sans-serif'; g.textBaseline = 'middle'; g.textAlign = 'left';
+    let lx = L + 44; const ly = 12;
+    const item = (drawMark, text) => { drawMark(lx, ly); g.fillStyle = '#6b7280'; g.fillText(text, lx + 12, ly); lx += 24 + g.measureText(text).width; };
+    item((x, y) => { g.fillStyle = '#374151'; g.beginPath(); g.arc(x, y, 4.5, 0, 7); g.fill(); }, T.eLegendBest);
+    if (w > 420) item((x, y) => { g.fillStyle = 'rgba(107,114,128,0.45)'; g.beginPath(); g.arc(x, y, 3.2, 0, 7); g.fill(); }, T.eLegendAll);
+    if (converged && C.length && w > 560) item((x, y) => { g.beginPath(); g.arc(x, y, 6, 0, 7); g.lineWidth = 2; g.strokeStyle = '#111827'; g.stroke(); }, T.eLegendYou);
+
+    // text pod grafem: o kolik % klesla inertia kolem aktuálního k
+    const b = elbow.best;
+    const drop = (k1, k2) => (b[k1 - 1] && b[k2 - 1] !== null && b[k2 - 1] !== undefined) ? Math.round((1 - b[k2 - 1] / b[k1 - 1]) * 100) : null;
+    $('enote').innerHTML = T.eNote(K, K > 1 ? drop(K - 1, K) : null, K < 8 ? drop(K, K + 1) : null);
+  }
+
+  // ── kreslení hlavního plátna ─────────────────────────────────
+  function draw() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, LW, LH);
+    const S = shownCenters();
+    // body na zmenšeném plátně (telefon) trochu zvětšíme, ať jsou vidět
+    const scale = (cv.clientWidth || LW) / LW;
+    const pr = Math.max(6, 3.6 / scale), cr = Math.max(12, 7 / scale);
+
+    // oblasti středů: každé místo plochy obarvené podle nejbližšího středu
+    // (hranice mezi dvěma středy je vždy rovná čára)
+    if ($('chkRegions').checked && S.length) {
+      const cell = 10;
+      ctx.globalAlpha = 0.09;
+      for (let x = 0; x < LW; x += cell) for (let y = 0; y < LH; y += cell) {
+        ctx.fillStyle = COLORS[nearest({ x: x + cell / 2, y: y + cell / 2 }, S)];
+        ctx.fillRect(x, y, cell, cell);
+      }
+      ctx.globalAlpha = 1;
+    }
+    // tenké čáry bod → jeho střed
+    if ($('chkLines').checked && S.length) {
+      ctx.lineWidth = 1; ctx.globalAlpha = 0.28;
+      for (let i = 0; i < pts.length; i++) {
+        const j = asg[i]; if (j < 0) continue;
+        ctx.strokeStyle = COLORS[j]; ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(S[j].x, S[j].y); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    // body: šedé = nepřiřazené, jinak barva shluku
+    for (let i = 0; i < pts.length; i++) {
+      const j = asg[i];
+      ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, pr, 0, 7);
+      ctx.fillStyle = j >= 0 ? COLORS[j] : '#9ca3af'; ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = '#fff'; ctx.stroke();
+    }
+    // stopy středů (kudy se posouvaly)
+    trails.forEach((tr, j) => {
+      if (tr.length < 2) return;
+      const path = anim ? tr.slice(0, -1).concat([S[j]]) : tr;
+      ctx.strokeStyle = COLORS[j]; ctx.lineWidth = 2.5; ctx.setLineDash([6, 5]);
+      ctx.beginPath(); path.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke();
+      ctx.setLineDash([]);
+      for (let i = 0; i < path.length - 1; i++) {
+        ctx.beginPath(); ctx.arc(path[i].x, path[i].y, cr * 0.32, 0, 7);
+        ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = COLORS[j]; ctx.stroke();
+      }
+    });
+    // středy: velký kruh s křížkem
+    S.forEach((c, j) => {
+      ctx.beginPath(); ctx.arc(c.x, c.y, cr, 0, 7);
+      ctx.fillStyle = COLORS[j]; ctx.fill();
+      ctx.lineWidth = 3; ctx.strokeStyle = '#fff'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(c.x, c.y, cr + 2, 0, 7); ctx.lineWidth = 1.5; ctx.strokeStyle = '#111827'; ctx.stroke();
+      const a = cr * 0.5;
+      ctx.beginPath(); ctx.moveTo(c.x - a, c.y - a); ctx.lineTo(c.x + a, c.y + a); ctx.moveTo(c.x + a, c.y - a); ctx.lineTo(c.x - a, c.y + a);
+      ctx.lineWidth = 2.5; ctx.strokeStyle = '#fff'; ctx.stroke();
+    });
+  }
+
+  // ── texty a statistiky ───────────────────────────────────────
+  function renderTexts() {
+    const T = I18N[curLang];
+    $('dhint').innerHTML = T.hint[preset] || '';
+    const [key, ...args] = msg;
+    let html;
+    if (key === 'ready') html = T.msg.ready(T.initName[initMode], C.length);
+    else if (key === 'moved') html = T.msg.moved(fmt(args[0]));
+    else if (key === 'few') html = T.msg.few(K);
+    else html = typeof T.msg[key] === 'function' ? T.msg[key](...args) : T.msg[key];
+    $('status').innerHTML = html;
+
+    $('btnStep').textContent = !C.length ? T.stepInit : converged ? T.stepDone : phase === 'assign' ? T.stepAssign : T.stepMove;
+    [0, 1, 2].forEach(i => $('ph' + i).classList.toggle('on', lastPhase === i));
+
+    $('sIter').textContent = iter;
+    const assigned = asg.length && asg.some(a => a >= 0);
+    $('sInertia').textContent = C.length && assigned ? fmt(inertia(pts, C, asg)) : '–';
+    const st = $('sState');
+    st.className = converged ? 'ok' : running ? 'run' : '';
+    st.textContent = !C.length ? T.stNone : converged ? T.stConv : running ? T.stRun : (lastPhase === 0 ? T.stReady : T.stMid);
+    $('hist').textContent = hist.length ? T.histLabel + (hist.length > 10 ? '… → ' : '') + hist.slice(-10).map(fmt).join(' → ') : '';
+
+    // lokální minimum? porovnání s nejlepším řešením z grafu „loket"
+    const v = $('verdict');
+    const best = elbow && elbow.best[K - 1];
+    if (converged && C.length && best !== null && best !== undefined) {
+      const own = inertia(pts, C, asg);
+      const worse = best > 1e-9 ? (own / best - 1) * 100 : 0;
+      if (worse > 3) {   // do 3 % bereme jako „stejně dobré" (symetrická data mají víc skoro stejných řešení)
+        v.className = 'verdict show bad'; v.innerHTML = T.verdictBad(Math.round(worse), fmt(best)); }
+      else { v.className = 'verdict show good'; v.innerHTML = T.verdictGood(fmt(best)); }
+    } else { v.className = 'verdict'; v.innerHTML = ''; }
+  }
+
+  function render() { draw(); renderTexts(); drawElbow(); }
+
+  // ── události ─────────────────────────────────────────────────
+  function loadPreset(name) {
+    preset = name;
+    pts = name === 'empty' ? [] : makeData(name);
+    if (SUGGESTED_K[name]) { K = SUGGESTED_K[name]; $('k').value = K; $('kval').textContent = K; }
+    document.querySelectorAll('#presets button').forEach(b => b.classList.toggle('on', b.dataset.p === name));
+    computeElbow();
+    newCenters();
+  }
+  document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => loadPreset(b.dataset.p)));
+
+  $('k').addEventListener('input', () => { K = +$('k').value; $('kval').textContent = K; newCenters(); });
+
+  function setMode(m) {
+    initMode = m;
+    document.querySelectorAll('#initSeg button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  }
+  document.querySelectorAll('#initSeg button').forEach(b => b.addEventListener('click', () => {
+    setMode(b.dataset.m); computeElbow(); newCenters();
+  }));
+  $('chkLines').addEventListener('change', draw);
+  $('chkRegions').addEventListener('change', draw);
+
+  $('btnInit').addEventListener('click', newCenters);
+  $('btnStep').addEventListener('click', () => { if (running) { stopAll(); } doStep(); });
+  $('btnRun').addEventListener('click', runToEnd);
+  $('btnStop').addEventListener('click', () => { if (!running) return; stopAll(); msg = ['stopped']; render(); });
+
+  // přidání bodu kliknutím / ťuknutím (plátno může být zmenšené → přepočet přes skutečnou velikost).
+  // Bod přibude až při puštění prstu blízko místa dotyku — posouvání stránky přes plátno
+  // tak nic nepřidá ani nezastaví běžící demo (stejně jako onTap v příkladu 7).
+  let down = null;
+  cv.addEventListener('pointerdown', e => { down = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+  cv.addEventListener('pointercancel', () => { down = null; });
+  cv.addEventListener('pointerup', e => {
+    const tap = down && down.id === e.pointerId && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 10;
+    down = null;
+    if (!tap) return;
+    const r = cv.getBoundingClientRect();
+    const x = (e.clientX - r.left - cv.clientLeft) / cv.clientWidth * LW;
+    const y = (e.clientY - r.top - cv.clientTop) / cv.clientHeight * LH;
+    if (x < 0 || y < 0 || x > LW || y > LH) return;
+    stopAll();
+    pts.push({ x, y, g: -1 }); asg.push(-1);
+    computeElbow();
+    if (C.length) { converged = false; phase = 'assign'; msg = ['added']; }
+    else msg = pts.length >= K ? ['enough'] : ['few'];
+    render();
+  });
+
+  window.addEventListener('resize', () => { draw(); drawElbow(); });
+
+  // ── start ────────────────────────────────────────────────────
+  setMode('random');
+  loadPreset('blobs3');
+
+  // přepnutí jazyka: překresli všechny dynamické texty (i popisky v grafu)
+  window.onLangChange = function (l) { curLang = l; renderTexts(); drawElbow(); };
+</script>
+</Layout>

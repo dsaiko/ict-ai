@@ -1,0 +1,390 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout titleCs="Příklad #14 — Attention: na co se model dívá" titleEn="Example #14 — Attention: what the model looks at" back={true}>
+<style is:global>
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
+           text-align: center; line-height: 1.5; }
+
+  .panel { width: min(760px, 96vw); }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+           padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 10px; }
+
+  input[type=text] { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 11px 12px;
+    font-size: 15px; color: #374151; background: #fafafa; }
+  input[type=text]:focus { outline: 2px solid #93c5fd; border-color: #93c5fd; }
+
+  .sent { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .atok { font-size: 17px; padding: 7px 12px; border-radius: 8px; cursor: pointer; position: relative;
+          background: #f3f4f6; transition: background .15s, color .15s, transform .1s; }
+  .atok:hover { transform: translateY(-2px); }
+  .atok.q { outline: 3px solid #111827; outline-offset: 1px; }
+  .atok .pct { display:block; font-size: 10px; text-align:center; color:#475569; margin-top:2px; min-height:12px; }
+  .selhint { font-size: 12.5px; color: #6b7280; margin-top: 14px; min-height: 18px; }
+  .selhint b { color: #111827; }
+
+  .explain { width: min(760px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #2563eb; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  .blocknote { font-size: 12.5px; color: #6b7280; line-height: 1.6; margin-top: 14px;
+               border-top: 1px solid #f0f1f3; padding-top: 12px; }
+  .blocknote b { color: #374151; }
+  .blocknote em { color: #9ca3af; }
+
+  /* heatmapa */
+  .matrix { display: inline-grid; gap: 2px; margin-top: 4px; font-size: 12px; }
+  .mcell { width: 34px; height: 28px; border-radius: 4px; display: flex; align-items: center;
+           justify-content: center; font-family: "SF Mono", Menlo, Consolas, monospace; color: #1e293b; }
+  .mlabel { display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+            font-size: 11px; color: #475569; white-space: nowrap; }
+  .mlabel.col { justify-content: center; padding: 0; writing-mode: vertical-rl; transform: rotate(180deg); height: 64px; }
+  .mcell.mrow-q, .mlabel.mrow-q { outline: 2px solid #111827; outline-offset: -2px; }
+  .scroller { overflow-x: auto; padding-bottom: 6px; }
+
+  .theory { width: min(760px, 96vw); margin-top: 24px; }
+
+  /* dvojice připravených vět */
+  .pairs { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 12px; }
+  .pair { border: 1px solid #eef0f3; border-radius: 10px; padding: 10px 12px; background: #f9fafb; }
+  .pair .ptitle { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #6b7280; margin-bottom: 7px; }
+  .pair button { display: block; width: 100%; text-align: left; font-size: 12.5px; line-height: 1.35; padding: 6px 9px;
+                 margin-top: 5px; border: 1px solid #e5e7eb; background: #fff; color: #374151; border-radius: 7px; cursor: pointer; }
+  .pair button:hover { background: #eff6ff; }
+  .pair button.on { border-color: #2563eb; background: #eff6ff; color: #1e3a8a; font-weight: 600; }
+  .mode { font-size: 12px; margin-top: 10px; padding: 7px 10px; border-radius: 7px; }
+  .mode.preset { background: #eff6ff; color: #1e40af; }
+  .mode.free { background: #fffbeb; color: #92400e; }
+</style>
+
+<h1><span class="badge">14</span><span class="cs">Attention — na co se model dívá</span><span class="en">Attention — what the model looks at</span></h1>
+  <p class="intro">
+    <span class="cs">Když model zpracovává slovo, „rozhlíží se" po ostatních slovech ve větě a každému dá
+    <b>váhu pozornosti</b> — jak moc je pro něj důležité. Tahle myšlenka (<i>attention</i>) je
+    srdcem dnešních modelů. <b>Klikni na slovo</b> a uvidíš, kam se dívá.</span>
+    <span class="en">When a model processes a word, it "looks around" at the other words in the sentence and gives each an
+    <b>attention weight</b> — how important it is to it. This idea (<i>attention</i>) is
+    at the heart of today's models. <b>Click a word</b> and see where it looks.</span>
+  </p>
+
+  <div class="explain">
+    <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Attention</b> (pozornost): když model zpracovává slovo, „rozhlíží se" po ostatních slovech ve větě a každému dá <b>váhu</b> — jak moc je pro něj důležité. Z nejdůležitějších slov si pak poskládá, co slovo <b>v téhle větě</b> znamená.</span><span class="en"><b>Attention</b>: when the model processes a word, it “looks around” at the other words in the sentence and gives each a <b>weight</b> — how important it is to it. From the most important ones it then works out what the word means <b>in this sentence</b>.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Vyber jednu z <b>dvojic vět</b> a přepínej mezi nimi. Věty se liší jen koncem, ale zvýrazněné slovo se najednou dívá <b>jinam</b> — „byla" na kočku, „byl" na stůl. Klikni i na jiná slova; dole je celá <b>mapa pozornosti</b> (každý řádek dává 100 %).</span><span class="en">Pick one of the <b>sentence pairs</b> and switch between them. The sentences differ only at the end, yet the highlighted word suddenly looks <b>somewhere else</b> — “it” at the cat, or at the table. Click other words too; below is the full <b>attention map</b> (each row adds up to 100 %).</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Přesně takhle pracuje každá vrstva dnešních <b>transformerů</b>: každé slovo si <b>přepočítá svůj význam</b> podle toho, na co se dívá. Tím modely chápou kontext — kdo je „on", který „zámek" je myšlen, ke kterému slovu patří tvar slovesa.</span><span class="en">This is exactly how every layer of today’s <b>transformers</b> works: each word <b>recomputes its meaning</b> from what it looks at. It’s how models grasp context — who “it” is, which “bank” is meant, which word a verb has to agree with.</span></p>
+    <div class="flow">
+      <span class="stepc"><span class="n">1</span> <span class="cs">dotaz (co hledám?)</span><span class="en">query (what am I looking for?)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">2</span> <span class="cs">klíče ostatních slov</span><span class="en">keys of the other words</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">3</span> <span class="cs">skóre shody</span><span class="en">match scores</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">4</span> <span class="cs">softmax = váhy (100 %)</span><span class="en">softmax = weights (100 %)</span></span>
+      <span class="arr">→</span>
+      <span class="stepc"><span class="n">5</span> <span class="cs">nový význam slova</span><span class="en">the word's new meaning</span></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="block">
+      <div class="label"><span class="cs">1 · dvojice vět — liší se jedním slovem, pozornost přeskočí</span><span class="en">1 · sentence pairs — one word differs, attention jumps</span></div>
+      <div class="pairs" id="pairs"></div>
+      <div class="label" style="margin-top:16px"><span class="cs">věta (nebo napiš vlastní)</span><span class="en">sentence (or type your own)</span></div>
+      <input type="text" id="text">
+      <div class="mode" id="mode"></div>
+      <div class="sent" id="sent"></div>
+      <div class="selhint" id="selhint"></div>
+    </div>
+
+    <div class="block">
+      <div class="label"><span class="cs">2 · mapa pozornosti — řádek = „odkud", sloupec = „kam se dívá"</span><span class="en">2 · attention map — row = "from", column = "looks at"</span></div>
+      <div class="scroller"><div class="matrix" id="matrix"></div></div>
+      <div class="blocknote">
+        <span class="cs"><b>Jak číst mapu?</b> Každý <b>řádek</b> je jedno slovo („odkud se dívám"), <b>sloupce</b> jsou
+        slova, na která se dívá. Číslo v buňce je <b>% pozornosti</b> a každý řádek dává dohromady
+        <b>100 %</b>. Klikni na slovo nahoře nebo na řádek a zvýrazní se.
+        <br><em>Poctivě: u připravených vět jsou vzory pozornosti <b>nastavené ručně</b> podle vztahů, které se skutečné modely
+        prokazatelně učí (k čemu odkazuje zájmeno, které slovo určuje význam, s čím se shoduje sloveso). Skutečný model je
+        nemá předepsané — spočítá je z vektorů dotazů a klíčů naučených z obrovského množství textu. U vlastní věty žádné
+        naučené vztahy nemáme, takže ukazujeme jen hrubý odhad podle blízkosti slov.</em></span>
+        <span class="en"><b>How to read the map?</b> Each <b>row</b> is one word ("where I look from"), the <b>columns</b> are
+        the words it looks at. The number in a cell is the <b>% of attention</b> and each row adds up to
+        <b>100 %</b>. Click a word at the top or a row to highlight it.
+        <br><em>Honestly: for the prepared sentences the attention patterns are <b>set by hand</b> to match relations that real
+        models demonstrably learn (what a pronoun refers to, which word sets the meaning, what a verb agrees with). A real model
+        has nothing prescribed — it computes them from query and key vectors learned from a huge amount of text. For your own
+        sentence we have no learned relations, so we only show a rough guess based on how close the words are.</em></span>
+      </div>
+    </div>
+  </div>
+
+  <section class="theory">
+    <div class="head"><span class="cs">Jak attention funguje</span><span class="en">How attention works</span></div>
+    <p class="lead">
+      <span class="cs">Každé slovo vyšle „dotaz" (co hledám?) a každé nabízí „klíč" (co nabízím?). Model spočítá,
+      jak <b>dotaz sedí ke klíči</b> — čím líp, tím větší pozornost. Váhy se přepočítají tak, aby
+      dohromady daly 100 %, a slovo si pak <b>poskládá svůj nový význam</b> z těch, kterým věnovalo
+      nejvíc pozornosti. Dotazy a klíče jsou jen vektory čísel (jako embeddingy z příkladu 13) — a to, jak je
+      z embeddingu spočítat, se model <b>naučí</b> gradientním sestupem (příklad 7).</span>
+      <span class="en">Each word sends a "query" (what am I looking for?) and each offers a "key" (what do I offer?). The
+      model computes <b>how well a query matches a key</b> — the better, the more attention. The weights are
+      normalized to add up to 100 %, and the word then <b>assembles its new meaning</b> from those it paid the
+      most attention to. Queries and keys are just vectors of numbers (like the embeddings in example 13) — and how to
+      compute them from an embedding is something the model <b>learns</b> by gradient descent (example 7).</span>
+    </p>
+    <div class="tcards">
+      <div class="tcard" style="--c:#2563eb">
+        <h3><span class="dot"></span><span class="cs">Dotaz, klíč, hodnota</span><span class="en">Query, key, value</span></h3>
+        <p><span class="cs">Q (co hledám), K (co nabízím), V (co předám). Pozornost = jak dotaz pasuje na klíče
+           (skalární součin vektorů). To rozhoduje, kolik z které „hodnoty" si slovo vezme.</span>
+           <span class="en">Q (what I'm looking for), K (what I offer), V (what I pass on). Attention = how well the query
+           fits the keys (a dot product of vectors). That decides how much of each "value" a word takes.</span></p>
+      </div>
+      <div class="tcard" style="--c:#16a34a">
+        <h3><span class="dot"></span><span class="cs">Váhy dávají 100 %</span><span class="en">Weights add up to 100 %</span></h3>
+        <p><span class="cs">Skóre se přes <b>softmax</b> převede na podíly, co dohromady tvoří jednotku. Slovo tak
+           rozdělí svou pozornost mezi ostatní — většinou hlavně na pár slov, která jsou pro něj klíčová.</span>
+           <span class="en"><b>Softmax</b> turns the scores into proportions that together make one. So a word splits its
+           attention among the others — usually mostly onto the few words that matter to it.</span></p>
+      </div>
+      <div class="tcard" style="--c:#f59e0b">
+        <h3><span class="dot"></span><span class="cs">Kontext řeší víceznačnost</span><span class="en">Context resolves ambiguity</span></h3>
+        <p><span class="cs">„Zámek" na kopci s věží je stavba, „zámek" s klíčem a dveřmi je součástka. Slovo samo nestačí —
+           díky pozornosti k okolí model pozná, <b>který význam</b> platí. Jazyk je o <b>vztazích</b> mezi slovy.</span>
+           <span class="en">A "bank" by the river is land, a "bank" with money and an account is a company. The word alone isn't
+           enough — thanks to attention to its surroundings the model works out <b>which meaning</b> applies. Language is about
+           the <b>relationships</b> between words.</span></p>
+      </div>
+      <div class="tcard" style="--c:#0ea5e9">
+        <h3><span class="dot"></span><span class="cs">Víc hlav najednou</span><span class="en">Many heads at once</span></h3>
+        <p><span class="cs">Skutečný model má v každé vrstvě desítky „hlav" pozornosti — každá sleduje jiný vztah: jedna
+           odkazy zájmen, jiná shodu v gramatice, jiná sousední slova. A takových vrstev jsou na sobě desítky. Tady vidíš
+           jednu hlavu.</span>
+           <span class="en">A real model has dozens of attention "heads" in every layer — each tracks a different relation: one
+           pronoun references, another grammatical agreement, another neighboring words. And dozens of such layers are stacked.
+           Here you see a single head.</span></p>
+      </div>
+      <div class="tcard" style="--c:#a855f7">
+        <h3><span class="dot"></span><span class="cs">Proč je to průlom</span><span class="en">Why it's a breakthrough</span></h3>
+        <p><span class="cs">Attention umí spojit i slova daleko od sebe (sloveso na konci s podmětem na začátku) a počítat
+           všechna slova naráz (paralelně na GPU). Na tom stojí <b>transformer</b> (2017) — architektura za ChatGPT,
+           Claude, Gemini a spol.</span>
+           <span class="en">Attention can link even far-apart words (a verb at the end with its subject at the start) and process
+           all the words at once (in parallel on GPUs). The <b>transformer</b> (2017) is built on this — the architecture behind
+           ChatGPT, Claude, Gemini and the like.</span></p>
+      </div>
+    </div>
+  </section>
+
+<script is:inline>
+  const $ = id => document.getElementById(id);
+  let tokens = [], A = [];  // A[i][j] = pozornost slova i ke slovu j
+  let selected = -1, current = null;   // current = připravená věta (nebo null = vlastní)
+
+  let curLang = window.__lang || 'cs';
+
+  // ── Připravené dvojice vět s ručně nastavenými vztahy ────────
+  // links: [odkud, kam, síla]; slovo#2 = druhý výskyt stejného slova.
+  // Skóre = síla vztahu − 0,15 × vzdálenost ve větě (+ trocha pozornosti sám na sebe),
+  // slabá penalizace vzdálenosti: attention umí spojit i slova daleko od sebe,
+  // pak softmax → řádek dává 100 %. Vztahy odpovídají tomu, co se naučené modely typicky naučí.
+  const PAIRS = {
+    cs: [
+      { title: 'Kdo byl unavený?', key: [5, 5], s: [
+        { text: 'Kočka nevyskočila na stůl, protože byla unavená.', links: [
+          ['byla','kočka',4.6], ['unavená','kočka',3.4], ['unavená','byla',2.2], ['nevyskočila','kočka',3], ['nevyskočila','stůl',2],
+          ['na','stůl',3], ['stůl','na',1.5], ['stůl','nevyskočila',1.8], ['protože','nevyskočila',2], ['protože','byla',1.6], ['kočka','nevyskočila',2]] },
+        { text: 'Kočka nevyskočila na stůl, protože byl moc vysoký.', links: [
+          ['byl','stůl',4.6], ['vysoký','stůl',3.4], ['vysoký','moc',2.2], ['moc','vysoký',3], ['nevyskočila','kočka',3], ['nevyskočila','stůl',2],
+          ['na','stůl',3], ['stůl','na',1.5], ['stůl','nevyskočila',1.8], ['protože','nevyskočila',2], ['protože','byl',1.6], ['kočka','nevyskočila',2]] } ] },
+      { title: 'Který zámek?', key: [4, 3], s: [
+        { text: 'Na kopci stojí starý zámek s vysokou věží.', links: [
+          ['zámek','věží',3.6], ['zámek','kopci',3], ['zámek','stojí',2], ['zámek','starý',2], ['věží','zámek',3], ['věží','vysokou',2],
+          ['vysokou','věží',3], ['starý','zámek',3], ['kopci','na',2], ['stojí','zámek',2.6], ['stojí','kopci',2], ['s','věží',2]] },
+        { text: 'Klíč se v zámku zasekl a dveře nešly otevřít.', links: [
+          ['zámku','klíč',3.6], ['zámku','dveře',3.2], ['zámku','zasekl',2], ['zasekl','klíč',3.6], ['zasekl','se',2], ['v','zámku',2.6],
+          ['dveře','zámku',2.2], ['nešly','dveře',3.6], ['otevřít','dveře',3], ['otevřít','nešly',2], ['se','zasekl',2], ['a','nešly',1.5]] } ] },
+      { title: 'S čím se shoduje sloveso?', key: [8, 8], s: [
+        { text: 'Holky, které jsme včera potkali v parku, se smály.', links: [
+          ['smály','holky',4.6], ['smály','se',2], ['které','holky',3.6], ['potkali','jsme',3], ['potkali','které',2.6], ['parku','v',2],
+          ['v','parku',2.6], ['včera','potkali',2], ['se','smály',2], ['jsme','potkali',2.4], ['holky','smály',2.4]] },
+        { text: 'Kluci, které jsme včera potkali v parku, se smáli.', links: [
+          ['smáli','kluci',4.6], ['smáli','se',2], ['které','kluci',3.6], ['potkali','jsme',3], ['potkali','které',2.6], ['parku','v',2],
+          ['v','parku',2.6], ['včera','potkali',2], ['se','smáli',2], ['jsme','potkali',2.4], ['kluci','smáli',2.4]] } ] },
+    ],
+    en: [
+      { title: 'Who was tired?', key: [9, 9], s: [
+        { text: 'The cat did not jump on the table because it was tired.', links: [
+          ['it','cat',4.6], ['tired','cat',3.2], ['tired','it',2.4], ['was','it',2.6], ['jump','cat',3], ['jump','table',2], ['table','the#2',2],
+          ['on','table',2.8], ['because','jump',2], ['cat','the',2], ['not','did',2.4], ['did','cat',2]] },
+        { text: 'The cat did not jump on the table because it was too high.', links: [
+          ['it','table',4.6], ['high','table',3.2], ['high','too',2.4], ['too','high',3], ['was','it',2.6], ['jump','cat',3], ['jump','table',2],
+          ['table','the#2',2], ['on','table',2.8], ['because','jump',2], ['cat','the',2], ['not','did',2.4], ['did','cat',2]] } ] },
+      { title: 'Which bank?', key: [5, 6], s: [
+        { text: 'We walked along the river bank at sunset.', links: [
+          ['bank','river',4.4], ['bank','walked',2.2], ['bank','along',1.8], ['river','bank',2.6], ['walked','we',3], ['sunset','at',2.6],
+          ['at','sunset',2.4], ['along','walked',2.2], ['the','river',2.4]] },
+        { text: 'She paid the money into her bank account.', links: [
+          ['bank','account',4], ['bank','money',3.6], ['bank','paid',2], ['account','bank',3], ['paid','she',3], ['paid','money',2.6],
+          ['money','the',2], ['into','bank',2.2], ['her','she',2.8]] } ] },
+      { title: 'What does the verb agree with?', key: [9, 9], s: [
+        { text: 'The keys that I left on the kitchen table are gone.', links: [
+          ['are','keys',4.6], ['are','gone',2], ['that','keys',3.6], ['left','i',3], ['left','that',2.4], ['table','kitchen',3],
+          ['kitchen','table',2.4], ['on','table',2.4], ['gone','are',2.6], ['keys','the',2]] },
+        { text: 'The key that I left on the kitchen table is gone.', links: [
+          ['is','key',4.6], ['is','gone',2], ['that','key',3.6], ['left','i',3], ['left','that',2.4], ['table','kitchen',3],
+          ['kitchen','table',2.4], ['on','table',2.4], ['gone','is',2.6], ['key','the',2]] } ] },
+    ],
+  };
+
+  const I18N = {
+    cs: {
+      attends: (w, list) => `Slovo <b>„${w}"</b> se nejvíc dívá na: ${list}.`,
+      item: (w, p) => `„${w}" (${p} %)`,
+      enter: 'Zadej větu.',
+      modePreset: '✓ připravená věta — vzory pozornosti podle naučených vztahů (nastavené ručně, viz poznámka dole)',
+      modeFree: '⚠️ vlastní věta — bez naučených vztahů jen hrubý odhad: slovo se dívá hlavně na své sousedy',
+      pairHint: (a, b) => `Přepni na druhou větu dvojice — „${a}" a „${b}" se dívají každé jinam.`,
+    },
+    en: {
+      attends: (w, list) => `The word <b>"${w}"</b> attends most to: ${list}.`,
+      item: (w, p) => `"${w}" (${p} %)`,
+      enter: 'Enter a sentence.',
+      modePreset: '✓ prepared sentence — attention patterns follow learned relations (set by hand, see the note below)',
+      modeFree: '⚠️ your own sentence — with no learned relations it is only a rough guess: a word looks mostly at its neighbors',
+      pairHint: (a, b) => `Switch to the other sentence of the pair — “${a}” and “${b}” each look somewhere else.`,
+    },
+  };
+
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
+  function tokenize(text){ return (text.trim().match(/[\p{L}\p{N}]+/gu) || []); }
+
+  // „slovo" nebo „slovo#2" → index tokenu
+  function findTok(low, ref){
+    const [w, k] = ref.split('#'); let seen = 0;
+    for (let i = 0; i < low.length; i++) if (low[i] === w && ++seen === (+k || 1)) return i;
+    return -1;
+  }
+
+  function buildAttention(){
+    const n = tokens.length, low = tokens.map(t => t.toLowerCase());
+    const L = Array.from({ length: n }, () => new Array(n).fill(0));
+    if (current) for (const [a, b, s] of current.links) {
+      const i = findTok(low, a), j = findTok(low, b);
+      if (i >= 0 && j >= 0) L[i][j] = s;
+    }
+    A = [];
+    for (let i = 0; i < n; i++){
+      const scores = [];
+      for (let j = 0; j < n; j++){
+        const self = i === j ? (current ? 1.0 : 0.8) : 0;
+        scores.push(L[i][j] + self - (current ? 0.15 : 0.6) * Math.abs(i - j));
+      }
+      const mx = Math.max(...scores), ex = scores.map(s => Math.exp(s - mx)), sum = ex.reduce((a, b) => a + b, 0);
+      A.push(ex.map(e => e / sum));
+    }
+  }
+
+  // ── barvy podle váhy ─────────────────────────────────────────
+  function shade(w){ return `rgba(37,99,235,${(0.08+0.92*w).toFixed(3)})`; }
+  function textColor(w){ return w>0.5 ? '#fff' : '#1e293b'; }
+
+  function renderPairs(){
+    $('pairs').innerHTML = PAIRS[curLang].map((p, pi) =>
+      `<div class="pair"><div class="ptitle">${esc(p.title)}</div>` +
+      p.s.map((v, vi) => `<button data-p="${pi}" data-v="${vi}" class="${current === v ? 'on' : ''}">${'AB'[vi]} · ${esc(v.text)}</button>`).join('') +
+      `</div>`).join('');
+    $('pairs').querySelectorAll('button').forEach(b => b.addEventListener('click', () => loadPreset(+b.dataset.p, +b.dataset.v)));
+  }
+
+  function loadPreset(pi, vi){
+    const p = PAIRS[curLang][pi];
+    current = p.s[vi]; current.pi = pi; current.vi = vi;
+    $('text').value = current.text;
+    rebuild(p.key[vi]);
+  }
+
+  function renderSentence(){
+    const el = $('sent'); el.innerHTML = '';
+    tokens.forEach((t, i) => {
+      const s = document.createElement('span');
+      s.className = 'atok'; s.dataset.i = i;
+      s.innerHTML = `${esc(t)}<span class="pct"></span>`;
+      s.addEventListener('click', () => select(i));
+      el.appendChild(s);
+    });
+  }
+
+  function select(i){
+    selected = i;
+    [...document.querySelectorAll('.atok')].forEach((c, k) => {
+      c.classList.toggle('q', k === i);
+      const w = A[i][k];
+      c.style.background = shade(w); c.style.color = textColor(w);
+      c.querySelector('.pct').textContent = Math.round(w*100) + '%';
+    });
+    const order = A[i].map((w, j) => ({ j, w })).filter(o => o.j !== i).sort((a, b) => b.w - a.w);
+    const top = order.slice(0, 2).map(o => I18N[curLang].item(esc(tokens[o.j]), Math.round(o.w*100)));
+    let html = I18N[curLang].attends(esc(tokens[i]), top.join(', '));
+    if (current) {
+      const p = PAIRS[curLang][current.pi], other = p.s[1 - current.vi];
+      const kw = tokenize(current.text)[p.key[current.vi]], ow = tokenize(other.text)[p.key[1 - current.vi]];
+      if (i === p.key[current.vi]) html += '<br>' + I18N[curLang].pairHint(esc(kw), esc(ow));
+    }
+    $('selhint').innerHTML = html;
+    markMatrixRow(i);
+  }
+
+  // ── heatmapa ─────────────────────────────────────────────────
+  function renderMatrix(){
+    const m = $('matrix'), n = tokens.length;
+    m.style.gridTemplateColumns = `auto repeat(${n}, 34px)`;
+    let html = '<div></div>';
+    tokens.forEach(t => html += `<div class="mlabel col">${esc(t)}</div>`);
+    for (let i = 0; i < n; i++){
+      html += `<div class="mlabel" data-row="${i}">${esc(tokens[i])}</div>`;
+      for (let j = 0; j < n; j++){
+        const w = A[i][j];
+        html += `<div class="mcell" data-row="${i}" style="background:${shade(w)};color:${textColor(w)}">${Math.round(w*100)}</div>`;
+      }
+    }
+    m.innerHTML = html;
+    m.querySelectorAll('[data-row]').forEach(el => el.addEventListener('click', () => select(+el.dataset.row)));
+  }
+  function markMatrixRow(i){
+    $('matrix').querySelectorAll('.mrow-q').forEach(el => el.classList.remove('mrow-q'));
+    $('matrix').querySelectorAll(`[data-row="${i}"]`).forEach(el => el.classList.add('mrow-q'));
+  }
+
+  function rebuild(sel){
+    tokens = tokenize($('text').value);
+    const mode = $('mode');
+    mode.className = 'mode ' + (current ? 'preset' : 'free');
+    mode.textContent = current ? I18N[curLang].modePreset : I18N[curLang].modeFree;
+    renderPairs();
+    if (!tokens.length){ $('sent').innerHTML=''; $('matrix').innerHTML=''; $('selhint').textContent = I18N[curLang].enter; return; }
+    buildAttention(); renderSentence(); renderMatrix();
+    select(Math.min(sel ?? 0, tokens.length - 1));
+  }
+
+  // psaní vlastní věty → konec připravené věty (vztahy by neseděly)
+  $('text').addEventListener('input', () => {
+    if (current && $('text').value !== current.text) current = null;
+    rebuild(0);
+  });
+
+  // přepnutí jazyka: stejná dvojice a varianta v druhém jazyce (vlastní věta zůstane)
+  window.onLangChange = function(l){
+    const keep = current ? [current.pi, current.vi] : null;
+    curLang = l;
+    if (keep || !$('text').value.trim()) loadPreset(keep ? keep[0] : 0, keep ? keep[1] : 0);
+    else rebuild(selected < 0 ? 0 : Math.min(selected, tokens.length - 1));
+  };
+
+  loadPreset(0, 0);
+</script>
+</Layout>

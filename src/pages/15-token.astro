@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout titleCs="Příklad #11 — Jak LLM píše: predikce dalšího tokenu" titleEn="Example #11 — How an LLM writes: next-token prediction" back={true}>
+<Layout titleCs="Příklad #15 — Jak LLM píše: predikce dalšího tokenu" titleEn="Example #15 — How an LLM writes: next-token prediction" back={true}>
 <style is:global>
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
@@ -71,7 +71,7 @@ import Layout from '../layouts/Layout.astro';
   .theory { width: min(760px, 96vw); margin-top: 24px; }
 </style>
 
-<h1><span class="badge">11</span><span class="cs">Jak LLM píše — predikce dalšího tokenu</span><span class="en">How an LLM writes — next-token prediction</span></h1>
+<h1><span class="badge">15</span><span class="cs">Jak LLM píše — predikce dalšího tokenu</span><span class="en">How an LLM writes — next-token prediction</span></h1>
   <p class="intro">
     <span class="cs">Skutečné jazykové modely (jako ChatGPT) nevyhrknou hotovou odpověď — píšou ji <b>slovo po slově</b>
     (token po tokenu). V každém kroku spočítají <b>pravděpodobnost</b> pro každé možné další slovo a jedno
@@ -83,9 +83,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Mini-model, který se z krátkého textu naučil, <b>jak často po kterém slově následuje které</b> (jako Markov z příkladu 4) — a podle toho předpovídá další slovo.</span><span class="en">A mini-model that learned from a short text <b>how often each word is followed by which</b> (like the Markov chain in example 4) — and predicts the next word from that.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs">Mini-model, který se z krátkého textu naučil, <b>jak často po kterém slově následuje které</b> (jako Markov z příkladu 5) — a podle toho předpovídá další slovo.</span><span class="en">A mini-model that learned from a short text <b>how often each word is followed by which</b> (like the Markov chain in example 5) — and predicts the next word from that.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Napiš začátek věty; model se podívá na poslední slovo a nabídne <b>pravděpodobnosti</b> dalšího (sloupečky dole). <b>Další token</b> jedno losuje a přidá, <b>Generuj</b> opakuje. Posuvníky (teplota, top-k/top-p) mění, <i>jak odvážně</i> losuje.</span><span class="en">Type the start of a sentence; the model looks at the last word and offers <b>probabilities</b> for the next one (the bars below). <b>Next token</b> samples and appends one, <b>Generate</b> repeats it. The sliders (temperature, top-k/top-p) change <i>how boldly</i> it samples.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Skutečné LLM (jako ChatGPT) píšou <b>úplně stejně</b> — token po tokenu — jen koukají na celou větu (attention, 10) a na tokeny (9). Vidíš tu i, <b>proč halucinují</b>: i když si nejsou jisté, stejně sebevědomě něco vyberou.</span><span class="en">Real LLMs (like ChatGPT) write <b>exactly the same way</b> — token by token — they just look at the whole sentence (attention, 10) and at tokens (9). You also see <b>why they hallucinate</b>: even when unsure, they still confidently pick something.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Skutečné LLM (jako ChatGPT) píšou <b>úplně stejně</b> — token po tokenu — jen koukají na celou větu (attention, 14) a na tokeny (13). Vidíš tu i, <b>proč halucinují</b>: i když si nejsou jisté, stejně sebevědomě něco vyberou.</span><span class="en">Real LLMs (like ChatGPT) write <b>exactly the same way</b> — token by token — they just look at the whole sentence (attention, 14) and at tokens (13). You also see <b>why they hallucinate</b>: even when unsure, they still confidently pick something.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">kontext (co bylo dosud)</span><span class="en">context (so far)</span></span>
       <span class="arr">→</span>
@@ -191,29 +191,29 @@ import Layout from '../layouts/Layout.astro';
       <div class="tcard" style="--c:#f59e0b">
         <h3><span class="dot"></span><span class="cs">Proč model „kecá"</span><span class="en">Why the model "makes things up"</span></h3>
         <p><span class="cs">I když si <b>není jistý</b> (ploché rozdělení nebo neznámý kontext), stejně něco vybere — a tváří se
-           sebevědomě. Halucinace = <b>sebevědomý odhad bez opory v datech</b>. Model nikdy neřekne „nevím", protože
-           pořád jen losuje další token.</span>
+           sebevědomě. Halucinace = <b>sebevědomý odhad bez opory v datech</b>. Sám od sebe „nevím" neřekne, protože
+           pořád jen losuje další token — přiznat nejistotu se ho musí naučit až další trénink (příklad 16), a ani to není spolehlivé.</span>
            <span class="en">Even when it's <b>not sure</b> (a flat distribution or unfamiliar context) it still picks something — and
-           sounds confident. A hallucination = <b>a confident guess with no support in the data</b>. The model never says
-           "I don't know", because all it ever does is sample the next token.</span></p>
+           sounds confident. A hallucination = <b>a confident guess with no support in the data</b>. On its own it never says
+           "I don't know", because all it ever does is sample the next token — admitting uncertainty has to be taught by further training (example 16), and even that isn't reliable.</span></p>
       </div>
       <div class="tcard" style="--c:#0ea5e9">
         <h3><span class="dot"></span><span class="cs">Trénink × používání (inference)</span><span class="en">Training vs. use (inference)</span></h3>
         <p><span class="cs">Tady model jen <b>používáme</b> (inference) — četnosti jsou hotové a my z nich jen losujeme.
            <b>Trénink</b> je něco jiného: tam se ty pravděpodobnosti teprve nastavují z obrovského množství textu
-           (u velkých modelů miliardy vět).</span>
+           (u velkých modelů biliony slov).</span>
            <span class="en">Here we only <b>use</b> the model (inference) — the frequencies are fixed and we just sample from them.
            <b>Training</b> is something else: that's where those probabilities are set from a huge amount of text
-           (billions of sentences for large models).</span></p>
+           (trillions of words for large models).</span></p>
       </div>
       <div class="tcard" style="--c:#ec4899">
         <h3><span class="dot"></span><span class="cs">Vztah ke „skutečným" LLM</span><span class="en">Relation to "real" LLMs</span></h3>
         <p><span class="cs">Princip je totožný, jen větší: místo posledního slova se model dívá na <b>celou větu</b> (attention,
-           příklad 10), místo slov má <b>tokeny</b> (příklad 9) a pravděpodobnosti počítá <b>neuronová síť</b>
-           (příklady 5–6) naučená z miliard vět.</span>
+           příklad 14), místo slov má <b>tokeny</b> (příklad 13) a pravděpodobnosti počítá <b>neuronová síť</b>
+           (příklady 6–8) naučená z bilionů slov textu.</span>
            <span class="en">The principle is identical, just bigger: instead of the last word the model looks at the <b>whole sentence</b>
-           (attention, example 10), instead of words it has <b>tokens</b> (example 9), and the probabilities are computed by a
-           <b>neural network</b> (examples 5–6) trained on billions of sentences.</span></p>
+           (attention, example 14), instead of words it has <b>tokens</b> (example 13), and the probabilities are computed by a
+           <b>neural network</b> (examples 6–8) trained on trillions of words of text.</span></p>
       </div>
     </div>
     <p class="lead" style="margin-top:16px">

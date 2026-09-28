@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout titleCs="Příklad #12 — RAG: model se zdroji" titleEn="Example #12 — RAG: a model with sources" back={true}>
+<Layout titleCs="Příklad #17 — RAG: model se zdroji" titleEn="Example #17 — RAG: a model with sources" back={true}>
 <style is:global>
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 720px;
@@ -61,7 +61,7 @@ import Layout from '../layouts/Layout.astro';
   .theory { width: min(820px, 96vw); margin-top: 24px; }
 </style>
 
-<h1><span class="badge">12</span><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h1>
+<h1><span class="badge">17</span><span class="cs">RAG — model se zdroji</span><span class="en">RAG — a model with sources</span></h1>
   <p class="intro">
     <span class="cs">Jazykový model umí jen to, co se naučil při tréninku — a tváří se sebejistě, i když něco neví.
     <b>RAG</b> (vyhledáním rozšířená generace) to řeší: model nejdřív <b>najde relevantní text</b> a teprve pak
@@ -74,7 +74,7 @@ import Layout from '../layouts/Layout.astro';
   <div class="explain">
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>RAG</b> (vyhledáním rozšířená generace): místo aby model odpovídal jen z paměti, nejdřív si <b>vyhledá relevantní dokument</b> a teprve pak odpoví — z něj.</span><span class="en"><b>RAG</b> (retrieval-augmented generation): instead of answering from memory alone, the model first <b>retrieves a relevant document</b> and only then answers — from it.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Níže je malá <b>znalostní báze</b> (dokumenty, které model neviděl). Napiš otázku a porovnej dvě odpovědi: <b>jen model</b> (tipuje a halucinuje) a <b>model + RAG</b> (najde nejpodobnější dokument a odpoví z něj). Vyhledávání používá <b>podobnost</b> jako embeddingy (9).</span><span class="en">Below is a small <b>knowledge base</b> (documents the model never saw). Type a question and compare two answers: <b>the model alone</b> (it guesses and hallucinates) and <b>the model + RAG</b> (it finds the most similar document and answers from it). Retrieval uses <b>similarity</b> like embeddings (9).</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Níže je malá <b>znalostní báze</b> (dokumenty, které model neviděl). Napiš otázku a porovnej dvě odpovědi: <b>jen model</b> (tipuje a halucinuje) a <b>model + RAG</b> (najde nejpodobnější dokument a odpoví z něj). Vyhledávání tu pro názornost porovnává <b>společná slova</b> (s ohledem na tvar a vzácnost slova); skutečné RAG používá podobnost <b>embeddingů</b> (13).</span><span class="en">Below is a small <b>knowledge base</b> (documents the model never saw). Type a question and compare two answers: <b>the model alone</b> (it guesses and hallucinates) and <b>the model + RAG</b> (it finds the most similar document and answers from it). For clarity, retrieval here compares <b>shared words</b> (allowing for word forms and rarity); real RAG uses <b>embedding</b> similarity (13).</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Tohle je <b>nejčastější reálné nasazení</b> LLM ve firmách — chatbot nad vlastními dokumenty. Dramaticky snižuje halucinace, protože model odpovídá z doloženého textu, ne z paměti.</span><span class="en">This is the <b>most common real-world use</b> of LLMs in companies — a chatbot over your own documents. It dramatically cuts hallucinations, because the model answers from sourced text, not from memory.</span></p>
     <div class="flow">
       <span class="stepc"><span class="n">1</span> <span class="cs">otázka</span><span class="en">question</span></span>
@@ -137,9 +137,9 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="tcard" style="--c:#a855f7">
         <h3><span class="dot"></span><span class="cs">Vyhledání = podobnost</span><span class="en">Retrieval = similarity</span></h3>
-        <p><span class="cs">Hledá se přes <b>podobnost významu</b> (embeddingy z příkladu 9). Otázka i dokumenty se převedou na
+        <p><span class="cs">Hledá se přes <b>podobnost významu</b> (embeddingy z příkladu 13). Otázka i dokumenty se převedou na
            čísla a vybere se text, který je otázce nejblíž.</span>
-           <span class="en">It searches by <b>similarity of meaning</b> (embeddings from example 9). The question and the documents are
+           <span class="en">It searches by <b>similarity of meaning</b> (embeddings from example 13). The question and the documents are
            turned into numbers and the text closest to the question is picked.</span></p>
       </div>
       <div class="tcard" style="--c:#16a34a">

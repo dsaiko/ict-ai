@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout titleCs="Příklad #5 — Učení z příkladů (perceptron)" titleEn="Example #5 — Learning from examples (perceptron)" back={true}>
+<Layout titleCs="Příklad #6 — Učení z příkladů (perceptron)" titleEn="Example #6 — Learning from examples (perceptron)" back={true}>
 <style is:global>
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
   .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 700px;
@@ -50,7 +50,7 @@ import Layout from '../layouts/Layout.astro';
   .tcard .plus { color: #16a34a; font-weight: 700; } .tcard .minus { color: #dc2626; font-weight: 700; }
 </style>
 
-<h1><span class="badge">05</span><span class="cs">Učení z příkladů — perceptron</span><span class="en">Learning from examples — perceptron</span></h1>
+<h1><span class="badge">06</span><span class="cs">Učení z příkladů — perceptron</span><span class="en">Learning from examples — perceptron</span></h1>
   <p class="intro">
     <span class="cs">Místo abychom pravidlo <b>naprogramovali</b>, necháme ho stroj <b>najít z dat</b>.
     Naklikej do plochy modré a červené body a stiskni „Trénuj" — perceptron sám hledá
@@ -64,7 +64,7 @@ import Layout from '../layouts/Layout.astro';
     <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Perceptron</b> — nejjednodušší model, který se „učí". Dostane obarvené body (dvě skupiny) a sám hledá <b>přímku</b>, která je od sebe oddělí.</span><span class="en">A <b>perceptron</b> — the simplest model that “learns”. It gets colored points (two groups) and finds, on its own, a <b>line</b> that separates them.</span></p>
     <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Naklikej do plochy modré a červené body a stiskni „Trénuj". Sleduj schéma nad plátnem — váhy (čísla uvnitř) se mění a přímka se postupně natáčí, dokud body neoddělí.</span><span class="en">Click blue and red points into the canvas and press “Train”. Watch the diagram above the canvas — the weights (the numbers inside) change and the line gradually rotates until it separates the points.</span></p>
-    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Je to rozdíl mezi „naprogramovat pravidlo" a „nechat ho stroj najít z příkladů" — základ <b>strojového učení</b>. Zkus body do kříže: narazíš na hranici perceptronu (přímka nestačí), kterou překoná příklad 6.</span><span class="en">It is the difference between “programming a rule” and “letting the machine find it from examples” — the basis of <b>machine learning</b>. Try points in a cross shape: you hit the perceptron’s limit (a line is not enough), which example 6 overcomes.</span></p>
+    <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Je to rozdíl mezi „naprogramovat pravidlo" a „nechat ho stroj najít z příkladů" — základ <b>strojového učení</b>. Zkus body do kříže: narazíš na hranici perceptronu (přímka nestačí), kterou překoná příklad 8.</span><span class="en">It is the difference between “programming a rule” and “letting the machine find it from examples” — the basis of <b>machine learning</b>. Try points in a cross shape: you hit the perceptron’s limit (a line is not enough), which example 8 overcomes.</span></p>
   </div>
 
   <div class="diagram">
@@ -146,8 +146,8 @@ import Layout from '../layouts/Layout.astro';
     <span><span class="cs">přesnost:</span><span class="en">accuracy:</span> <b id="acc">–</b></span>
   </div>
   <div class="hint">
-    <span class="cs">Tip: když body <b>nejdou</b> oddělit přímkou (např. do kříže), perceptron nikdy nedojde k nule chyb — to je jeho hranice. Vyřeší to až příklad 6.</span>
-    <span class="en">Tip: when the points <b>can't</b> be separated by a line (e.g. arranged in a cross), the perceptron never reaches zero errors — that's its limit. Example 6 solves it.</span>
+    <span class="cs">Tip: když body <b>nejdou</b> oddělit přímkou (např. do kříže), perceptron nikdy nedojde k nule chyb — to je jeho hranice. Vyřeší to až příklad 8.</span>
+    <span class="en">Tip: when the points <b>can't</b> be separated by a line (e.g. arranged in a cross), the perceptron never reaches zero errors — that's its limit. Example 8 solves it.</span>
   </div>
 
   <section class="theory">
