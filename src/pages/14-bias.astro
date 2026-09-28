@@ -209,12 +209,17 @@ import Layout from '../layouts/Layout.astro';
 
   // ── data: x = kvalifikace (0..1), y = pozice dle skupiny, group 0=A(nahoře)/1=B(dole) ──
   let points = [], mode = 'fair';
-  let w = [0, 0, 0];                 // [bias, w_x, w_y]
+  // Průměrovaný perceptron: učí se stejně jako v příkladu 5 (w), ale rozhoduje
+  // podle průměru vah přes celý trénink (avg). Na neoddělitelných (zaujatých)
+  // datech klasický perceptron osciluje a verdikt by náhodně přeskakoval.
+  let w = [0, 0, 0];                 // [bias, w_x, w_y] — průběžné váhy
+  let wSum = [0, 0, 0], nSum = 0;    // součet vah po každém bodu → průměr
+  let avg = [0, 0, 0];
   const rnd = (a,b) => a + Math.random()*(b-a);
 
   function genData(biased){
     const pts = [];
-    for (let i = 0; i < 130; i++){
+    for (let i = 0; i < 200; i++){     // víc bodů = menší náhodný rozptyl verdiktu
       const x = Math.random();
       const group = Math.random() < 0.5 ? 0 : 1;        // 0 = A (nahoře), 1 = B (dole)
       const y = group ? rnd(0.56, 0.93) : rnd(0.07, 0.44);
@@ -222,19 +227,23 @@ import Layout from '../layouts/Layout.astro';
       // Zaujatá data: skupina B byla historicky znevýhodněna (potřebovala vyšší kvalifikaci).
       let label;
       if (!biased) label = x >= 0.5 ? 1 : 0;
-      else label = group === 1 ? (x >= 0.72 ? 1 : 0) : (x >= 0.5 ? 1 : 0);
+      else label = group === 1 ? (x >= 0.78 ? 1 : 0) : (x >= 0.5 ? 1 : 0);
       pts.push({ x, y, group, label });
     }
     return pts;
   }
 
-  const predict = p => (w[0] + w[1]*p.x + w[2]*p.y) >= 0 ? 1 : -1;
+  const score = (v, x, y) => v[0] + v[1]*x + v[2]*y;
+  const predict = p => score(avg, p.x, p.y) >= 0 ? 1 : -1;
   function trainEpoch(){
     const lr = 0.05;
     for (const p of points){
       const t = p.label ? 1 : -1;
-      if (predict(p) !== t){ w[0] += lr*t; w[1] += lr*t*p.x; w[2] += lr*t*p.y; }
+      if ((score(w, p.x, p.y) >= 0 ? 1 : -1) !== t){ w[0] += lr*t; w[1] += lr*t*p.x; w[2] += lr*t*p.y; }
+      for (let k = 0; k < 3; k++) wSum[k] += w[k];
+      nSum++;
     }
+    avg = wSum.map(v => v / nSum);
   }
 
   function draw(){
@@ -243,7 +252,7 @@ import Layout from '../layouts/Layout.astro';
     const cell = 10;
     for (let px=0; px<W; px+=cell) for (let py=0; py<H; py+=cell){
       const x=(px+cell/2)/W, y=(py+cell/2)/H;
-      ctx.fillStyle = (w[0]+w[1]*x+w[2]*y >= 0) ? 'rgba(37,99,235,0.07)' : 'rgba(239,68,68,0.07)';
+      ctx.fillStyle = score(avg, x, y) >= 0 ? 'rgba(37,99,235,0.07)' : 'rgba(239,68,68,0.07)';
       ctx.fillRect(px,py,cell,cell);
     }
     // pás skupin (vodorovný předěl) + svislá hranice kvalifikace
@@ -257,13 +266,13 @@ import Layout from '../layouts/Layout.astro';
     ctx.fillText(I18N[curLang].bandB, 12, H-12);
     ctx.fillText(I18N[curLang].qual, W-96, H*0.5-8);
     // dělicí hranice modelu
-    if (w[1] !== 0 || w[2] !== 0){
+    if (avg[1] !== 0 || avg[2] !== 0){
       ctx.strokeStyle='#111827'; ctx.lineWidth=3; ctx.beginPath();
-      if (Math.abs(w[2]) > Math.abs(w[1])){
-        const yAt = x => -(w[0]+w[1]*x)/w[2];
+      if (Math.abs(avg[2]) > Math.abs(avg[1])){
+        const yAt = x => -(avg[0]+avg[1]*x)/avg[2];
         ctx.moveTo(0, yAt(0)*H); ctx.lineTo(W, yAt(1)*H);
       } else {
-        const xAt = y => -(w[0]+w[2]*y)/w[1];
+        const xAt = y => -(avg[0]+avg[2]*y)/avg[1];
         ctx.moveTo(xAt(0)*W, 0); ctx.lineTo(xAt(1)*W, H);
       }
       ctx.stroke();
@@ -292,9 +301,11 @@ import Layout from '../layouts/Layout.astro';
     $('barA').style.width = (ra||0)+'%';
     $('barB').style.width = (rb||0)+'%';
     const gap = (ra!==null && rb!==null) ? ra-rb : 0;
-    $('barB').style.background = gap > 20 ? '#dc2626' : '#2563eb';
+    // práh 15 bodů: v simulaci 5000 běhů férová data max. ~5 bodů, zaujatá min. ~23
+    const unfair = gap > 15;
+    $('barB').style.background = unfair ? '#dc2626' : '#2563eb';
     const v = $('verdict');
-    if (gap > 20){ v.className='verdict bad'; v.innerHTML = I18N[curLang].verdictBad(gap); }
+    if (unfair){ v.className='verdict bad'; v.innerHTML = I18N[curLang].verdictBad(gap); }
     else { v.className='verdict ok'; v.innerHTML = I18N[curLang].verdictOk; }
   }
 
@@ -303,7 +314,7 @@ import Layout from '../layouts/Layout.astro';
   function loadData(){
     if (timer){ clearInterval(timer); timer=null; }
     points = genData(mode === 'biased');
-    w = [0,0,0];
+    w = [0,0,0]; wSum = [0,0,0]; nSum = 0; avg = [0,0,0];
     let ep = 0;
     timer = setInterval(() => {
       trainEpoch(); ep++;
