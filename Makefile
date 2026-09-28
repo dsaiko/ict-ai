@@ -1,4 +1,4 @@
-.PHONY: help setup build preview clean deploy-s3 deploy-s3-dryrun deploy-invalidate deploy
+.PHONY: help setup build test preview clean deploy-s3 deploy-s3-dryrun deploy-invalidate deploy
 
 # Lokální overrides (AWS_PROFILE, S3_BUCKET, S3_PATH, CLOUDFRONT_DIST).
 # Soubor Makefile.local není součástí gitu — viz .gitignore.
@@ -20,6 +20,7 @@ help:
 	@echo "Základy AI — interaktivní ukázky — dostupné cíle:"
 	@echo "  make setup              — npm ci (závislosti Astro, jednorázově)"
 	@echo "  make build              — astro build (src/pages/*.astro → dist/)"
+	@echo "  make test               — build + smoke test v Chromu (chyby JS, mobil, regrese)"
 	@echo "  make preview            — náhled dist/ na http://localhost:$(PREVIEW_PORT)"
 	@echo "  make clean              — smaže dist/"
 	@echo ""
@@ -42,6 +43,11 @@ setup: node_modules
 build: node_modules
 	npm run build
 	@echo "→ dist/ obsahuje:" && ls -1 dist/
+
+# Smoke test před přednáškou: proklikne všechny stránky v Chromu (desktop + mobil,
+# cs + en) a hlídá chyby JS, přetečení na mobilu a regrese opravených chyb.
+test: build
+	npm test
 
 preview: build
 	@echo "→ http://localhost:$(PREVIEW_PORT)/  (Ctrl-C ukončí)"
@@ -77,4 +83,4 @@ deploy-invalidate:
 		--distribution-id $(CLOUDFRONT_DIST) \
 		--paths "/$(S3_PATH)*"
 
-deploy: deploy-s3 deploy-invalidate
+deploy: test deploy-s3 deploy-invalidate

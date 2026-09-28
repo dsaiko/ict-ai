@@ -202,10 +202,13 @@ The site is static; it's deployed to S3 + CloudFront via the `Makefile` (configu
 ```bash
 make setup              # install dependencies (Astro), one-off
 make build              # astro build: src/pages/*.astro → dist/
+make test               # build + smoke test in Chrome (JS errors, mobile overflow, regressions)
 make preview            # local preview at http://localhost:8080
-make deploy             # build → sync to S3 → CloudFront invalidation
+make deploy             # build → test → sync to S3 → CloudFront invalidation
 make deploy-s3-dryrun   # deploy dry run
 ```
+
+`make test` uses the locally installed Google Chrome (`CHROME_PATH=…` for another one); before a lecture it confirms in about a minute that every demo loads and works in both languages on desktop and mobile.
 
 ---
 
@@ -417,10 +420,13 @@ Web je statický, nasazuje se na S3 + CloudFront pomocí `Makefile` (konfigurace
 ```bash
 make setup              # instalace závislostí (Astro), jednorázově
 make build              # astro build: src/pages/*.astro → dist/
+make test               # build + smoke test v Chromu (chyby JS, přetečení na mobilu, regrese)
 make preview            # lokální náhled na http://localhost:8080
-make deploy             # build → sync na S3 → invalidace CloudFront
+make deploy             # build → test → sync na S3 → invalidace CloudFront
 make deploy-s3-dryrun   # zkouška deploye nanečisto
 ```
+
+`make test` používá lokálně nainstalovaný Google Chrome (jiný přes `CHROME_PATH=…`); před přednáškou zhruba za minutu ověří, že se všechna dema načtou a fungují v obou jazycích na desktopu i mobilu.
 
 ---
 
