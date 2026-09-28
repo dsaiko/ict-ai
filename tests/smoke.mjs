@@ -20,7 +20,7 @@ const DIST = fileURLToPath(new URL('../dist/', import.meta.url));   // pathname 
 // všechny kapitoly z dat série, které mají hotovou stránku
 const PAGES = ['index', ...CHAPTERS.map(c => c.slug).filter(slug => existsSync(new URL(`../dist/${slug}.html`, import.meta.url)))];
 // původní adresy před přečíslováním → musí přesměrovat
-const MOVED = { '04-markov': '05-markov', '08-genetika': '04-genetika', '12-rag': '17-rag', '15-tsp': '21-tsp' };
+const MOVED = { '04-markov': '05-markov', '08-genetika': '04-genetika', '12-rag': '17-rag', '15-tsp': '20-tsp' };
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
 
 // ── statický server nad dist/ ────────────────────────────────────
