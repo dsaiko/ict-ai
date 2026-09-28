@@ -1,0 +1,836 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout titleCs="Příklad #12 — Učení odměnou" titleEn="Example #12 — Learning from reward" back={true}>
+<style is:global>
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; text-align: center; }
+  .intro { color: #6b7280; font-size: 14px; margin: 0 0 22px; max-width: 760px;
+           text-align: center; line-height: 1.5; }
+
+  .explain { width: min(820px, 96vw); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+             padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .flow .stepc .n { width: 20px; height: 20px; border-radius: 50%; background: #ea580c; color: #fff;
+                    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .flow .loop { color: #ea580c; font-size: 13px; font-weight: 700; }
+
+  /* dvousloupcové demo: vlevo mapa, vpravo ovládání; na užším displeji pod sebou */
+  .panel { width: min(1100px, 96vw); display: grid; gap: 18px;
+           grid-template-columns: minmax(0, 1fr) 310px; align-items: start; }
+  .panel .wide { grid-column: 1 / -1; }
+  @media (max-width: 1000px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+  .block { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; min-width: 0;
+           padding: 16px 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9ca3af; margin-bottom: 8px; }
+  .sub { margin-top: 14px; }
+
+  /* mapa */
+  #map { display: block; width: 720px; max-width: 100%; height: auto; margin: 0 auto;
+         border: 1px solid #d1d5db; border-radius: 8px; touch-action: none; cursor: crosshair; }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+  .pills .ptitle { font-size: 12px; color: #6b7280; font-weight: 600; margin-right: 2px; }
+  .pills button { font-size: 13px; font-weight: 600; padding: 6px 12px; border: 1px solid #e5e7eb;
+    background: #fff; color: #374151; border-radius: 999px; cursor: pointer; }
+  .pills button:hover:not(:disabled) { background: #f3f4f6; }
+  .pills button.on { border-color: #ea580c; background: #fff7ed; color: #c2410c; }
+  .pills button:disabled { opacity: .45; cursor: not-allowed; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: #6b7280; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .legend i.heat { background: linear-gradient(90deg, rgba(220,38,38,.55), #fff, rgba(22,163,74,.65)); width: 34px; }
+
+  /* poslední krok = živý výpis vzorce */
+  .log { margin-top: 12px; font-size: 13.5px; color: #374151; line-height: 1.55; background: #f9fafb;
+         border: 1px solid #eef0f3; border-radius: 8px; padding: 9px 12px; min-height: 44px; }
+  .log b { color: #111827; }
+  .log .ex { color: #b45309; font-weight: 700; } .log .gr { color: #1d4ed8; font-weight: 700; }
+  .log .ok { color: #15803d; font-weight: 700; } .log .bad { color: #b91c1c; font-weight: 700; }
+
+  /* tlačítka */
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btns .full { grid-column: 1 / -1; }
+  button.go, button.show, button.util, button.stop {
+    font-size: 14px; font-weight: 700; padding: 10px 12px; border: none; border-radius: 8px;
+    cursor: pointer; transition: background .12s, transform .05s; }
+  button:active:not(:disabled) { transform: scale(.97); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.go   { background: #ea580c; color: #fff; } button.go:hover:not(:disabled) { background: #c2410c; }
+  button.show { background: #2563eb; color: #fff; } button.show:hover:not(:disabled) { background: #1d4ed8; }
+  button.util { background: #e5e7eb; color: #374151; } button.util:hover:not(:disabled) { background: #d1d5db; }
+  button.stop { background: #dc2626; color: #fff; } button.stop:hover:not(:disabled) { background: #b91c1c; }
+
+  /* posuvníky */
+  .slider { margin-top: 10px; }
+  .slider .top { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: #374151; }
+  .slider .top b { font-family: "SF Mono", Menlo, Consolas, monospace; color: #c2410c; font-size: 14px; }
+  .slider .top .sym { font-weight: 700; color: #111827; }
+  .slider input { width: 100%; accent-color: #ea580c; margin: 4px 0 0; }
+  .slider .note { font-size: 11.5px; color: #9ca3af; line-height: 1.35; }
+
+  .seg { display: flex; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1; font-size: 13px; font-weight: 700; padding: 8px 6px; border: none; background: #fff;
+                color: #6b7280; cursor: pointer; }
+  .seg button + button { border-left: 1px solid #e5e7eb; }
+  .seg button.on { background: #fff7ed; color: #c2410c; }
+  .seg button:disabled { opacity: .45; cursor: not-allowed; }
+  .formula { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; color: #374151;
+             background: #f9fafb; border: 1px solid #eef0f3; border-radius: 8px; padding: 8px 10px;
+             margin-top: 8px; line-height: 1.5; overflow-wrap: anywhere; }
+  .formula .fx { color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11.5px; }
+
+  /* čísla */
+  .stats { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; font-size: 13px; color: #4b5563; }
+  .stats b { font-family: "SF Mono", Menlo, Consolas, monospace; color: #111827; text-align: right; }
+  .result { margin-top: 10px; font-size: 13px; line-height: 1.5; border-radius: 8px; padding: 8px 10px;
+            background: #f9fafb; border: 1px solid #eef0f3; color: #374151; min-height: 38px; }
+  .result.ok  { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+  .result.bad { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+  .result.warn{ background: #fffbeb; border-color: #fde68a; color: #92400e; }
+
+  /* graf */
+  #chart { display: block; width: 100%; height: 200px; }
+  .statrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 24px; margin-top: 12px; }
+  .hint { font-size: 12px; color: #9ca3af; margin-top: 8px; line-height: 1.5; }
+  .hint b { color: #6b7280; }
+
+  .theory { width: min(820px, 96vw); margin-top: 28px; }
+
+  @media (max-width: 640px) {
+    .block { padding: 12px; }
+    #chart { height: 160px; }
+  }
+</style>
+
+<h1><span class="badge">12</span><span class="cs">Učení odměnou</span><span class="en">Learning from reward</span></h1>
+<p class="intro">
+  <span class="cs">V příkladu 3 jsme mapu <b>znali</b> a cestu jsme <b>hledali</b>. Tady agent mapu nezná vůbec —
+  neví, kde je cíl ani kde je láva. Může jen zkoušet kroky a sledovat, jakou dostane <b>odměnu</b> nebo <b>trest</b>.
+  Z tisíců pokusů a omylů se cestu <b>naučí</b>.</span>
+  <span class="en">In example 3 we <b>knew</b> the map and <b>searched</b> for the path. Here the agent does not know the map at all —
+  it doesn't know where the goal or the lava is. It can only try moves and watch what <b>reward</b> or <b>penalty</b> it gets.
+  From thousands of trials and errors it <b>learns</b> the path.</span>
+</p>
+
+<div class="explain">
+  <h2><span class="cs">Co a jak?</span><span class="en">What &amp; how?</span></h2>
+  <p class="wh-row"><span class="wh-k"><span class="cs">Co to je</span><span class="en">What it is</span></span> <span class="cs"><b>Učení odměnou</b> (reinforcement learning): <b>agent</b> (oranžové kolečko) chodí po mřížce. Za dojití do cíle dostane <b>+10</b>, za pád do lávy <b>−10</b> a každý krok ho stojí <b>−0,1</b> (náraz do zdi nebo okraje <b>−1</b>). Algoritmus <b>Q-learning</b> si pro každé políčko a každý směr pamatuje jedno číslo — <b>Q-hodnotu</b>: „kolik mi tenhle krok nakonec přinese“.</span><span class="en"><b>Reinforcement learning</b>: an <b>agent</b> (the orange dot) walks around a grid. Reaching the goal earns <b>+10</b>, falling into lava <b>−10</b>, and every step costs <b>−0.1</b> (bumping into a wall or the edge <b>−1</b>). The <b>Q-learning</b> algorithm remembers one number for every cell and every direction — the <b>Q-value</b>: “how much will this move pay off in the end”.</span></p>
+  <p class="wh-row"><span class="wh-k"><span class="cs">Co zkusit</span><span class="en">What to try</span></span> <span class="cs">Klikni párkrát na <b>1 epizoda</b> — agent zpočátku bloudí naslepo. Pak dej <b>100 epizod</b> a sleduj, jak se mapa zbarví (zelená = odtud to vede k odměně) a šipky ukážou cestu. <b>Ukaž naučenou cestu</b> projde mapu bez náhodných pokusů. Na mapě <b>Útes</b> porovnej Q-learning a opatrnější SARSA, na mapě <b>Mince</b> uvidíš, jak agent „ošálí“ odměnu. Klikáním do mapy kreslíš zdi a lávu.</span><span class="en">Click <b>1 episode</b> a few times — at first the agent wanders blindly. Then run <b>100 episodes</b> and watch the map change color (green = from here it leads to a reward) while the arrows reveal the path. <b>Show learned path</b> walks the map without random tries. On the <b>Cliff</b> map compare Q-learning with the more cautious SARSA; on the <b>Coin</b> map you'll see the agent “game” its reward. Click into the map to draw walls and lava.</span></p>
+  <p class="wh-row"><span class="wh-k"><span class="cs">Proč je to důležité</span><span class="en">Why it matters</span></span> <span class="cs">Nikdo agentovi neřekne, jaký krok je správný — dostane jen <b>zpožděnou odměnu</b> na konci. Přesně takhle se AlphaGo naučilo hrát go a takhle se dolaďují jazykové modely podle lidského hodnocení (příklad 16). Zároveň je vidět, proč je <b>zadat správnou odměnu</b> těžké.</span><span class="en">Nobody tells the agent which move is correct — it only gets a <b>delayed reward</b> at the end. This is exactly how AlphaGo learned to play Go, and how language models are fine-tuned from human feedback (example 16). It also shows why <b>specifying the right reward</b> is hard.</span></p>
+  <div class="flow">
+    <span class="stepc"><span class="n">1</span> <span class="cs">stav (kde jsem)</span><span class="en">state (where I am)</span></span>
+    <span class="arr">→</span>
+    <span class="stepc"><span class="n">2</span> <span class="cs">zvol akci: průzkum / nejlepší známá</span><span class="en">pick an action: explore / best known</span></span>
+    <span class="arr">→</span>
+    <span class="stepc"><span class="n">3</span> <span class="cs">odměna od prostředí</span><span class="en">reward from the environment</span></span>
+    <span class="arr">→</span>
+    <span class="stepc"><span class="n">4</span> <span class="cs">uprav Q-hodnotu</span><span class="en">update the Q-value</span></span>
+    <span class="loop">↺ <span class="cs">a znovu</span><span class="en">and again</span></span>
+  </div>
+</div>
+
+<div class="panel">
+  <!-- ── mapa ── -->
+  <div class="block">
+    <div class="pills" id="maps">
+      <span class="ptitle"><span class="cs">Mapa:</span><span class="en">Map:</span></span>
+      <button data-map="simple"><span class="cs">Jednoduchá</span><span class="en">Simple</span></button>
+      <button data-map="cliff"><span class="cs">Útes</span><span class="en">Cliff</span></button>
+      <button data-map="maze"><span class="cs">Bludiště</span><span class="en">Maze</span></button>
+      <button data-map="coin"><span class="cs">Mince (reward hacking)</span><span class="en">Coin (reward hacking)</span></button>
+    </div>
+    <canvas id="map"></canvas>
+    <div class="pills" id="tools" style="margin:10px 0 0">
+      <span class="ptitle"><span class="cs">Kreslení klikem:</span><span class="en">Click to draw:</span></span>
+      <button data-tool="1"><span class="cs">zeď</span><span class="en">wall</span></button>
+      <button data-tool="2"><span class="cs">láva −10</span><span class="en">lava −10</span></button>
+      <button data-tool="3"><span class="cs">mince +1</span><span class="en">coin +1</span></button>
+      <button data-tool="0"><span class="cs">guma</span><span class="en">eraser</span></button>
+    </div>
+    <div class="legend">
+      <span><i style="background:#16a34a"></i> <span class="cs">cíl +10</span><span class="en">goal +10</span></span>
+      <span><i style="background:#dc2626"></i> <span class="cs">láva −10 (konec)</span><span class="en">lava −10 (game over)</span></span>
+      <span><i style="background:#374151"></i> <span class="cs">zeď</span><span class="en">wall</span></span>
+      <span><i style="background:#facc15;border-radius:50%"></i> <span class="cs">mince +1</span><span class="en">coin +1</span></span>
+      <span><i class="heat"></i> <span class="cs">max Q: trest ← → odměna</span><span class="en">max Q: penalty ← → reward</span></span>
+      <span>↑ <span class="cs">nejlepší známý směr</span><span class="en">best known direction</span></span>
+    </div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <!-- ── ovládání ── -->
+  <div class="block">
+    <div class="label"><span class="cs">učení</span><span class="en">learning</span></div>
+    <div class="btns">
+      <button class="util" id="btnStep"><span class="cs">1 krok</span><span class="en">1 step</span></button>
+      <button class="go" id="btnEp"><span class="cs">▶ 1 epizoda</span><span class="en">▶ 1 episode</span></button>
+      <button class="go full" id="btnFast"><span class="cs">⏩ 100 epizod (rychle)</span><span class="en">⏩ 100 episodes (fast)</span></button>
+      <button class="show full" id="btnGreedy"><span class="cs">Ukaž naučenou cestu</span><span class="en">Show learned path</span></button>
+      <button class="stop" id="btnStop" disabled>■ STOP</button>
+      <button class="util" id="btnReset"><span class="cs">Reset učení</span><span class="en">Reset learning</span></button>
+    </div>
+
+    <div class="slider">
+      <div class="top"><span><span class="sym">ε</span> <span class="cs">průzkum</span><span class="en">exploration</span></span><b id="vEps"></b></div>
+      <input type="range" id="eps" min="0" max="0.5" step="0.01" value="0.1">
+      <div class="note"><span class="cs">jak často zkusí náhodný směr místo nejlepšího známého</span><span class="en">how often it tries a random direction instead of the best known one</span></div>
+    </div>
+    <div class="slider">
+      <div class="top"><span><span class="sym">α</span> <span class="cs">učící rychlost</span><span class="en">learning rate</span></span><b id="vAlpha"></b></div>
+      <input type="range" id="alpha" min="0.05" max="1" step="0.05" value="0.5">
+      <div class="note"><span class="cs">o kolik posune Q-hodnotu k nové zkušenosti</span><span class="en">how far it moves the Q-value toward the new experience</span></div>
+    </div>
+    <div class="slider">
+      <div class="top"><span><span class="sym">γ</span> <span class="cs">diskont</span><span class="en">discount</span></span><b id="vGamma"></b></div>
+      <input type="range" id="gamma" min="0.5" max="0.99" step="0.01" value="0.9">
+      <div class="note"><span class="cs">jak moc mu záleží na odměně v budoucnu (1 = stejně jako teď)</span><span class="en">how much a future reward matters (1 = as much as now)</span></div>
+    </div>
+    <div class="slider">
+      <div class="top"><span><span class="cs">rychlost animace</span><span class="en">animation speed</span></span><b id="vSpeed"></b></div>
+      <input type="range" id="speed" min="1" max="5" step="1" value="3">
+    </div>
+
+    <div class="sub">
+      <div class="label"><span class="cs">pravidlo učení</span><span class="en">learning rule</span></div>
+      <div class="seg" id="algo">
+        <button data-algo="q" class="on">Q-learning</button>
+        <button data-algo="sarsa">SARSA</button>
+      </div>
+      <div class="formula" id="formula"></div>
+    </div>
+  </div>
+
+  <!-- ── graf + čísla ── -->
+  <div class="block wide">
+    <div class="label"><span class="cs">součet odměn v každé epizodě (tečky) a klouzavý průměr 20 epizod (čára)</span><span class="en">total reward per episode (dots) and 20-episode moving average (line)</span></div>
+    <canvas id="chart"></canvas>
+    <div class="statrow">
+      <div class="stats">
+        <span><span class="cs">odehraných epizod</span><span class="en">episodes played</span></span><b id="sEp">0</b>
+        <span><span class="cs">poslední epizoda: kroků / součet odměn</span><span class="en">last episode: steps / total reward</span></span><b id="sLast">–</b>
+        <span><span class="cs">průměr posledních 20 epizod</span><span class="en">average of the last 20 episodes</span></span><b id="sAvg">–</b>
+        <span><span class="cs">nejkratší cesta podle BFS (příklad 3)</span><span class="en">shortest path by BFS (example 3)</span></span><b id="sBfs">–</b>
+      </div>
+      <div>
+        <div class="result" id="result"></div>
+      </div>
+    </div>
+    <div class="hint">
+      <span class="cs"><b>Poctivě:</b> je to malá učebnicová úloha — Q-hodnoty jsou obyčejná tabulka (4 čísla na políčko) a agent se učí opravdu, bez předpřipravených výsledků. Skutečné úlohy (go, roboti, jazykové modely) mají stavů nepředstavitelně víc, takže místo tabulky odhaduje hodnoty neuronová síť (příklad 8) a používají se složitější algoritmy — princip odměny je ale stejný. Kreslení do mapy agentovi paměť nesmaže: uvidíš, jak se přeučí.</span>
+      <span class="en"><b>To be fair:</b> this is a small textbook task — the Q-values are a plain table (4 numbers per cell) and the agent really learns, with no pre-made results. Real tasks (Go, robots, language models) have unimaginably more states, so a neural network (example 8) estimates the values instead of a table and more complex algorithms are used — but the reward principle is the same. Drawing on the map doesn't erase the agent's memory: you'll see it re-learn.</span>
+    </div>
+  </div>
+</div>
+
+<section class="theory">
+  <div class="head"><span class="cs">Jak se agent učí z odměny</span><span class="en">How an agent learns from reward</span></div>
+  <p class="lead">
+    <span class="cs">V příkladech 6 a 8 měl model u <b>každého</b> příkladu správnou odpověď (učení s učitelem). Tady žádná správná
+    odpověď není — agent jen jedná a občas dostane odměnu nebo trest, často až <b>mnoho kroků po</b> rozhodnutí, které ho
+    způsobilo. Musí sám přijít na to, který z dřívějších kroků za výsledek „může“.</span>
+    <span class="en">In examples 6 and 8 the model had the correct answer for <b>every</b> example (supervised learning). Here there is no
+    correct answer — the agent just acts and now and then gets a reward or a penalty, often <b>many steps after</b> the decision
+    that caused it. It has to work out on its own which of its earlier moves “deserves” the result.</span>
+  </p>
+  <div class="tcards">
+    <div class="tcard" style="--c:#ea580c">
+      <h3><span class="dot"></span><span class="cs">Agent, prostředí, odměna</span><span class="en">Agent, environment, reward</span></h3>
+      <p><span class="cs"><b>Agent</b> je ten, kdo rozhoduje. <b>Prostředí</b> je svět kolem (tady mřížka). <b>Stav</b> = kde agent je,
+         <b>akce</b> = co může udělat (↑ → ↓ ←), <b>odměna</b> = číslo, kterým prostředí po každé akci řekne „dobře“ nebo „špatně“.
+         Jeden pokus od startu do konce je <b>epizoda</b>.</span>
+         <span class="en">The <b>agent</b> is the one who decides. The <b>environment</b> is the world around it (here the grid). The <b>state</b> = where
+         the agent is, an <b>action</b> = what it can do (↑ → ↓ ←), the <b>reward</b> = a number the environment gives after each action
+         to say “good” or “bad”. One attempt from start to finish is an <b>episode</b>.</span></p>
+    </div>
+    <div class="tcard" style="--c:#f59e0b">
+      <h3><span class="dot"></span><span class="cs">Průzkum × využití (ε)</span><span class="en">Explore vs. exploit (ε)</span></h3>
+      <p><span class="cs">Když agent chodí jen po nejlepší <b>známé</b> cestě, nikdy nenajde lepší. Když jen zkouší náhodně, nic nevyužije.
+         Proto s pravděpodobností <b>ε</b> zkusí náhodný směr (průzkum) a jinak jde tím nejlepším, co zná (využití).
+         Průzkum má ale cenu: na mapě <b>Útes</b> náhodný krok u okraje znamená pád. Pravidlo <b>SARSA</b>, které s vlastními
+         náhodnými kroky počítá, se proto naučí <b>bezpečnou cestu</b> (okliku dál od lávy); Q-learning tu krátkou a riskantní.</span>
+         <span class="en">If the agent only follows the best <b>known</b> path, it never finds a better one. If it only tries at random, it never
+         uses what it has learned. So with probability <b>ε</b> it tries a random direction (explore) and otherwise takes the best one
+         it knows (exploit). But exploring has a price: on the <b>Cliff</b> map a random step at the edge means a fall. The <b>SARSA</b> rule,
+         which takes its own random steps into account, therefore learns the <b>safe path</b> (a detour away from the lava); Q-learning learns
+         the short, risky one.</span></p>
+    </div>
+    <div class="tcard" style="--c:#2563eb">
+      <h3><span class="dot"></span><span class="cs">Q-hodnota: kolik mi to nakonec přinese</span><span class="en">Q-value: what it pays off in the end</span></h3>
+      <p><span class="cs">Q(stav, akce) je odhad celkové odměny, kterou krok přinese <b>včetně všeho, co přijde potom</b>.
+         Bellmanova myšlenka v jedné větě: <b>hodnota kroku = odměna hned + trochu zlevněná (γ) hodnota nejlepšího kroku
+         z místa, kam jsem došel</b>. Po každém kroku agent posune Q o kousek (α) k tomuhle cíli — a odměna z cíle se tak
+         krok po kroku „prosakuje“ zpátky až ke startu. Proto se zelená šíří od cíle.</span>
+         <span class="en">Q(state, action) estimates the total reward a move brings <b>including everything that comes after</b>.
+         Bellman's idea in one sentence: <b>the value of a move = the reward now + the slightly discounted (γ) value of the best move
+         from where I ended up</b>. After every step the agent nudges Q a little (α) toward that target — so the reward from the goal
+         “seeps” back step by step all the way to the start. That's why the green spreads out from the goal.</span></p>
+    </div>
+    <div class="tcard" style="--c:#16a34a">
+      <h3><span class="dot"></span><span class="cs">Bez mapy, bez správných odpovědí</span><span class="en">No map, no correct answers</span></h3>
+      <p><span class="cs"><b>A* z příkladu 3</b> potřebuje mapu předem — pak cestu spočítá hned. Agent tady mapu nemá a cestu
+         si <b>vyšlape zkušeností</b>; zato ho nemusí nikdo naprogramovat pro každý svět zvlášť. Oproti <b>6 a 8</b> nedostává
+         ke každému kroku správnou odpověď, jen <b>zpožděnou odměnu</b>. Proto potřebuje stovky epizod i na malou mřížku.</span>
+         <span class="en"><b>A* from example 3</b> needs the map up front — then it computes the path at once. The agent here has no map and
+         <b>treads out the path by experience</b>; in return, nobody has to program it for each world separately. Unlike <b>6 and 8</b> it
+         doesn't get the correct answer for each step, only a <b>delayed reward</b>. That's why it needs hundreds of episodes even for a small grid.</span></p>
+    </div>
+    <div class="tcard" style="--c:#7c3aed">
+      <h3><span class="dot"></span><span class="cs">Kde se používá</span><span class="en">Where it's used</span></h3>
+      <p><span class="cs"><b>Hry:</b> AlphaGo v roce 2016 porazil Lee Sedola, jednoho z nejlepších hráčů go na světě, 4 : 1 — hodně se
+         naučil hraním sám proti sobě. Dále <b>robotika</b> (chůze, úchop) a <b>řízení</b> (např. chlazení, doprava).
+         A hlavně <b>jazykové modely</b>: po předtrénování se dolaďují učením odměnou z lidského hodnocení (RLHF) a
+         „uvažující“ modely se učí na úlohách s ověřitelnou odpovědí, jako je matematika nebo kód — viz příklad 16.</span>
+         <span class="en"><b>Games:</b> in 2016 AlphaGo beat Lee Sedol, one of the best Go players in the world, 4–1 — it learned a lot by
+         playing against itself. Also <b>robotics</b> (walking, grasping) and <b>control</b> (e.g. cooling, traffic).
+         And above all <b>language models</b>: after pre-training they are fine-tuned by learning from human feedback (RLHF), and
+         “reasoning” models learn on tasks with a verifiable answer, such as maths or code — see example 16.</span></p>
+    </div>
+    <div class="tcard" style="--c:#dc2626">
+      <h3><span class="dot"></span><span class="cs">Reward hacking: agent ošálí odměnu</span><span class="en">Reward hacking: gaming the reward</span></h3>
+      <p><span class="cs">Agent maximalizuje <b>číslo</b>, ne to, co autor myslel. Na mapě <b>Mince</b> měl být bonus +1 jen drobnost po cestě —
+         agent ale zjistí, že víc „vydělá“ chozením tam a zpět přes minci, a do cíle už nejde. Graf odměn přitom
+         vypadá skvěle. Ve skutečných hrách se stalo totéž (závodní loďka kroužila kolem bonusů místo dojetí do cíle).
+         Proto je <b>správně zadat odměnu</b> těžké — a u jazykových modelů a agentů (příklady 16 a 18) je to jedna z otázek
+         bezpečnosti.</span>
+         <span class="en">The agent maximises the <b>number</b>, not what the author meant. On the <b>Coin</b> map the +1 bonus was meant as a small
+         extra along the way — but the agent finds it “earns” more by walking back and forth over the coin, and never goes to the goal.
+         Meanwhile the reward chart looks great. The same happened in real games (a racing boat circled around bonuses instead of
+         finishing the race). That's why <b>specifying the reward correctly</b> is hard — and for language models and agents (examples 16
+         and 18) it is one of the safety questions.</span></p>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:16px">
+    <span class="cs"><b>Pointa:</b> hledání (příklad 3) cestu <b>spočítá</b>, když zná svět. Učení odměnou si ji <b>vyzkouší</b>, když svět nezná —
+    stačí mu jediné číslo „dobře / špatně“, i když přijde až na konci. Cena: potřebuje hodně pokusů a odměnu musí někdo zadat
+    tak, aby šla získat jen poctivě.</span>
+    <span class="en"><b>The point:</b> search (example 3) <b>computes</b> the path when it knows the world. Learning from reward <b>tries it out</b>
+    when it doesn't — a single “good / bad” number is enough, even if it only comes at the end. The price: it needs many attempts, and
+    someone has to specify the reward so that it can only be earned honestly.</span>
+  </p>
+</section>
+
+<script is:inline>
+  const $ = id => document.getElementById(id);
+  let curLang = window.__lang || 'cs';
+
+  // ── dvojjazyčné dynamické texty ─────────────────────────────
+  const I18N = {
+    cs: {
+      dec: ',',
+      explore: 'průzkum (náhodně)', greedy: 'nejlepší známá',
+      stepLog: 'Stav <b>#S#</b> → akce <b>#A#</b> (#K#) → odměna <b>#R#</b> → Q(stav, #A#): #OLD# → <b>#NEW#</b>',
+      epEnd: { goal: '<span class="ok">✓ cíl</span>', lava: '<span class="bad">✗ láva</span>', cap: '<span class="bad">došel limit #M# kroků</span>' },
+      epLog: 'Epizoda #N# skončila: #END# · kroků #K# · součet odměn <b>#R#</b>',
+      fastLog: '⏩ Odehráno #N# epizod bez animace (celkem #T#). Šipky ukazují, co se agent zatím naučil.',
+      start: 'Agent zatím nic neví: všechny Q-hodnoty jsou 0. Klikni na „1 krok“ nebo „1 epizoda“.',
+      edited: 'Mapa se změnila — agent si ale pamatuje staré Q-hodnoty. Uč dál a sleduj, jak se přeučí.',
+      greedyRun: 'Naučená cesta: agent jde vždy po šipce (ε = 0, bez průzkumu a bez učení)…',
+      resGoal: '✓ Naučená cesta dojde do cíle za <b>#K#</b> kroků (součet odměn #R#).',
+      resShortest: ' Je to <b>nejkratší možná</b> cesta — stejně dlouhá jako z BFS.',
+      resLonger: ' Nejkratší možná má #B# — agent si vybral delší (bezpečnější?) cestu.',
+      resLava: '✗ Naučená cesta vede do lávy — agent ještě neví dost. Pusť víc epizod.',
+      resLoop: '↺ Agent chodí v kruhu a do cíle nedojde — zatím se nenaučil. Pusť víc epizod.',
+      resCoin: '⚠ Reward hacking: agent chodí sem a tam přes minci (+1 pokaždé) a do cíle vůbec nejde. Odměna roste, úkol splněný není.',
+      resNone: 'Klikni na „Ukaž naučenou cestu“ — agent projde mapu jen podle naučených šipek.',
+      noPath: 'cesta neexistuje',
+      steps: 'kroků',
+      chartBest: 'nejlepší možné dojití do cíle',
+      chartEp: 'epizoda',
+      chartEmpty: 'Tady se objeví graf, jak agent s každou epizodou získává víc odměn.',
+      formulaQ: 'Q(s,a) ← Q(s,a) + α·[ r + γ·max Q(s′,·) − Q(s,a) ]<br><span class="fx">Q-learning počítá s tím, že <b>příště</b> zahraje nejlépe → na Útesu se naučí krátkou cestu těsně u lávy (občas o řádek výš), i když do ní při průzkumu často padá.</span>',
+      formulaS: 'Q(s,a) ← Q(s,a) + α·[ r + γ·Q(s′,a′) − Q(s,a) ]<br><span class="fx">SARSA počítá s krokem a′, který <b>opravdu</b> udělá, včetně náhodného průzkumu → je opatrnější: na Útesu se většinou naučí bezpečnou okliku horem a padá asi o polovinu méně.</span>',
+    },
+    en: {
+      dec: '.',
+      explore: 'explore (random)', greedy: 'best known',
+      stepLog: 'State <b>#S#</b> → action <b>#A#</b> (#K#) → reward <b>#R#</b> → Q(state, #A#): #OLD# → <b>#NEW#</b>',
+      epEnd: { goal: '<span class="ok">✓ goal</span>', lava: '<span class="bad">✗ lava</span>', cap: '<span class="bad">hit the #M#-step limit</span>' },
+      epLog: 'Episode #N# ended: #END# · #K# steps · total reward <b>#R#</b>',
+      fastLog: '⏩ Played #N# episodes without animation (#T# in total). The arrows show what the agent has learned so far.',
+      start: 'The agent knows nothing yet: all Q-values are 0. Click “1 step” or “1 episode”.',
+      edited: 'The map has changed — but the agent still remembers its old Q-values. Keep training and watch it re-learn.',
+      greedyRun: 'Learned path: the agent always follows the arrow (ε = 0, no exploring, no learning)…',
+      resGoal: '✓ The learned path reaches the goal in <b>#K#</b> steps (total reward #R#).',
+      resShortest: ' That is the <b>shortest possible</b> path — as long as the BFS one.',
+      resLonger: ' The shortest possible is #B# — the agent picked a longer (safer?) route.',
+      resLava: '✗ The learned path leads into lava — the agent doesn\'t know enough yet. Run more episodes.',
+      resLoop: '↺ The agent walks in a circle and never reaches the goal — it hasn\'t learned yet. Run more episodes.',
+      resCoin: '⚠ Reward hacking: the agent walks back and forth over the coin (+1 every time) and never goes to the goal. The reward grows, the task is not done.',
+      resNone: 'Click “Show learned path” — the agent walks the map using only the learned arrows.',
+      noPath: 'no path exists',
+      steps: 'steps',
+      chartBest: 'best possible run to the goal',
+      chartEp: 'episode',
+      chartEmpty: 'A chart will appear here showing how the agent earns more reward with each episode.',
+      formulaQ: 'Q(s,a) ← Q(s,a) + α·[ r + γ·max Q(s′,·) − Q(s,a) ]<br><span class="fx">Q-learning assumes it will play its <b>best</b> next time → on the Cliff it learns the short path right next to the lava (sometimes one row higher), even though it often falls in while exploring.</span>',
+      formulaS: 'Q(s,a) ← Q(s,a) + α·[ r + γ·Q(s′,a′) − Q(s,a) ]<br><span class="fx">SARSA uses the move a′ it will <b>really</b> make, random exploring included → it is more cautious: on the Cliff it usually learns the safe detour along the top and falls in about half as often.</span>',
+    },
+  };
+
+  // ── prostředí: mřížka, odměny, mapy ─────────────────────────
+  const COLS = 12, ROWS = 8, N = COLS * ROWS;
+  const ACTIONS = [[0, -1], [1, 0], [0, 1], [-1, 0]];   // ↑ → ↓ ←
+  const ARROWS = ['↑', '→', '↓', '←'];
+  const FREE = 0, WALL = 1, LAVA = 2, COIN = 3;
+  const R_STEP = -0.1, R_BUMP = -1, R_GOAL = 10, R_LAVA = -10, R_COIN = 1;
+  const MAX_STEPS = 200;          // pojistka: epizoda, která se netrefí do konce, se po 200 krocích utne
+
+  // mapy jako text: . volno, # zeď, L láva, C mince, S start, G cíl
+  const MAPS = {
+    simple: [
+      '............',
+      '..........G.',
+      '....#.......',
+      '....#..LL...',
+      '....#.......',
+      '........#...',
+      '.S......#...',
+      '............',
+    ],
+    // klasický „cliff walking“ (12 × 4, nahoře skála): krátká cesta vede těsně podél lávy,
+    // bezpečná oklika horním řádkem je o 4 kroky delší
+    cliff: [
+      '############',
+      '############',
+      '############',
+      '############',
+      '............',
+      '............',
+      '............',
+      'SLLLLLLLLLLG',
+    ],
+    maze: [
+      '......#.....',
+      '.####.#.###.',
+      '.#....#...#.',
+      '.#.####.#.#.',
+      '.#......#L#.',
+      '.######.#.#.',
+      '......#.#.#G',
+      'S####...#...',
+    ],
+    // mince je „bonus po cestě“ — jenže dá se sbírat pořád dokola
+    coin: [
+      '............',
+      '..........G.',
+      '............',
+      '............',
+      '............',
+      '...C........',
+      '.S..........',
+      '............',
+    ],
+  };
+
+  let grid = new Array(N).fill(FREE), start = 0, goal = 0, mapKey = 'simple';
+  const xy = i => [i % COLS, Math.floor(i / COLS)];
+
+  function loadMap(key) {
+    mapKey = key;
+    MAPS[key].forEach((row, y) => [...row].forEach((ch, x) => {
+      const i = y * COLS + x;
+      grid[i] = ch === '#' ? WALL : ch === 'L' ? LAVA : ch === 'C' ? COIN : FREE;
+      if (ch === 'S') start = i;
+      if (ch === 'G') goal = i;
+    }));
+    document.querySelectorAll('#maps button').forEach(b => b.classList.toggle('on', b.dataset.map === key));
+    resetLearning();
+  }
+
+  const isTerminal = i => i === goal || grid[i] === LAVA;
+  // pohyb: do zdi nebo mimo mapu nejde — agent zůstane stát (a krok ho stejně stojí)
+  function move(s, a) {
+    const [x, y] = xy(s), nx = x + ACTIONS[a][0], ny = y + ACTIONS[a][1];
+    if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) return s;
+    const n = ny * COLS + nx;
+    return grid[n] === WALL ? s : n;
+  }
+  // odměna od prostředí za to, kam agent došel
+  function reward(s, s2) {
+    if (s2 === s) return R_BUMP;                  // náraz do zdi/okraje (bez něj se agent učí „přešlapovat“)
+    if (s2 === goal) return R_GOAL;
+    if (grid[s2] === LAVA) return R_LAVA;
+    if (grid[s2] === COIN) return R_COIN;         // mince „za každé šlápnutí“
+    return R_STEP;
+  }
+
+  // BFS z příkladu 3 — jen pro srovnání, agent tuhle znalost NEMÁ
+  function bfsLen() {
+    const dist = new Array(N).fill(-1), q = [start]; dist[start] = 0;
+    while (q.length) {
+      const s = q.shift();
+      if (s === goal) return dist[s];
+      if (grid[s] === LAVA) continue;
+      for (let a = 0; a < 4; a++) { const n = move(s, a); if (dist[n] < 0) { dist[n] = dist[s] + 1; q.push(n); } }
+    }
+    return -1;
+  }
+
+  // ── agent: tabulka Q a Q-learning ───────────────────────────
+  // Q[s*4 + a] = odhad, kolik agentovi nakonec přinese akce a ve stavu s.
+  // Na začátku samé nuly — agent o světě neví nic.
+  let Q = new Float64Array(N * 4);
+  let eps = 0.1, alpha = 0.5, gamma = 0.9, algo = 'q';
+  let returns = [];               // součet odměn každé dokončené epizody (pro graf)
+  let ep = null, lastEp = null;   // rozehraná a poslední dokončená epizoda
+  let greedyView = null;          // zobrazovaná naučená cesta
+  let logHtml = () => '', result = null, bfs = -1;   // logHtml: funkce, která vrátí text v aktuálním jazyce
+
+  const maxQ = s => Math.max(Q[s*4], Q[s*4+1], Q[s*4+2], Q[s*4+3]);
+  const visited = s => Q[s*4] !== 0 || Q[s*4+1] !== 0 || Q[s*4+2] !== 0 || Q[s*4+3] !== 0;
+  // nejlepší akce; při shodě rozhodne náhoda (ať agent nepreferuje jeden směr)
+  function bestAction(s) {
+    const m = maxQ(s), best = [];
+    for (let a = 0; a < 4; a++) if (Q[s*4+a] === m) best.push(a);
+    return best[Math.floor(Math.random() * best.length)];
+  }
+  // pro kreslení šipek a naučenou cestu: při shodě první (ať šipky neblikají)
+  function bestActionFixed(s) {
+    let b = 0; for (let a = 1; a < 4; a++) if (Q[s*4+a] > Q[s*4+b]) b = a;
+    return b;
+  }
+  // ε-greedy: s pravděpodobností ε náhodný směr (průzkum), jinak nejlepší známý (využití)
+  function chooseAction(s) {
+    if (Math.random() < eps) return { a: Math.floor(Math.random() * 4), explore: true };
+    return { a: bestAction(s), explore: false };
+  }
+
+  // Jeden krok agenta = celý cyklus 1 → 2 → 3 → 4 z diagramu nahoře.
+  // Vrací true, když tímhle krokem epizoda skončila.
+  function stepAgent() {
+    greedyView = null;
+    if (!ep) ep = { s: start, ret: 0, steps: 0, next: null, trail: [start] };
+    const s = ep.s;                                               // 1) stav
+    const c = (algo === 'sarsa' && ep.next) ? ep.next : chooseAction(s);   // 2) akce
+    const a = c.a;
+    const s2 = move(s, a), r = reward(s, s2);                    // 3) odměna od prostředí
+    const done = isTerminal(s2);
+
+    // 4) úprava Q-hodnoty — Bellmanova myšlenka:
+    //    cíl   = odměna teď + γ · hodnota toho, co čeká dál
+    //            (na konci epizody už nic nečeká → cíl = jen r)
+    //    Q-learning: „co čeká dál“ = NEJLEPŠÍ akce v novém stavu (max Q)
+    //    SARSA:      „co čeká dál“ = akce, kterou agent v novém stavu OPRAVDU zvolí (i náhodnou)
+    //    chyba = cíl − Q(s,a)          … o kolik se agent spletl
+    //    Q(s,a) ← Q(s,a) + α · chyba   … posun o kousek směrem k cíli
+    let target, next = null;
+    if (done) target = r;
+    else if (algo === 'q') target = r + gamma * maxQ(s2);
+    else { next = chooseAction(s2); target = r + gamma * Q[s2*4 + next.a]; }
+    const old = Q[s*4 + a];
+    Q[s*4 + a] = old + alpha * (target - old);
+
+    ep.s = s2; ep.ret += r; ep.steps++; ep.next = next; ep.trail.push(s2);
+    const nw = Q[s*4 + a];
+    logHtml = () => stepLog(s, a, c.explore, r, old, nw);      // funkce → po přepnutí jazyka se přeloží
+    if (done || ep.steps >= MAX_STEPS) {
+      returns.push(ep.ret);
+      ep.end = done ? (s2 === goal ? 'goal' : 'lava') : 'cap';
+      const fin = ep, num = returns.length;
+      lastEp = ep; ep = null;
+      logHtml = () => epLog(fin, num);
+      return true;
+    }
+    return false;
+  }
+
+  function resetLearning() {
+    stopRun();
+    Q = new Float64Array(N * 4); returns = []; ep = null; lastEp = null; greedyView = null;
+    result = null; logHtml = () => I18N[curLang].start; bfs = bfsLen();
+    render();
+  }
+
+  // ── formátování ─────────────────────────────────────────────
+  function fmt(v, d = 1) {
+    const t = Math.abs(v) < 0.5 * Math.pow(10, -d) ? (0).toFixed(d) : v.toFixed(d);
+    return t.replace('-', '−').replace('.', I18N[curLang].dec);
+  }
+  const cellName = s => { const [x, y] = xy(s); return `(${x + 1}, ${y + 1})`; };
+  function stepLog(s, a, explore, r, old, nw) {
+    const t = I18N[curLang];
+    return t.stepLog.replace('#S#', cellName(s)).replaceAll('#A#', ARROWS[a])
+      .replace('#K#', explore ? `<span class="ex">${t.explore}</span>` : `<span class="gr">${t.greedy}</span>`)
+      .replace('#R#', (r > 0 ? '+' : '') + fmt(r)).replace('#OLD#', fmt(old, 2)).replace('#NEW#', fmt(nw, 2));
+  }
+  function epLog(e, num) {
+    const t = I18N[curLang];
+    return t.epLog.replace('#N#', num).replace('#END#', t.epEnd[e.end].replace('#M#', MAX_STEPS))
+      .replace('#K#', e.steps).replace('#R#', fmt(e.ret));
+  }
+
+  // ── kreslení mapy ───────────────────────────────────────────
+  const cv = $('map'), ctx = cv.getContext('2d');
+  const CS = 60, DPR = 2;                       // 60 px na políčko, kreslíme 2× ostře (projektor, retina)
+  cv.width = COLS * CS * DPR; cv.height = ROWS * CS * DPR;
+  let showValues = true;
+
+  // teplotní mapa: záporné max Q → červená, kladné → zelená
+  function heat(v) {
+    const t = Math.pow(Math.min(1, Math.abs(v) / 10), 0.55);
+    return v >= 0 ? `rgba(22,163,74,${(0.06 + 0.6 * t).toFixed(3)})` : `rgba(220,38,38,${(0.06 + 0.5 * t).toFixed(3)})`;
+  }
+  function arrow(cx, cy, a, len, color, w) {
+    const [dx, dy] = ACTIONS[a], x2 = cx + dx * len / 2, y2 = cy + dy * len / 2;
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - dx * len / 2, cy - dy * len / 2); ctx.lineTo(x2, y2);
+    const ang = Math.atan2(dy, dx), h = len * 0.38;
+    ctx.moveTo(x2 - h * Math.cos(ang - 0.6), y2 - h * Math.sin(ang - 0.6)); ctx.lineTo(x2, y2);
+    ctx.lineTo(x2 - h * Math.cos(ang + 0.6), y2 - h * Math.sin(ang + 0.6));
+    ctx.stroke();
+  }
+  function label(txt, cx, cy, size, color, weight = 700) {
+    ctx.fillStyle = color; ctx.font = `${weight} ${size}px -apple-system, "Segoe UI", Roboto, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, cx, cy);
+  }
+  function center(s) { const [x, y] = xy(s); return [x * CS + CS / 2, y * CS + CS / 2]; }
+
+  function drawMap() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, COLS * CS, ROWS * CS);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, COLS * CS, ROWS * CS);
+    for (let s = 0; s < N; s++) {
+      const [x, y] = xy(s), px = x * CS, py = y * CS, [cx, cy] = center(s);
+      if (grid[s] === WALL) { ctx.fillStyle = '#374151'; ctx.fillRect(px, py, CS, CS); continue; }
+      if (s === goal) { ctx.fillStyle = '#16a34a'; ctx.fillRect(px, py, CS, CS); label('+10', cx, cy, 18, '#fff'); continue; }
+      if (grid[s] === LAVA) { ctx.fillStyle = '#dc2626'; ctx.fillRect(px, py, CS, CS); label('−10', cx, cy, 16, '#fff'); continue; }
+      if (visited(s)) { ctx.fillStyle = heat(maxQ(s)); ctx.fillRect(px, py, CS, CS); }
+      if (grid[s] === COIN) {
+        ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(cx, cy, CS * 0.3, 0, 7); ctx.fill();
+        ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 2; ctx.stroke(); label('+1', cx, cy + 1, 14, '#713f12');
+      }
+      if (s === start) {
+        ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 3; ctx.strokeRect(px + 3, py + 3, CS - 6, CS - 6);
+        label('START', cx, py + 11, 9, '#2563eb');
+      }
+      // šipka nejlepší známé akce (= naučená politika) a hodnota max Q
+      if (visited(s) && grid[s] !== COIN) {
+        arrow(cx, cy - 4, bestActionFixed(s), CS * 0.42, 'rgba(17,24,39,0.72)', 3);
+        if (showValues) label(fmt(maxQ(s)), cx, py + CS - 9, 11, 'rgba(17,24,39,0.6)', 600);
+      }
+    }
+    // mřížka
+    ctx.strokeStyle = 'rgba(17,24,39,0.10)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x <= COLS; x++) { ctx.moveTo(x * CS + .5, 0); ctx.lineTo(x * CS + .5, ROWS * CS); }
+    for (let y = 0; y <= ROWS; y++) { ctx.moveTo(0, y * CS + .5); ctx.lineTo(COLS * CS, y * CS + .5); }
+    ctx.stroke();
+
+    // stopa agenta: rozehraná/poslední epizoda oranžově, naučená cesta modře
+    let trail = null, pos = start, color = 'rgba(234,88,12,0.45)', w = 4;
+    if (greedyView) { trail = greedyView.path.slice(0, greedyView.i + 1); pos = trail[trail.length - 1]; color = 'rgba(37,99,235,0.85)'; w = 5; }
+    else if (ep) { trail = ep.trail; pos = ep.s; }
+    else if (lastEp) { trail = lastEp.trail; pos = lastEp.s; }
+    if (trail && trail.length > 1) {
+      ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath(); trail.forEach((s, k) => { const [cx, cy] = center(s); k ? ctx.lineTo(cx, cy) : ctx.moveTo(cx, cy); });
+      ctx.stroke();
+    }
+    const [ax, ay] = center(pos);
+    ctx.fillStyle = greedyView ? '#2563eb' : '#ea580c';
+    ctx.beginPath(); ctx.arc(ax, ay, CS * 0.2, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+  }
+
+  // ── graf součtu odměn ───────────────────────────────────────
+  const gcv = $('chart'), g = gcv.getContext('2d');
+  const WIN = 20;
+  function movingAvg(k) { const a = Math.max(0, k - WIN + 1); let s = 0; for (let i = a; i <= k; i++) s += returns[i]; return s / (k - a + 1); }
+  function drawChart() {
+    const dpr = window.devicePixelRatio || 1, W = gcv.clientWidth, H = gcv.clientHeight;
+    if (!W || !H) return;
+    gcv.width = Math.round(W * dpr); gcv.height = Math.round(H * dpr);
+    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const t = I18N[curLang];
+    const L = 42, R = 10, T = 10, B = 24, pw = W - L - R, ph = H - T - B;
+    const best = bfs >= 0 ? R_GOAL + R_STEP * (bfs - 1) : null;
+    let lo = -20, hi = 12;
+    for (const v of returns) { if (v < lo) lo = v; if (v > hi) hi = v; }
+    lo = Math.floor(lo / 5) * 5; hi = Math.ceil(hi / 5) * 5;
+    const n = Math.max(50, returns.length);
+    const X = k => L + (k + 0.5) / n * pw, Y = v => T + (hi - v) / (hi - lo) * ph;
+    g.font = '11px -apple-system, "Segoe UI", Roboto, sans-serif'; g.textBaseline = 'middle';
+    // osy a mřížka
+    const stepY = (hi - lo) > 60 ? 20 : (hi - lo) > 30 ? 10 : 5;
+    g.strokeStyle = '#eef0f3'; g.lineWidth = 1; g.fillStyle = '#9ca3af'; g.textAlign = 'right';
+    for (let v = Math.ceil(lo / stepY) * stepY; v <= hi; v += stepY) {
+      g.beginPath(); g.moveTo(L, Y(v)); g.lineTo(W - R, Y(v)); g.stroke();
+      g.fillText(fmt(v, 0), L - 6, Y(v));
+    }
+    g.strokeStyle = '#9ca3af'; g.beginPath(); g.moveTo(L, Y(0)); g.lineTo(W - R, Y(0)); g.stroke();
+    g.textAlign = 'center'; g.textBaseline = 'top'; g.fillStyle = '#9ca3af';
+    const stepX = n > 1000 ? 250 : n > 400 ? 100 : n > 150 ? 50 : 10;
+    for (let k = 0; k <= n; k += stepX) if (L + k / n * pw < W - R - 80) g.fillText(String(k), L + k / n * pw, H - B + 6);
+    g.textAlign = 'right'; g.fillText(t.chartEp + ' →', W - R, H - B + 6);
+    // nejlepší možný výsledek (nejkratší cesta do cíle)
+    if (best !== null) {
+      g.setLineDash([6, 5]); g.strokeStyle = '#16a34a'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(L, Y(best)); g.lineTo(W - R, Y(best)); g.stroke(); g.setLineDash([]);
+      g.fillStyle = '#15803d'; g.textAlign = 'right'; g.textBaseline = 'bottom';
+      g.fillText(t.chartBest + ' ' + fmt(best), W - R - 4, Y(best) - 3);
+    }
+    if (!returns.length) {
+      g.fillStyle = '#9ca3af'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '13px -apple-system, "Segoe UI", Roboto, sans-serif';
+      g.fillText(t.chartEmpty, L + pw / 2, T + ph * 0.72, pw - 10);
+      return;
+    }
+    // jednotlivé epizody
+    g.fillStyle = 'rgba(107,114,128,0.35)';
+    returns.forEach((v, k) => { g.beginPath(); g.arc(X(k), Y(v), 2.2, 0, 7); g.fill(); });
+    // klouzavý průměr
+    g.strokeStyle = '#ea580c'; g.lineWidth = 3; g.lineJoin = 'round';
+    g.beginPath(); returns.forEach((_, k) => { const y = Y(movingAvg(k)); k ? g.lineTo(X(k), y) : g.moveTo(X(k), y); }); g.stroke();
+  }
+
+  // ── panel s čísly ───────────────────────────────────────────
+  function renderStats() {
+    const t = I18N[curLang];
+    $('sEp').textContent = returns.length;
+    $('sLast').textContent = lastEp ? `${lastEp.steps} / ${fmt(lastEp.ret)}` : '–';
+    $('sAvg').textContent = returns.length ? fmt(movingAvg(returns.length - 1)) : '–';
+    $('sBfs').textContent = bfs >= 0 ? `${bfs} ${t.steps}` : t.noPath;
+    const el = $('result');
+    el.className = 'result' + (result ? ' ' + result.cls : '');
+    el.innerHTML = result ? result.html() : t.resNone;
+  }
+  function render() {
+    drawMap(); drawChart(); renderStats();
+    $('log').innerHTML = logHtml();
+    $('formula').innerHTML = algo === 'q' ? I18N[curLang].formulaQ : I18N[curLang].formulaS;
+  }
+
+  // ── běh: animace, rychlé trénování, naučená cesta ───────────
+  let timer = null;
+  const DELAYS = [320, 160, 70, 30, 10];
+  const delay = () => DELAYS[+$('speed').value - 1];
+  function setRunning(on) {
+    ['btnStep', 'btnEp', 'btnFast', 'btnGreedy', 'btnReset'].forEach(id => $(id).disabled = on);
+    document.querySelectorAll('#maps button, #algo button').forEach(b => b.disabled = on);
+    $('btnStop').disabled = !on;
+  }
+  function stopRun() {
+    if (timer) { clearInterval(timer); timer = null; }
+    setRunning(false);
+  }
+  let curLoop = null;
+  function startTimer(tick) {
+    stopRun(); setRunning(true);
+    curLoop = () => { if (tick()) stopRun(); render(); };
+    timer = setInterval(curLoop, delay());
+  }
+
+  function oneEpisodeAnimated() {
+    result = null;
+    startTimer(() => stepAgent());
+  }
+  function trainFast(n) {
+    stopRun(); result = null;
+    let done = 0;
+    while (done < n) if (stepAgent()) done++;       // každá epizoda má nejvýš MAX_STEPS kroků
+    const total = returns.length;
+    logHtml = () => I18N[curLang].fastLog.replace('#N#', n).replace('#T#', total);
+    render();
+  }
+
+  // naučená cesta: jen šipky, žádný průzkum ani učení
+  function showGreedy() {
+    stopRun(); ep = null;                               // rozehranou epizodu zahodíme (není dokončená)
+    const path = [start], seen = new Set([start]);
+    let s = start, end = 'loop', ret = 0;
+    for (let k = 0; k < 4 * N; k++) {
+      const s2 = move(s, bestActionFixed(s));
+      ret += reward(s, s2); path.push(s2);
+      if (s2 === goal) { end = 'goal'; break; }
+      if (grid[s2] === LAVA) { end = 'lava'; break; }
+      if (seen.has(s2)) { end = path.some(p => grid[p] === COIN) ? 'coin' : 'loop'; break; }
+      seen.add(s2); s = s2;
+    }
+    greedyView = { path, i: 0 }; curLoop = null;
+    logHtml = () => I18N[curLang].greedyRun;
+    result = null;
+    const steps = path.length - 1;
+    const fin = {
+      goal: { cls: steps === bfs ? 'ok' : 'warn', html: () => { const t = I18N[curLang];
+        return t.resGoal.replace('#K#', steps).replace('#R#', fmt(ret)) + (steps === bfs ? t.resShortest : t.resLonger.replace('#B#', bfs)); } },
+      lava: { cls: 'bad', html: () => I18N[curLang].resLava },
+      loop: { cls: 'bad', html: () => I18N[curLang].resLoop },
+      coin: { cls: 'warn', html: () => I18N[curLang].resCoin },
+    }[end];
+    fin.steps = steps; fin.end = end;
+    render(); setRunning(true);
+    timer = setInterval(() => {
+      if (!greedyView) { stopRun(); return; }
+      greedyView.i++;
+      if (greedyView.i >= path.length - 1) { greedyView.i = path.length - 1; result = fin; stopRun(); }
+      render();
+    }, Math.max(60, delay()));
+  }
+
+  // ── kreslení do mapy (myš i prst) ───────────────────────────
+  let tool = WALL, drawing = false, drawVal = WALL;
+  function cellAt(e) {
+    const r = cv.getBoundingClientRect();
+    const x = Math.floor((e.clientX - r.left - cv.clientLeft) / cv.clientWidth * COLS);
+    const y = Math.floor((e.clientY - r.top - cv.clientTop) / cv.clientHeight * ROWS);
+    return (x < 0 || y < 0 || x >= COLS || y >= ROWS) ? -1 : y * COLS + x;
+  }
+  function paint(s) {
+    if (s < 0 || s === start || s === goal || grid[s] === drawVal) return;
+    grid[s] = drawVal;
+    if (drawVal === WALL || drawVal === LAVA) for (let a = 0; a < 4; a++) Q[s*4 + a] = 0;   // do zdi/lávy se nechodí
+    if (ep && ep.s === s) ep = null;                 // agent stál na přemalovaném políčku → epizodu zahodíme
+    greedyView = null; result = null; lastEp = null;
+    bfs = bfsLen(); logHtml = () => I18N[curLang].edited;
+    document.querySelectorAll('#maps button').forEach(b => b.classList.remove('on'));
+    render();
+  }
+  cv.addEventListener('pointerdown', e => {
+    if (timer) return;
+    const s = cellAt(e); if (s < 0) return;
+    // klik na políčko, které už má zvolený typ, ho smaže (a tažení pak maže)
+    drawVal = grid[s] === tool ? FREE : tool;
+    drawing = true; cv.setPointerCapture(e.pointerId); paint(s); e.preventDefault();
+  });
+  cv.addEventListener('pointermove', e => { if (drawing && !timer) paint(cellAt(e)); });
+  const endDraw = () => { drawing = false; };
+  cv.addEventListener('pointerup', endDraw); cv.addEventListener('pointercancel', endDraw);
+
+  // ── ovládání ────────────────────────────────────────────────
+  $('btnStep').addEventListener('click', () => { if (timer) return; result = null; stepAgent(); render(); });
+  $('btnEp').addEventListener('click', () => { if (!timer) oneEpisodeAnimated(); });
+  $('btnFast').addEventListener('click', () => { if (!timer) trainFast(100); });
+  $('btnGreedy').addEventListener('click', () => { if (!timer) showGreedy(); });
+  $('btnStop').addEventListener('click', () => { stopRun(); render(); });
+  $('btnReset').addEventListener('click', resetLearning);
+  document.querySelectorAll('#maps button').forEach(b => b.addEventListener('click', () => { if (!timer) loadMap(b.dataset.map); }));
+  document.querySelectorAll('#tools button').forEach(b => b.addEventListener('click', () => {
+    tool = +b.dataset.tool;
+    document.querySelectorAll('#tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+  // přepnutí pravidla učení smaže naučené hodnoty — ať je srovnání férové
+  document.querySelectorAll('#algo button').forEach(b => b.addEventListener('click', () => {
+    if (timer || algo === b.dataset.algo) return;
+    algo = b.dataset.algo;
+    document.querySelectorAll('#algo button').forEach(x => x.classList.toggle('on', x === b));
+    resetLearning();
+  }));
+  function readSliders() {
+    eps = +$('eps').value; alpha = +$('alpha').value; gamma = +$('gamma').value;
+    $('vEps').textContent = fmt(eps, 2); $('vAlpha').textContent = fmt(alpha, 2); $('vGamma').textContent = fmt(gamma, 2);
+    $('vSpeed').textContent = $('speed').value + ' / 5';
+  }
+  ['eps', 'alpha', 'gamma'].forEach(id => $(id).addEventListener('input', readSliders));
+  // změna rychlosti za běhu animace epizody: přeplánuj časovač (naučená cesta dojede svou rychlostí)
+  $('speed').addEventListener('input', () => {
+    readSliders();
+    if (timer && !greedyView && curLoop) { clearInterval(timer); timer = setInterval(curLoop, delay()); }
+  });
+  window.addEventListener('resize', drawChart);
+
+  // ── start ───────────────────────────────────────────────────
+  document.querySelector('#tools button[data-tool="1"]').classList.add('on');
+  readSliders();
+  loadMap('simple');
+
+  // přepnutí jazyka: desetinná čárka/tečka, výpis, výsledek, graf
+  window.onLangChange = function(l){ curLang = l; readSliders(); render(); };
+</script>
+</Layout>
