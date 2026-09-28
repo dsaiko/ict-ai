@@ -14,17 +14,25 @@ interface Props {
 const { titleCs, titleEn, back = false } = Astro.props;
 
 // Měření návštěvnosti přes GoatCounter (cookieless, bez lišty na souhlas,
-// zdarma pro nekomerční použití). Po registraci na https://www.goatcounter.com
-// sem vlož svůj endpoint, např. 'https://saiko-ai.goatcounter.com/count'.
-// Prázdné = vypnuto. Pozn.: count.js sám přeskakuje localhost i file://,
-// takže `make preview` ani lokální otevření statistiky nešpiní.
+// zdarma pro nekomerční použití). Prázdný řetězec = měření vypnuto.
+// Pozn.: count.js sám přeskakuje localhost i file://, takže `make preview`
+// ani lokální otevření statistiky nešpiní.
 const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
+
+const DESCRIPTION = 'Interaktivní ukázky principů umělé inteligence — od hrubé síly a hledání přes učení z dat a neuronové sítě až k jazykovým modelům, RAG a agentům. / Interactive demos of the principles behind AI.';
+// Favicon jako inline SVG — žádný externí soubor, stránka zůstává soběstačná
+// (a prohlížeč už nehlásí 404 na /favicon.ico).
+const FAVICON = 'data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2563eb"/>' +
+  '<text x="32" y="43" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="30" font-weight="800" fill="#fff" text-anchor="middle">AI</text></svg>');
 ---
 <!DOCTYPE html>
 <html lang="cs">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content={DESCRIPTION} />
+<link rel="icon" type="image/svg+xml" href={FAVICON} />
 <script is:inline>
   /* Nastav jazyk co nejdřív (před vykreslením těla), ať nebliká obojí.
      Pořadí: ?lang=cs|en v URL → uložená volba → výchozí čeština. */
@@ -178,7 +186,7 @@ const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
   </script>
 
   {GOATCOUNTER && (
-    <script is:inline async src="//gc.zgo.at/count.js" data-goatcounter={GOATCOUNTER}></script>
+    <script is:inline async src="https://gc.zgo.at/count.js" data-goatcounter={GOATCOUNTER}></script>
   )}
 </body>
 </html>
