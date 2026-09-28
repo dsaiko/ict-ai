@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 <Layout titleCs="Příklad #1 — Binární počítadlo 8×8" titleEn="Example #1 — Binary counter 8×8" back={true}>
 <style is:global>
   :root {
-    --cell: 56px;
+    --cell: min(56px, calc((100vw - 84px) / 8));   /* na telefonu se mřížka zmenší */
     --gap: 4px;
   }
 
@@ -107,6 +107,10 @@ import Layout from '../layouts/Layout.astro';
     margin-top: 2px;
   }
   .readout .block { margin-top: 12px; }
+  @media (max-width: 720px) {
+    body { padding: 72px 16px 24px; }               /* místo pro tlačítko ZPĚT */
+    .readout .bin { white-space: normal; }          /* 64 bitů se zalomí po bajtech */
+  }
 
   /* Odhad zbývajícího času */
   .eta {

@@ -8,7 +8,8 @@ import Layout from '../layouts/Layout.astro';
            text-align: center; line-height: 1.5; }
 
   canvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
-           box-shadow: 0 4px 20px rgba(0,0,0,0.07); cursor: crosshair; touch-action: none; }
+           box-shadow: 0 4px 20px rgba(0,0,0,0.07); cursor: crosshair; touch-action: none;
+           max-width: 100%; height: auto; }   /* na telefonu se plátno zmenší */
 
   /* schéma sítě */
   .diagram { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
@@ -36,7 +37,7 @@ import Layout from '../layouts/Layout.astro';
   /* číselná matice */
   .numwrap { margin-top: 18px; border-top: 1px solid #f0f1f3; padding-top: 14px; }
   .numwrap > .label { margin-bottom: 14px; }
-  .numtile { text-align: center; margin-bottom: 16px; }
+  .numtile { text-align: center; margin-bottom: 16px; overflow-x: auto; }   /* 12 sloupců je širších než telefon */
   .numtile:last-child { margin-bottom: 0; }
   .numtile .ncap { font-size: 11px; color: #6b7280; margin-bottom: 8px; }
   .numgrid { display: inline-grid; gap: 3px 5px;
@@ -349,7 +350,8 @@ import Layout from '../layouts/Layout.astro';
   cv.addEventListener('mousedown', e => {
     if (timer) return;
     const r = cv.getBoundingClientRect();
-    const [x,y] = toXY(e.clientX-r.left, e.clientY-r.top);
+    // plátno může být zmenšené (telefon) → přepočet na pixely plátna
+    const [x,y] = toXY((e.clientX-r.left-cv.clientLeft)*W/cv.clientWidth, (e.clientY-r.top-cv.clientTop)*H/cv.clientHeight);
     points.push({ x, y, label: e.button===2 ? 0 : curClass });
     draw(); e.preventDefault();
   });

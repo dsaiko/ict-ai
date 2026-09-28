@@ -28,9 +28,11 @@ import Layout from '../layouts/Layout.astro';
   .blocknote em { color: #9ca3af; }
 
   /* mapa embeddingů */
-  .map { position: relative; width: min(720px, 94vw); height: 500px; margin: 0 auto;
+  .map { position: relative; width: min(720px, 94vw); height: 500px; margin: 0 auto; container-type: inline-size;
          background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
-  .map svg { position: absolute; inset: 0; pointer-events: none; }
+  @media (max-width: 760px) { .map { width: 100%; } }   /* na telefonu nepřetéct blok */
+  .map svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .map svg line { vector-effect: non-scaling-stroke; }
   .word { position: absolute; transform: translate(-50%,-50%); font-size: 13px; font-weight: 600;
           padding: 4px 9px; border-radius: 999px; cursor: pointer; white-space: nowrap;
           border: 1.5px solid transparent; transition: opacity .15s, transform .1s, box-shadow .15s; }
@@ -102,7 +104,7 @@ import Layout from '../layouts/Layout.astro';
 
     <div class="block">
       <div class="label"><span class="cs">2 · embeddingy — mapa významů (klikni na slovo)</span><span class="en">2 · embeddings — a map of meaning (click a word)</span></div>
-      <div class="map" id="map"><svg id="lines"></svg></div>
+      <div class="map" id="map"><svg id="lines" viewBox="0 0 718 498" preserveAspectRatio="none"></svg></div>
       <div class="sublabel"><span class="cs">Analogie — počítání s významy (klikni a sleduj šipky):</span><span class="en">Analogies — computing with meaning (click and watch the arrows):</span></div>
       <div class="controls" id="analogies">
         <button class="go small cs" data-a="král" data-b="muž" data-c="žena">král − muž + žena</button>
@@ -315,7 +317,8 @@ import Layout from '../layouts/Layout.astro';
       const el = document.createElement('div');
       el.className = 'word';
       el.textContent = d.w;
-      el.style.left = d.x+'px'; el.style.top = d.y+'px';
+      // souřadnice jsou pro mapu 718 px širokou (720 − rámeček); užší mapa je vodorovně zmenší
+      el.style.left = `calc(${d.x} * min(1px, 100cqw / 718))`; el.style.top = d.y+'px';
       el.style.background = GROUPS[d.g].bg; el.style.color = GROUPS[d.g].fg;
       el.style.borderColor = GROUPS[d.g].fg + '55';
       el.addEventListener('click', () => selectWord(d.i));

@@ -206,9 +206,10 @@ import Layout from '../layouts/Layout.astro';
     renderAll();
   }
   let drawing = false, eraseMode = false;
-  inCv.addEventListener('mousedown', e => { drawing=true; eraseMode=(e.button===2); paintAt(e.clientX,e.clientY,eraseMode); e.preventDefault(); });
-  inCv.addEventListener('mousemove', e => { if (drawing) paintAt(e.clientX,e.clientY,eraseMode); });
-  window.addEventListener('mouseup', () => drawing=false);
+  // pointer events → kreslí myš i prst (canvas má touch-action: none)
+  inCv.addEventListener('pointerdown', e => { drawing=true; eraseMode=(e.button===2); paintAt(e.clientX,e.clientY,eraseMode); e.preventDefault(); });
+  inCv.addEventListener('pointermove', e => { if (drawing) paintAt(e.clientX,e.clientY,eraseMode); });
+  window.addEventListener('pointerup', () => drawing=false);
   inCv.addEventListener('contextmenu', e => e.preventDefault());
 
   // ── předlohy ─────────────────────────────────────────────────

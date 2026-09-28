@@ -116,6 +116,11 @@ const GOATCOUNTER = 'https://saiko-ai.goatcounter.com/count';
   :where(.demo) .tcard h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
   :where(.demo) .tcard h3 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
   :where(.demo) .tcard p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.5; }
+
+  /* úzký displej: pevné tlačítko ZPĚT by jinak překrylo nadpis */
+  @media (max-width: 640px) {
+    body:where(.demo) { padding-top: 72px; }
+  }
 </style>
 <slot name="head" />
 </head>

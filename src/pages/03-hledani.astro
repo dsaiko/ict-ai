@@ -12,8 +12,9 @@ import Layout from '../layouts/Layout.astro';
     display: grid; gap: 2px; background: #d1d5db; padding: 2px;
     border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     touch-action: none; user-select: none;
+    --cellsz: min(24px, calc((100vw - 90px) / 28));   /* 28 sloupců se vejde i na telefon */
   }
-  .cell { width: 24px; height: 24px; background: #fff; border-radius: 3px;
+  .cell { width: var(--cellsz); height: var(--cellsz); background: #fff; border-radius: 3px;
           transition: background .18s ease, transform .18s ease; }
   .cell.wall    { background: #374151; }
   .cell.visited { background: #bfdbfe; }
@@ -209,7 +210,7 @@ import Layout from '../layouts/Layout.astro';
   const walls = new Set();
 
   const gridEl = document.getElementById('grid');
-  gridEl.style.gridTemplateColumns = `repeat(${COLS}, 24px)`;
+  gridEl.style.gridTemplateColumns = `repeat(${COLS}, var(--cellsz))`;
   const cells = [];
   for (let i = 0; i < N; i++) {
     const d = document.createElement('div');
@@ -220,7 +221,7 @@ import Layout from '../layouts/Layout.astro';
   const rc = i => [Math.floor(i / COLS), i % COLS];
   const idx = (r, c) => r * COLS + c;
 
-  // ── Kreslení zdí myší ────────────────────────────────────────
+  // ── Kreslení zdí myší i prstem (pointer events) ──────────────
   let drawing = false, drawMode = true;     // true = přidávat, false = mazat
   function isFixed(i){ return i === startIdx || i === goalIdx; }
   function setWall(i, on) {
@@ -228,7 +229,7 @@ import Layout from '../layouts/Layout.astro';
     if (on) walls.add(i); else walls.delete(i);
     cells[i].classList.toggle('wall', on);
   }
-  gridEl.addEventListener('mousedown', e => {
+  gridEl.addEventListener('pointerdown', e => {
     if (running) return;
     const i = cells.indexOf(e.target);
     if (i < 0 || isFixed(i)) return;
@@ -236,12 +237,13 @@ import Layout from '../layouts/Layout.astro';
     resetResults();                   // jiné bludiště → staré výsledky už nejsou srovnatelné
     e.preventDefault();
   });
-  gridEl.addEventListener('mouseover', e => {
+  gridEl.addEventListener('pointermove', e => {
     if (!drawing || running) return;
-    const i = cells.indexOf(e.target);
+    // u dotyku drží událost pořád první buňku → hledej buňku pod prstem
+    const i = cells.indexOf(document.elementFromPoint(e.clientX, e.clientY));
     if (i >= 0) setWall(i, drawMode);
   });
-  window.addEventListener('mouseup', () => drawing = false);
+  window.addEventListener('pointerup', () => drawing = false);
 
   // ── Pomocné ──────────────────────────────────────────────────
   function neighbors(i) {

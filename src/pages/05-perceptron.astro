@@ -8,7 +8,8 @@ import Layout from '../layouts/Layout.astro';
            text-align: center; line-height: 1.5; }
 
   canvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
-           box-shadow: 0 4px 20px rgba(0,0,0,0.07); cursor: crosshair; touch-action: none; }
+           box-shadow: 0 4px 20px rgba(0,0,0,0.07); cursor: crosshair; touch-action: none;
+           max-width: 100%; height: auto; }   /* na telefonu se plátno zmenší */
 
   /* schéma perceptronu */
   .diagram { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
@@ -216,7 +217,8 @@ import Layout from '../layouts/Layout.astro';
   cv.addEventListener('mousedown', e => {
     if (timer) return;
     const r = cv.getBoundingClientRect();
-    const x = (e.clientX - r.left) / W, y = (e.clientY - r.top) / H;
+    // plátno může být zmenšené (telefon) → přepočet přes skutečnou velikost bez rámečku
+    const x = (e.clientX - r.left - cv.clientLeft) / cv.clientWidth, y = (e.clientY - r.top - cv.clientTop) / cv.clientHeight;
     points.push({ x, y, label: curClass });
     draw();
   });
